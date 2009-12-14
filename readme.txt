@@ -54,24 +54,24 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 **1.0.RC1 - 12 Dec 2009**
 Initial release.  Feature Changes and Bug Fixes are vs. Pending Revisions function in Role Scoper 1.0.8
 
-=General:=
+= General: =
 * Feature : Scheduled Revisions - submitter can specify a desired publication date for a revision
 * Feature : Any user with the delete_published_ and edit_published capabilities for a post/page can administer its revisions (must include those caps in RS Editor definitions and assign that role)
 * Feature : Scheduled Publishing and Email notification is processed asynchronously
 
-=Revisions Manager:=
+= Revisions Manager: =
 * Feature : Dedicated Revisions Manager provides more meaningful captions, classified by Past / Pending / Scheduled
 * Feature : RS Revision Manager form displays visually via TinyMCE, supports editing of content, title and date
 * Feature : Revisions Manager supports individual or bulk deletion
 * Feature : Users can view their own Pending and Scheduled Revisions
 * Feature : Users can delete their own Pending Revisions until approval
 
-=Preview:=
+= Preview: =
 * Feature : Preview a Pending Revision, with top link to publish / schedule it
 * Feature : Preview a Scheduled Revision, with top link fo publish it now
 * Feature : Preview a Past Revision, with top link for restore it
 
-=WP Admin:=
+= WP Admin: =
 * Feature : Pending and Scheduled revisions are included in Edit Posts / Pages list for all qualified users
 * Feature : Delete, View links on revisions in Edit Posts / Pages list redirect to RS Revisions Manager
 * Feature : Add pending posts and pages total to Dashboard Right Now list (includes both new post submissions and Pending Revisions)
@@ -83,7 +83,7 @@ Initial release.  Feature Changes and Bug Fixes are vs. Pending Revisions functi
 * BugFix : Pending Revisions were not included in list for restoration
 * BugFix : Bulk Deletion attempt failed when pending / scheduled revisions were included in selection 
 
-=Notification:=
+= Notification: =
 * Feature : Optional email (to editors or post author) on Pending Revision submission
 * Feature : Optional email (to editors, post author, or revisor) on Pending Revision approval
 * Feature : Optional email (to editors, post author, or revisor) on Scheduled Revision publication
