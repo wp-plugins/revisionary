@@ -6,15 +6,14 @@ Requires at least: 2.6
 Tested up to: 2.9
 Stable Tag: 1.0.RC1
 
-Enables qualified users to submit changes to currently published posts or pages.  These changes, if approved by an Editor, can be published immediately or scheduled for future publication.
+Enables moderated editing of published posts and pages.  These Pending Revisions, if approved by an Editor, can be published immediately or scheduled for future publication.
 
 == Description ==
-
 Have you ever wanted to allow certain users to submit changes to published content, with an editor reviewing those changes before publication?
 
 Doesn't it seem like setting a published post/page to a future date should schedule your changes to be published on that date, instead of unpublishing it until that date?
 
-Revisionary enables qualified users to submit changes to currently published posts or pages.  Contributors also gain the ability to submit revisions to their own published content.  These changes, if approved by an Editor, can be published immediately or scheduled for future publication.
+Revisionary enables moderated editing of published posts and pages.  Contributors also gain the ability to submit revisions to their own published content.  These changes, if approved by an Editor, can be published immediately or scheduled for future publication.
 
 = Partial Feature List =
 * Pending Revisions allow designated users to suggest changes to a currently published post/page
