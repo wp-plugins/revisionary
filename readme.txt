@@ -3,21 +3,22 @@ Contributors: kevinB
 Donate link: http://agapetry.net/news/introducing-role-scoper/#role-scoper-download
 Tags: revision, access, permissions, cms, user, groups, members, admin, pages, posts, page, Post
 Requires at least: 2.6
-Tested up to: 2.9
-Stable Tag: 1.0.RC1
+Tested up to: 2.9.1
+Stable Tag: 1.0
 
-Enables moderated editing of published posts and pages.  These Pending Revisions, if approved by an Editor, can be published immediately or scheduled for future publication.
+Enables qualified users to submit changes to currently published posts or pages.  These changes, if approved by an Editor, can be published immediately or scheduled for future publication.
 
 == Description ==
+
 Have you ever wanted to allow certain users to submit changes to published content, with an editor reviewing those changes before publication?
 
 Doesn't it seem like setting a published post/page to a future date should schedule your changes to be published on that date, instead of unpublishing it until that date?
 
-Revisionary enables moderated editing of published posts and pages.  Contributors also gain the ability to submit revisions to their own published content.  These changes, if approved by an Editor, can be published immediately or scheduled for future publication.
+Revisionary enables qualified users to submit changes to currently published posts or pages.  Contributors also gain the ability to submit revisions to their own published content.  These changes, if approved by an Editor, can be published immediately or scheduled for future publication.
 
 = Partial Feature List =
 * Pending Revisions allow designated users to suggest changes to a currently published post/page
-* Scheduled Revisions allow you to specify future changes to published content
+* Scheduled Revisions allow you to specify future changes to published content (either via Pending Revision approval or directly by fully qualified author/editor)
 * Enchanced Revision Management Form
 * Front-end preview display of Pending / Scheduled Revisions with "Publish Now" link
 * New WordPress role, "Revisor" is a moderated Editor
@@ -25,7 +26,7 @@ Revisionary enables moderated editing of published posts and pages.  Contributor
 
 = Support =
 * Most Bug Reports and Plugin Compatibility issues addressed promptly following your <a href="http://agapetry.net/forum/">support forum</a> submission.
-* Author is available for professional consulting to meet your configuration, troubleshooting and customization needs .
+* Author is available for professional consulting to meet your configuration, troubleshooting and customization needs.
 
 
 == Installation ==
@@ -50,6 +51,12 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 
 == Changelog ==
+
+= 1.0 - 30 Dec 2009 =
+* Feature : Use Blog Title and Admin Email as from address in revision notices, instead of "WordPress <wordpress@>"
+* BugFix : Revision Approval / Publication Notices used p=ID link instead of normal post permalink
+* Compat : Display workaround instructions for FolioPress conflict with visual revision display
+
 
 **1.0.RC1 - 12 Dec 2009**
 Initial release.  Feature Changes and Bug Fixes are vs. Pending Revisions function in Role Scoper 1.0.8

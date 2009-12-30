@@ -138,7 +138,7 @@ function rvy_revision_approve() {
 				
 				$message .= __( 'Review it here: ', 'revisionary' ) . admin_url("admin.php?page=rvy-revisions&action=view&revision={$revision->ID}") . "\r\n\r\n";
 			} else {
-				$message .= __( 'View it online: ', 'revisionary' ) . site_url("?p=$post->ID", '') . "\r\n";	
+				$message .= __( 'View it online: ', 'revisionary' ) . $post->guid . "\r\n";	
 			}
 
 			if ( $author = new WP_Scoped_User( $post->post_author, '', array( 'disable_user_roles' => true, 'disable_group_roles' => true, 'disable_wp_roles' => true ) ) ) {
@@ -153,12 +153,8 @@ function rvy_revision_approve() {
 					rvy_log_async_request('process_mail');
 					$url = site_url( 'index.php?action=process_mail' );
 					wp_remote_post( $url, array('timeout' => 0.1, 'blocking' => false, 'sslverify' => apply_filters('https_local_ssl_verify', true)) );
-				} else {
-					if ( defined( 'RS_DEBUG' ) )
-						wp_mail($author->user_email, $title, $message);
-					else
-						@wp_mail($author->user_email, $title, $message);
-				}
+				} else
+					rvy_mail( $author->user_email, $title, $message );
 			}
 		}
 		
@@ -175,7 +171,7 @@ function rvy_revision_approve() {
 				
 				$message .= __( 'Review it here: ', 'revisionary' ) . admin_url("admin.php?page=rvy-revisions&action=view&revision={$revision->ID}") . "\r\n\r\n";
 			} else {
-				$message .= __( 'View it online: ', 'revisionary' ) . site_url("?p=$post->ID", '') . "\r\n";	
+				$message .= __( 'View it online: ', 'revisionary' ) . $post->guid . "\r\n";	
 			}
 
 			
@@ -196,12 +192,8 @@ function rvy_revision_approve() {
 					rvy_log_async_request('process_mail');
 					$url = site_url( 'index.php?action=process_mail' );
 					wp_remote_post( $url, array('timeout' => 0.1, 'blocking' => false, 'sslverify' => apply_filters('https_local_ssl_verify', true)) );
-				} else {
-					if ( defined( 'RS_DEBUG' ) )
-						wp_mail($author->user_email, $title, $message);
-					else
-						@wp_mail($author->user_email, $title, $message);
-				}
+				} else
+					rvy_mail( $author->user_email, $title, $message );
 			}
 		}
 		
@@ -553,14 +545,10 @@ function rvy_publish_scheduled_revisions() {
 					$message = sprintf( __('The scheduled revision you submitted for the %1$s "%2$s" has been published.', 'revisionary' ), $type_caption, $row->post_title ) . "\r\n\r\n";
 					
 					if ( ! empty($post->ID) )
-						$message .= __( 'View it online: ', 'revisionary' ) . site_url("?p=$post->ID", '') . "\r\n";
+						$message .= __( 'View it online: ', 'revisionary' ) . $post->guid . "\r\n";
 		
-					if ( $author = new WP_Scoped_User( $row->post_author, '', array( 'disable_user_roles' => true, 'disable_group_roles' => true, 'disable_wp_roles' => true ) ) ) {
-						if ( defined( 'RS_DEBUG' ) )
-							wp_mail($author->user_email, $title, $message);
-						else
-							@wp_mail($author->user_email, $title, $message);
-					}
+					if ( $author = new WP_Scoped_User( $row->post_author, '', array( 'disable_user_roles' => true, 'disable_group_roles' => true, 'disable_wp_roles' => true ) ) )
+						rvy_mail( $author->user_email, $title, $message );
 				}
 				
 				if ( ( $post->post_author != $revision->post_author ) && rvy_get_option( 'publish_scheduled_notify_author' ) ) {
@@ -574,14 +562,10 @@ function rvy_publish_scheduled_revisions() {
 						$message .= sprintf( __('It was submitted by %1$s.'), $revisor->display_name ) . "\r\n\r\n";
 					
 					if ( ! empty($post->ID) )
-						$message .= __( 'View it online: ', 'revisionary' ) . site_url("?p=$post->ID", '') . "\r\n";
+						$message .= __( 'View it online: ', 'revisionary' ) . $post->guid . "\r\n";
 		
-					if ( $author = new WP_Scoped_User( $post->post_author, '', array( 'disable_user_roles' => true, 'disable_group_roles' => true, 'disable_wp_roles' => true ) ) ) {
-						if ( defined( 'RS_DEBUG' ) )
-							wp_mail($author->user_email, $title, $message);
-						else
-							@wp_mail($author->user_email, $title, $message);
-					}
+					if ( $author = new WP_Scoped_User( $post->post_author, '', array( 'disable_user_roles' => true, 'disable_group_roles' => true, 'disable_wp_roles' => true ) ) )
+						rvy_mail( $author->user_email, $title, $message );
 				}
 				
 
@@ -596,7 +580,7 @@ function rvy_publish_scheduled_revisions() {
 						$message .= sprintf( __('It was submitted by %1$s.'), $author->display_name ) . "\r\n\r\n";
 					
 					if ( ! empty($post->ID) )
-						$message .= __( 'View it online: ', 'revisionary' ) . site_url("?p=$post->ID", '') . "\r\n";
+						$message .= __( 'View it online: ', 'revisionary' ) . $post->guid . "\r\n";
 
 					$object_id = ( isset($post) && isset($post->ID) ) ? $post->ID : $row->ID;
 					$object_type = ( isset($post) && isset($post->post_type) ) ? $post->post_type : 'post';
@@ -647,13 +631,9 @@ function rvy_publish_scheduled_revisions() {
 					
 					//dump($to_addresses);
 					
-					foreach ( $to_addresses as $address ) {
-						// don't need async call here because the publish_scheduled call is already asynchronous (possible TODO: support async email here if publishin is non-async)
-						if ( defined( 'RS_DEBUG' ) )
-							wp_mail($address, $title, $message);
-						else
-							@wp_mail($address, $title, $message);
-					}
+					// don't need async call here because the publish_scheduled call is already asynchronous (possible TODO: support async email here if publishin is non-async)
+					foreach ( $to_addresses as $address )
+						rvy_mail( $address, $title, $message );
 				}
 				
 				
@@ -698,9 +678,9 @@ function rvy_process_mail() {
 		if ( is_array($email) ) {
 			$email['to'] = array_unique( $email['to'] );
 
-			foreach ( $email['to'] as $address ) {	// todo: send multiple addresses
-				wp_mail( $address, $email['title'], $email['message'] );
-			}
+			// todo: send multiple addresses
+			foreach ( $email['to'] as $address )
+				rvy_mail( $address, $email['title'], $email['message'] );
 		}
 	}
 }

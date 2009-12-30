@@ -581,12 +581,8 @@ jQuery(document).ready( function($) {
 						$url = site_url( 'index.php?action=process_mail' );
 						wp_remote_post( $url, array('timeout' => 0.1, 'blocking' => false, 'sslverify' => apply_filters('https_local_ssl_verify', true)) );
 					} else {
-						foreach ( $to_addresses as $address ) {
-							if ( defined( 'RS_DEBUG' ) )
-								wp_mail($address, $title, $message);
-							else
-								@wp_mail($address, $title, $message);
-						}
+						foreach ( $to_addresses as $address )
+							rvy_mail($address, $title, $message);
 					}
 				}
 			}

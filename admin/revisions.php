@@ -15,6 +15,11 @@ if( basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME']) )
  
 include_once( 'revision-ui_rvy.php' ); 
 
+if ( defined( 'FV_FCK_NAME' ) && current_user_can('activate_plugins') ) {
+	echo( '<div class="error">' );
+	_e( "<strong>Note:</strong> For visual display of revisions, add the following code to foliopress-wysiwyg.php:<br />&nbsp;&nbsp;if ( strpos( $" . "_SERVER['REQUEST_URI'], 'admin.php?page=rvy-revisions' ) ) return;", 'revisionary');
+	echo( '</div><br />' );
+}
 //wp_reset_vars( array('revision', 'left', 'right', 'action', 'revision_status') );
 
 if ( ! empty($_GET['revision']) )

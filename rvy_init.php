@@ -431,4 +431,18 @@ if ( ! awp_ver( '2.8' ) && ! function_exists('_x') ) {
 		return _c( "$text|$context", $domain );
 	}
 }
+
+function rvy_mail( $address, $title, $message ) {
+	$blog_name = get_option( 'blogname' );
+	$admin_email = get_option( 'admin_email' );
+	
+    $headers = 'From: ' . $blog_name . ' <' . $admin_email . '>' . "\r\n";
+    $headers .= 'Reply-To: ' . $blog_name . ' <'. $admin_email . '>' . "\r\n";
+	$headers .= 'Return-Path: ' . $blog_name . ' <'. $admin_email . '>' . "\r\n";
+
+	if ( defined( 'RS_DEBUG' ) )
+		wp_mail( $address, $title, $message, $headers );
+	else
+		@wp_mail( $address, $title, $message, $headers );
+}
 ?>
