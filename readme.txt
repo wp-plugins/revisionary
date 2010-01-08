@@ -22,7 +22,7 @@ Revisionary enables moderated editing of currently published posts or pages.  Co
 * Enchanced Revision Management Form
 * Front-end preview display of Pending / Scheduled Revisions with "Publish Now" link
 * New WordPress role, "Revisor" is a moderated Editor
-* Works with blog-wide WordPress Roles, or in conjunction with Role Scoper
+* Works with blog-wide WordPress Roles, or in conjunction with <a href="http://wordpress.org/extend/plugins/role-scoper/">Role Scoper</a>
 
 = Support =
 * Most Bug Reports and Plugin Compatibility issues addressed promptly following your <a href="http://agapetry.net/forum/">support forum</a> submission.
