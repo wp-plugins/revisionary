@@ -289,7 +289,7 @@ if ( ! empty($restore_link) )
 	}
 ?>
 </td>
-<?
+<?php
 if ( ( ! $action || ( 'view' == $action ) ) && ( $revision ) ) {
 echo '<td style="text-align:right;padding-top:1em;">';
 	
@@ -298,16 +298,16 @@ echo '<td style="text-align:right;padding-top:1em;">';
 	$datef = __awp( 'M j, Y @ G:i' );
 
 	if ( in_array( $revision->post_status, array( 'publish', 'private' ) ) )
-		$stamp = __('Published on: <strong>%1$s</strong>');
+		$stamp = __('Published on: <strong>%1$s</strong>', 'revisionary');
 	elseif ( 'future' == $revision->post_status )
-		$stamp = __('Scheduled for: <strong>%1$s</strong>');
+		$stamp = __('Scheduled for: <strong>%1$s</strong>', 'revisionary');
 	elseif ( 'pending' == $revision->post_status ) {
 		if ( strtotime($revision->post_date_gmt) > agp_time_gmt() )
-			$stamp = __('Requested Publish Date: <strong>%1$s</strong>');
+			$stamp = __('Requested Publish Date: <strong>%1$s</strong>', 'revisionary');
 		else
-			$stamp = __('Requested Publish Date: <strong>Immediate</strong>');
+			$stamp = __('Requested Publish Date: <strong>Immediate</strong>', 'revisionary');
 	} else
-		$stamp = __('Modified on: <strong>%1$s</strong>');
+		$stamp = __('Modified on: <strong>%1$s</strong>', 'revisionary');
 
 	$use_date = ( 'inherit' == $revision->post_status ) ? $revision->post_modified : $revision->post_date;
 	
@@ -489,18 +489,28 @@ if ( $is_administrator = is_content_administrator_rvy() ) {
 }
 
 $status_links = '<ul class="subsubsub">';
-foreach ( $revision_status_captions as $_revision_status => $status_caption ) {
+foreach ( array_keys($revision_status_captions) as $_revision_status ) {
 	$post_id = ( ! empty($rvy_post->ID) ) ? $rvy_post->ID : $revision_id;
 	$link = "admin.php?page=rvy-revisions&amp;revision={$post_id}&amp;revision_status=$_revision_status";
-	$class = ( $revision_status == $_revision_status ) ? ' class="current" style="font-size: 150%"' : '';
+	$class = ( $revision_status == $_revision_status ) ? ' class="rvy_current_status rvy_select_status"' : 'class="rvy_select_status"';
+
+	switch( $_revision_status ) {
+		case 'inherit':
+			$status_caption = __( 'Past Revisions', 'revisionary' );
+			break;
+		case 'pending':
+			$status_caption = __( 'Pending Revisions', 'revisionary' );
+			break;
+		case 'scheduled':
+			$status_caption = __( 'Scheduled Revisions', 'revisionary' );
+			break;
+	}
 	
 	if ( $is_administrator ) {
-		$label = __( '%1$s Revisions<span class="count"> (%2$s)</span>', 'revisionary' );
-		$status_links .= "<li><a href='$link' $class><span style='margin-right: 1em'>" . sprintf( _nx( $label, $label, $num_revisions->$_revision_status, $label ), $status_caption, number_format_i18n( $num_revisions->$_revision_status ) ) . '</span></a></li>';
-	} else {
-		$label = __( '%1$s Revisions', 'revisionary' );
-		$status_links .= "<li><a href='$link' $class><span style='margin-right: 1em'>" . sprintf( $label, $status_caption ) . '</span></a></li>';
-	}
+		$label = __( '%1$s <span class="count"> (%2$s)</span>', 'revisionary' );
+		$status_links .= "<li $class><a href='$link'>" . sprintf( _nx( $label, $label, $num_revisions->$_revision_status, $label ), $status_caption, number_format_i18n( $num_revisions->$_revision_status ) ) . '</a></li>';
+	} else
+		$status_links .= "<li $class><a href='$link'>" . $status_caption . '</a></li>';
 }
 $status_links .= '</ul>';
 

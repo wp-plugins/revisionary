@@ -47,7 +47,7 @@ class RevisionaryAdmin
 			}
 		}
 		
-		if ( ! defined( 'SCOPER_VERSION' ) )
+		if ( ! defined( 'SCOPER_VERSION' ) || defined( 'USE_RVY_RIGHTNOW' ) )
 			require_once( 'admin-dashboard_rvy.php' );	
 		
 		// log this action so we know when to ignore the save_post action
@@ -511,9 +511,9 @@ jQuery(document).ready( function($) {
 			if ( $admin_notify || $author_notify ) {
 				$type_caption = ( 'page' == $object_type ) ? __('page') : __('post');
 				
-				$title = sprintf(__('[%s] Pending Revision Notification'), get_option('blogname'));
+				$title = sprintf(__('[%s] Pending Revision Notification', 'revisionary'), get_option('blogname'));
 				
-				$message = sprintf( __('A pending revision to the %1$s "%2$s" has been submitted.'), $type_caption, $post_arr['post_title'] ) . "\r\n\r\n";
+				$message = sprintf( __('A pending revision to the %1$s "%2$s" has been submitted.', 'revisionary'), $type_caption, $post_arr['post_title'] ) . "\r\n\r\n";
 				
 				if ( defined('SCOPER_VERSION') ) {
 					if ( $author = new WP_Scoped_User( $post_arr['post_author'], '', array( 'disable_user_roles' => true, 'disable_group_roles' => true, 'disable_wp_roles' => true ) ) )

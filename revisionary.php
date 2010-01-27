@@ -3,7 +3,7 @@
 Plugin Name: Revisionary
 Plugin URI: http://agapetry.net/
 Description: Enables qualified users to submit changes to currently published posts or pages.  These changes, if approved by an Editor, can be published immediately or scheduled for future publication.
-Version: 1.0
+Version: 1.0.1.dev
 Author: Kevin Behrens
 Author URI: http://agapetry.net/
 Min WP Version: 2.6
@@ -39,7 +39,7 @@ if ( defined( 'RVY_VERSION' ) ) {
 	return;
 }
 
-define ('RVY_VERSION', '1.0');
+define ('RVY_VERSION', '1.0.1.dev');
 
 define ('COLS_ALL_RVY', 0);
 define ('COL_ID_RVY', 1);

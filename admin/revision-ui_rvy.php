@@ -164,14 +164,14 @@ function rvy_tiny_mce_readonly( $initArray ) {
  */
 function rvy_post_revision_title( $revision, $link = true, $date_field = 'post_date' ) {
 	if ( ! is_object($revision) )
-		//if ( !$revision = get_post( $revision ) )
-			//return $revision;
+		if ( !$revision = get_post( $revision ) )
+			return $revision;
 
 	if ( ! in_array( $revision->post_type, array( 'post', 'page', 'revision' ) ) )
 		return false;
 	
 	/* translators: revision date format, see http://php.net/date */
-	$datef = _x( 'j F, Y @ G:i', 'revision date format');
+	$datef = _x( 'j F, Y @ G:i', 'revision date format', 'revisionary' );
 	
 	$date = agp_date_i18n( $datef, strtotime( $revision->$date_field ) );
 
@@ -184,11 +184,11 @@ function rvy_post_revision_title( $revision, $link = true, $date_field = 'post_d
 	}
 
 	if ( 'revision' != $revision->post_type ) {
-		$currentf  = _x( '%1$s [Current Revision]', 'date' );
+		$currentf  = __( '%1$s (Current Revision)', 'revisionary' );
 		$date = sprintf( $currentf, $date );
 		
 	} elseif ( "{$revision->post_parent}-autosave" === $revision->post_name ) {
-		$autosavef = _x( '%1$s [Autosave]', 'date' );
+		$autosavef = __( '%1$s (Autosave)', 'revisionary' );
 		$date = sprintf( $autosavef, $date );
 	}
 	
@@ -270,7 +270,7 @@ function rvy_list_post_revisions( $post_id = 0, $status = '', $args = null ) {
 	$class = false;
 	
 	$can_edit_post = agp_user_can( "edit_{$post->post_type}", $post->ID, '', array( 'skip_revision_allowance' => true ) );
-	
+
 	$count = 0;
 	$left_checked_done = false;
 	$right_checked_done = false;
@@ -410,7 +410,7 @@ wp_nonce_field( 'rvy-revisions' );
 ?>
 <div class="tablenav">
 	<div class="alignleft">
-		<input type="submit" name="rvy_compare_revs" class="button-secondary" value="<?php esc_attr_e( 'Compare Selected HTML' ); ?>" />
+		<input type="submit" name="rvy_compare_revs" class="button-secondary" value="<?php _e( 'Compare Selected HTML', 'revisionary' ); ?>" />
 	</div>
 </div>
 
@@ -500,11 +500,11 @@ var postboxL10n = {
 };
 var postL10n = {
 	publishOn: "<?php _e('Date as:', 'revisionary')?>",
-	publishOnFuture: "<?php _e('Schedule for:')?>",
-	publishOnPast: "<?php _e('Published on:')?>",
-	privatelyPublished: "<?php _e('Privately Published:')?>",
-	published: "<?php _e('Published:')?>",
-	unsavedDate: "<?php _e('Unsaved Date Selection:')?>"
+	publishOnFuture: "<?php _e('Schedule for:', 'revisionary')?>",
+	publishOnPast: "<?php _e('Published on:', 'revisionary')?>",
+	privatelyPublished: "<?php _e('Privately Published:', 'revisionary')?>",
+	published: "<?php _e('Published:', 'revisionary')?>",
+	unsavedDate: "<?php _e('Unsaved Date Selection:', 'revisionary')?>"
 };
 /* ]]> */
 </script>

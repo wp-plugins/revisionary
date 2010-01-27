@@ -27,7 +27,7 @@ class RevisionaryAdminFiltersItemUI {
 <script type="text/javascript">
 /* <![CDATA[ */
 jQuery(document).ready( function($) {
-	$('#publish').val('Submit Revision');
+	$('#publish').val("<?php _e('Submit Revision', 'revisionary' )?>");
 });
 /* ]]> */
 </script>

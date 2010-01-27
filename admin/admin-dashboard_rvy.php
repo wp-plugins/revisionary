@@ -7,7 +7,7 @@ function rvy_right_now_pending() {
 			echo "\n\t".'<tr>';
 	
 			$num = number_format_i18n( $num_posts->pending );
-			$text = _n( 'Pending Post', 'Pending Posts', intval($num_posts->pending), 'scoper' );
+			$text = _n( 'Pending Post', 'Pending Posts', intval($num_posts->pending), 'revisionary' );
 	
 			$num = "<a href='edit.php?post_status=pending'><span class='pending-count'>$num</span></a>";
 			$text = "<a class='waiting' href='edit.php?post_status=pending'>$text</a>";
@@ -25,7 +25,7 @@ function rvy_right_now_pending() {
 			echo "\n\t".'<tr>';
 	
 			$num = number_format_i18n( $num_pages->pending );
-			$text = _n( 'Pending Page', 'Pending Pages', intval($num_pages->pending), 'scoper' );
+			$text = _n( 'Pending Page', 'Pending Pages', intval($num_pages->pending), 'revisionary' );
 	
 			$num = "<a href='edit-pages.php?post_status=pending'><span class='pending-count'>$num</span></a>";
 			$text = "<a class='waiting' href='edit-pages.php?post_status=pending'>$text</a>";

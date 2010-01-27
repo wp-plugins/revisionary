@@ -80,7 +80,7 @@ function rvy_revision_approve() {
 
 		if ( ! agp_user_can( "edit_{$post->post_type}", $revision->post_parent, '', array( 'skip_revision_allowance' => true ) ) )
 			break;
-			
+
 		check_admin_referer( "approve-post_$post->ID|$revision->ID" );
 		
 		delete_option( 'rvy_next_rev_publish_gmt' );

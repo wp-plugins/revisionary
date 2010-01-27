@@ -3,7 +3,7 @@ Contributors: kevinB
 Donate link: http://agapetry.net/news/introducing-role-scoper/#role-scoper-download
 Tags: revision, access, permissions, cms, user, groups, members, admin, pages, posts, page, Post
 Requires at least: 2.6
-Tested up to: 2.9.1
+Tested up to: 2.9
 Stable Tag: 1.0
 
 Enables qualified users to submit changes to currently published posts or pages.  These changes, if approved by an Editor, can be published immediately or scheduled for future publication.
@@ -14,7 +14,7 @@ Have you ever wanted to allow certain users to submit changes to published conte
 
 Doesn't it seem like setting a published post/page to a future date should schedule your changes to be published on that date, instead of unpublishing it until that date?
 
-Revisionary enables moderated editing of currently published posts or pages.  Contributors also gain the ability to submit revisions to their own published content.  These changes, if approved by an Editor, can be published immediately or scheduled for future publication.
+Revisionary enables qualified users to submit changes to currently published posts or pages.  Contributors also gain the ability to submit revisions to their own published content.  These changes, if approved by an Editor, can be published immediately or scheduled for future publication.
 
 = Partial Feature List =
 * Pending Revisions allow designated users to suggest changes to a currently published post/page

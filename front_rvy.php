@@ -98,7 +98,8 @@ class RevisionaryFront {
 
 				// This topbar is presently only for those with restore / approve / publish rights
 				if ( agp_user_can( "edit_{$parent->post_type}", $revision->post_parent, '', array( 'skip_revision_allowance' => true ) ) ) {
-				
+					load_plugin_textdomain('revisionary', '', RVY_FOLDER . '/languages');
+					
 					switch ( $revision->post_status ) {
 					case 'publish' :
 					case 'private' :
@@ -158,6 +159,8 @@ class RevisionaryFront {
 		} elseif( ! empty( $_GET['mark_current_revision'] ) ) {
 			global $wp_query;
 			if ( ! empty($wp_query->queried_object_id) ) {
+				load_plugin_textdomain('revisionary', '', RVY_FOLDER . '/languages');
+				
 				$link_caption = __( 'Current Revision', 'revisionary' );
 			
 				$link = get_edit_post_link($wp_query->queried_object_id, 'url');

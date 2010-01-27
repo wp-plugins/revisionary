@@ -270,3 +270,11 @@
 	font-size: 1.5em;
 	font-weight: bold;
 }
+
+.rvy_select_status a {
+	margin-right: 1em;	
+}
+
+.rvy_current_status a {
+	font-size: 150%;
+}
