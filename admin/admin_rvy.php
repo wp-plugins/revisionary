@@ -529,7 +529,7 @@ jQuery(document).ready( function($) {
 					
 				// establish the publisher recipients
 				if ( $admin_notify && ('always' != $admin_notify ) && ! empty($post_arr['prev_cc_user']) ) {
-					if ( defined( 'SCOPER_VERSION' ) ) {
+					if ( defined( 'SCOPER_VERSION' ) && ! defined( 'SCOPER_DEFAULT_MONITOR_GROUPS' ) ) {
 						global $scoper;
 						
 						require_once( SCOPER_ABSPATH . '/admin/admin_lib_rs.php');

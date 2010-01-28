@@ -87,7 +87,7 @@ function agp_date_i18n( $datef, $timestamp ) {
 // Role Scoper < 1.1 was missing function_exists check for awp_user_can
 if ( ! function_exists('agp_user_can') ) {
 function agp_user_can($reqd_caps, $object_id = 0, $user_id = 0, $args = array() ) {
-	if ( ( IS_MU_RS || IS_MU_RVY ) && is_site_admin() ) 
+	if ( function_exists('is_site_admin') && is_site_admin() ) 
 		return true;
 
 	// $args supports 'skip_revision_allowance'.  For now, skip array_merge with defaults, for perf

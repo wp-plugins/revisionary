@@ -20,10 +20,11 @@ function rvy_metabox_notification_list( $topic ) {
 		$post_publishers = array();
 		$default_ids = array();
 		
-		if ( defined('SCOPER_VERSION') ) {
+		if ( defined('SCOPER_VERSION') && ! defined('SCOPER_DEFAULT_MONITOR_GROUPS') ) {
 			global $scoper;
-			
+
 			if ( $group = ScoperAdminLib::get_group_by_name( '[Pending Revision Monitors]' ) ) {
+
 				$default_ids = ScoperAdminLib::get_group_members( $group->ID, COL_ID_RS, true );
 
 				$post_publishers = $scoper->users_who_can( "edit_{$object_type}", COLS_ALL_RVY, 'post', $object_id );

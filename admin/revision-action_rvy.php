@@ -589,7 +589,7 @@ function rvy_publish_scheduled_revisions() {
 					// if it was not stored, or cleared, use default recipients
 					$to_addresses = array();
 					
-					if ( defined('SCOPER_VERSION') ) { // e-mail to Scheduled Revision Montiors metagroup if Role Scoper is activated
+					if ( defined('SCOPER_VERSION') && ! defined('SCOPER_DEFAULT_MONITOR_GROUPS') ) { // e-mail to Scheduled Revision Montiors metagroup if Role Scoper is activated
 						
 						global $scoper;
 						if ( ! isset($scoper) || is_null($scoper) ) {	

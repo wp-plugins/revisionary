@@ -103,31 +103,29 @@ class RevisionaryFront {
 					switch ( $revision->post_status ) {
 					case 'publish' :
 					case 'private' :
-						$bgcolor = '#0a0';
+						$class = 'published';
 						$link_caption = sprintf( __( 'This Revision was Published on %s', 'revisionary' ), $date );
 						break;
 					case 'pending' :
 						if ( strtotime( $revision->post_date_gmt ) > agp_time_gmt() ) {
-							$color = 'black';
-							$bgcolor = '#8cc';
+							$class = 'pending_future';
 							$date_msg = sprintf( __('(for publication on %s)', 'revisionary'), $date );
 							$link_caption = sprintf( __( 'Schedule this Pending Revision', 'revisionary' ), $date );
 						} else {
-							$bgcolor = '#0aa';
+							$class = 'pending';
 							$date_msg = '';
 							$link_caption = __( 'Publish this Pending Revision now.', 'revisionary' );
 						}
 						break;
 						
 					case 'future' :
-						$color = 'black';
-						$bgcolor = '#888';
+						$class = 'future';
 						$date_msg = sprintf( __('(already scheduled for publication on %s)', 'revisionary'), $date );
 						$link_caption = sprintf( __( 'Publish now.', 'revisionary' ), $date );
 						break;
 	
 					case 'inherit' :
-						$bgcolor = '#a44';
+						$class = 'past';
 						$date_msg = sprintf( __('(dated %s)', 'revisionary'), $date );
 						$link_caption = sprintf( __( 'Restore this Past Revision', 'revisionary' ), $date_msg );
 						break;
@@ -142,15 +140,9 @@ class RevisionaryFront {
 					} else
 						$link = '';
 	
-					$css = '<style type="text/css" media="screen">'
-						. ".rvy_view_revision {height: 25px; width: 100%; padding-top: 5px; background-color: $bgcolor; color: $color; font-size: 120%}"
-						.  '.rvy_view_revision a, preview_approval_rvy a:link {color: white; font-size: 120%; font-weight: bold}'
-						. '.rvy_rev_datemsg {margin-left: 0.5em;}'
-						. '</style>';
-					
-					add_action( 'wp_head', create_function( '', "echo('". $css . "');" ) );
+					add_action( 'wp_head', 'rvy_front_css' );
 	
-					$html = '<div class="rvy_view_revision rvy_view_revision_{' . $revision->post_status . '}">' . '<span style="text-align:center"><a href="' . $link . '">' . $link_caption . '</a><span class="rvy_rev_datemsg">'. "$date_msg</span></span></div>";
+					$html = '<div class="rvy_view_revision rvy_view_' . $class . '">' . '<span class="rvy_preview_linkspan"><a href="' . $link . '">' . $link_caption . '</a><span class="rvy_rev_datemsg">'. "$date_msg</span></span></div>";
 	
 					add_action( 'wp_head', create_function( '', "echo('". $html . "');" ), 99 );	// this should be inserted at the top of <body> instead, but currently no way to do it 
 				}
@@ -165,14 +157,9 @@ class RevisionaryFront {
 			
 				$link = get_edit_post_link($wp_query->queried_object_id, 'url');
 
-				$css = '<style type="text/css" media="screen">'
-					. '.preview_approval_rvy {height: 25px; width: 100%; padding-top: 5px; background-color: #080}'
-					.  '.preview_approval_rvy a, preview_approval_rvy a:link {color: white; font-size: 150%; font-weight: bold;}'
-					. '</style>';
+				add_action( 'wp_head', 'rvy_front_css' );
 
-				add_action( 'wp_head', create_function( '', "echo('". $css . "');" ) );
-
-				$html = '<div class="preview_approval_rvy"><span style="text-align:center"><a href="' . $link . '">' . $link_caption . '</a></span></div>';
+				$html = '<div class="preview_approval_rvy"><span class="rvy_preview_linkspan"><a href="' . $link . '">' . $link_caption . '</a></span></div>';
 				add_action( 'template_redirect', create_function( '', "echo('". $html . "');" ) );
 			}
 		// WP post/page preview passes this arg
@@ -199,6 +186,11 @@ class RevisionaryFront {
 		return $request;
 	}
 
+}
+
+
+function rvy_front_css() {
+	echo '<link rel="stylesheet" href="' . WP_CONTENT_URL . '/plugins/' . RVY_FOLDER . '/revisionary-front.css" type="text/css" />'."\n";
 }
 
 ?>

@@ -9,7 +9,7 @@ Author URI: http://agapetry.net/
 Min WP Version: 2.6
 License: GPL version 2 - http://www.opensource.org/licenses/gpl-license.php
 */
-
+	
 /*
 Copyright (c) 2009, Kevin Behrens.
 

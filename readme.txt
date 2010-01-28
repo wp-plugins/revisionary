@@ -52,6 +52,12 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 == Changelog ==
 
+= 1.0.1-dev =
+* Feature : Observe SCOPER_DEFAULT_MONITOR_GROUPS definition to force inclusion of all Editors and Administrators for email notifications
+* Lang : Fixed several string formatting problems to support translation
+* Feature : Revision preview bar can be styled via CSS file
+
+
 = 1.0 - 30 Dec 2009 =
 * Feature : Use Blog Title and Admin Email as from address in revision notices, instead of "WordPress <wordpress@>"
 * BugFix : Revision Approval / Publication Notices used p=ID link instead of normal post permalink
