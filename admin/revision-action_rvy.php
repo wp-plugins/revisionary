@@ -614,12 +614,17 @@ function rvy_publish_scheduled_revisions() {
 						}
 						
 					} else {
-						require_once(ABSPATH . 'wp-admin/includes/user.php');
-						$admin_search = new WP_User_Search( '', 0, 'administrator' );
-						$recipient_ids = $admin_search->results;
+						$use_wp_roles = ( defined( 'SCOPER_MONITOR_ROLES' ) ) ? SCOPER_MONITOR_ROLES : 'administrator,editor';
 						
-						$editor_search = new WP_User_Search( '', 0, 'editor' );
-						$recipient_ids = array_merge( $recipient_ids, $editor_search->results );
+						$use_wp_roles = str_replace( ' ', '', $use_wp_roles );
+						$use_wp_roles = explode( ',', $use_wp_roles );
+						
+						$recipient_ids = array();
+			
+						foreach ( $use_wp_roles as $role_name ) {
+							$search = new WP_User_Search( '', 0, $role_name );
+							$recipient_ids = array_merge( $recipient_ids, $search->results );
+						}
 						
 						foreach ( $recipient_ids as $userid ) {
 							$user = new WP_User($userid);

@@ -4,7 +4,7 @@ Donate link: http://agapetry.net/news/introducing-role-scoper/#role-scoper-downl
 Tags: revision, access, permissions, cms, user, groups, members, admin, pages, posts, page, Post
 Requires at least: 2.6
 Tested up to: 2.9
-Stable Tag: 1.0
+Stable Tag: 1.0.1
 
 Enables qualified users to submit changes to currently published posts or pages.  These changes, if approved by an Editor, can be published immediately or scheduled for future publication.
 
@@ -52,10 +52,13 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 == Changelog ==
 
-= 1.0.1-dev =
-* Feature : Observe SCOPER_DEFAULT_MONITOR_GROUPS definition to force inclusion of all Editors and Administrators for email notifications
-* Lang : Fixed several string formatting problems to support translation
+= 1.0.1 - 6 Feb 2010 =
+* BugFix : 	Submitting a Pending Revision to a published Post failed with Fatal Error
+* BugFix : 	PHP short tag caused Parse Error on servers which were not configured to support it
+* Compat :  Support TinyMCE Advanced and WP Super Edit for custom editor buttons on Revision Management form
 * Feature : Revision preview bar can be styled via CSS file
+* Lang 	 : 	Fixed several string formatting issues for better translation support
+* Change : 	Use https link for Revisionary css and js files if ssl is being used / forced for the current uri
 
 
 = 1.0 - 30 Dec 2009 =

@@ -31,6 +31,11 @@ background-color: #a44;
 background-color: #0aa;
 }
 
+.rvy_view_future {
+color: black;
+background-color: #888;
+}
+
 .rvy_view_pending_future {
 color: black;
 background-color: #8cc;

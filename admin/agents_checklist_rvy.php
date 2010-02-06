@@ -17,7 +17,7 @@ define ('ELIGIBLE_ITEMS_RVY', 'eligible');
  // TODO: scale this down more, as it's overkill for Revisionary's usage
  class RevisionaryAgentsChecklist {
 	function all_agents_checklist( $role_bases, $agents, $args, $class = 'rs-agents' ) {
-		$div_style = "class='$class' style='padding:0.5em 0 0.5em 0.5em'";
+		$div_style = "class='$class rvy-agents-checklist'";
 		
 		foreach ( $role_bases as $role_basis ) {
 			echo "<div $div_style>";
@@ -39,7 +39,7 @@ define ('ELIGIBLE_ITEMS_RVY', 'eligible');
 		
 		RevisionaryAgentsChecklist::_agents_checklist_display( ELIGIBLE_ITEMS_RVY, $role_basis, $all_agents, $id_prefix, $stored_assignments, $args, $key); 
 
-		echo '<div style="clear:both; height:1px;">&nbsp;</div>';
+		echo '<div id="rvy-agents-checklist-spacer">&nbsp;</div>';
 
 		if ( $key ) {
 			if ( empty($args['suppress_extra_prefix']) )
@@ -51,7 +51,7 @@ define ('ELIGIBLE_ITEMS_RVY', 'eligible');
 		$id = "{$id_prefix}_csv";
 		$msg = __( "Enter additional User Names or IDs (comma-separate)", 'revisionary');
 		echo '<br /><div class="rs-agents_caption"><strong>' . $msg . ':</strong></div>';
-		echo "<input name='$id' type='text' style='width: 99%' id='$id' />";
+		echo "<input name='$id' type='text' class='rvy-agents-filter' id='$id' />";
 	}
 	
 	// stored_assignments[agent_id][inherited_from] = progenitor_assignment_id (note: this function treats progenitor_assignment_id as a boolean)
@@ -109,7 +109,7 @@ define ('ELIGIBLE_ITEMS_RVY', 'eligible');
 	
 			$flt_checked = ( ! $default_hide_filtered_list ) ? "checked='checked'" : '';
 	
-			echo "<ul class='rs-list_horiz' style='margin:0.3em 0 0 0'><li>"; // IE6 (at least) does not render label reliably without this
+			echo "<ul class='rs-list_horiz rvy-list-horiz'><li>"; // IE6 (at least) does not render label reliably without this
 			echo "<input type='checkbox' name='rs-jscheck[]' value='validate_me_{$agents_subset}_{$id_prefix}' id='chk_{$agents_subset}_{$id_prefix}' $flt_checked onclick=\"$js_call\" /> ";
 			
 			echo "<strong><label for='chk_{$agents_subset}_{$id_prefix}'>";
@@ -119,7 +119,7 @@ define ('ELIGIBLE_ITEMS_RVY', 'eligible');
 			
 			$class = ( $default_hide_filtered_list ) ? '' : 'class="agp_js_show"';
 			
-			echo "\r\n" . "<li style='clear:both; margin-top: 0.1em;'>&nbsp;&nbsp;<label for='flt_{$agents_subset}_{$id_prefix}' id='lbl_flt_{$id_prefix}'>";
+			echo "\r\n" . "<li class='rvy-available-agents'>&nbsp;&nbsp;<label for='flt_{$agents_subset}_{$id_prefix}' id='lbl_flt_{$id_prefix}'>";
 			_e ( 'filter:', 'revisionary');
 			$js_call = "agp_filter_ul('list_{$agents_subset}_{$id_prefix}', this.value, 'chk_{$agents_subset}_{$id_prefix}', 'chk-links_{$agents_subset}_{$id_prefix}');";
 			echo " <input type='text' id='flt_{$agents_subset}_{$id_prefix}' size='10' onkeyup=\"$js_call\" />";

@@ -243,12 +243,12 @@ if ( $can_edit ) {
 }
 ?>
 
-<table style="width: 100%;clear: both;margin: 0 0 1em 0;padding: 0">
-<tr><td style="vertical-align:top">
-<h2 style="margin:0"><?php 
+<table class="rvy-editor-table">
+<tr><td class="rvy-editor-table-top">
+<h2><?php 
 echo $h2; 
 if ( ! empty($restore_link) )
-	echo "<span class='rs-revision_top_action' style='margin-left: 2em'> $restore_link</span>";	
+	echo "<span class='rs-revision_top_action rvy-restore-link'> $restore_link</span>";	
 ?></h2>
 
 <?php
@@ -283,7 +283,7 @@ if ( ! empty($restore_link) )
 
 	
 	if ( $msg ) {
-		echo '<div id="message" class="updated fade clear" style="margin-bottom: 0"><p>';
+		echo '<div id="message" class="updated fade clear rvy-message"><p>';
 		echo $msg;
 		echo '</p></div><br />';	
 	}
@@ -291,7 +291,7 @@ if ( ! empty($restore_link) )
 </td>
 <?php
 if ( ( ! $action || ( 'view' == $action ) ) && ( $revision ) ) {
-echo '<td style="text-align:right;padding-top:1em;">';
+echo '<td class="rvy-date-selection">';
 	
 	// date stuff
 	// translators: Publish box date formt, see http://php.net/date
@@ -339,7 +339,7 @@ echo '<td style="text-align:right;padding-top:1em;">';
 		echo '</div>';
 		
 		?>
-		<div id="rvy_revision_edit_secondary_div" style="display:none;float:right;margin:0.5em 0 1em 0">
+		<div id="rvy_revision_edit_secondary_div" style="display:none;">
 		<input name="rvy_revision_edit" type="submit" class="button-primary" id="rvy_revision_edit_secondary" tabindex="5" accesskey="p" value="<?php esc_attr_e('Update Revision', 'revisionary') ?>" />
 		</div>
 		<?php
@@ -350,14 +350,14 @@ echo '</td></tr>';
 echo '</table>';
 	
 	echo '
-	<div id="poststuff" class="metabox-holder" style="margin-top:-2em">
+	<div id="poststuff" class="metabox-holder rvy-editor">
 	<div id="post-body">
 	<div id="post-body-content">
 	';
 	
 	// title stuff
 	echo '
-	<div id="titlediv" style="clear:both">
+	<div id="titlediv rvy-title-div">
 	<div id="titlewrap">
 		<label class="screen-reader-text" for="title">';
 		
@@ -374,7 +374,7 @@ echo '</table>';
 		
 	// post content
 	$id = ( user_can_richedit() ) ? 'postdivrich' : 'postdiv';
-	echo "<div id='$id' class='postarea' style='clear: both'>";
+	echo "<div id='$id' class='postarea rvy-postarea'>";
 	$content = apply_filters( "_wp_post_revision_field_post_content", $revision->post_content, 'post_content' );
 		
 	the_editor($content, 'content', 'title', false);
@@ -446,7 +446,7 @@ foreach ( _wp_post_revision_fields() as $field => $field_title ) :
 	
 	if ( ! empty($content) ) :?>
 	<div id="revision-field-<?php echo $field; ?>">
-		<p style="margin: 2em 0 0 0"><strong>
+		<p class="rvy-revision-field"><strong>
 		<?php 
 		echo esc_html( $field_title ); 
 		?>

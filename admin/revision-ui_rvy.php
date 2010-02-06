@@ -44,12 +44,19 @@ function rvy_metabox_notification_list( $topic ) {
 		} else {
 			// If RS is not active, default to sending to all Administrators and Editors
 			require_once(ABSPATH . 'wp-admin/includes/user.php');
-			$admin_search = new WP_User_Search( '', 0, 'administrator' );
-			$recipient_ids = $admin_search->results;
 			
-			$editor_search = new WP_User_Search( '', 0, 'editor' );
-			$recipient_ids = array_merge( $recipient_ids, $editor_search->results );
+			$use_wp_roles = ( defined( 'SCOPER_MONITOR_ROLES' ) ) ? SCOPER_MONITOR_ROLES : 'administrator,editor';
 			
+			$use_wp_roles = str_replace( ' ', '', $use_wp_roles );
+			$use_wp_roles = explode( ',', $use_wp_roles );
+			
+			$recipient_ids = array();
+
+			foreach ( $use_wp_roles as $role_name ) {
+				$search = new WP_User_Search( '', 0, $role_name );
+				$recipient_ids = array_merge( $recipient_ids, $search->results );
+			}
+
 			foreach ( $recipient_ids as $userid ) {
 				$user = new WP_User($userid);
 				$post_publishers []= $user;
@@ -59,8 +66,7 @@ function rvy_metabox_notification_list( $topic ) {
 		
 		require_once('agents_checklist_rvy.php');
 		
-		echo("<div id='rvy_cclist_$topic' style='margin-bottom:0'>");
-		
+		echo("<div id='rvy_cclist rvy_cclist_$topic'>");
 		RevisionaryAgentsChecklist::agents_checklist( 'user', $post_publishers, $id_prefix, $default_ids );
 		echo('</div>');
 	}
@@ -81,10 +87,24 @@ function rvy_metabox_revisions( $status ) {
 }
 
 
+// Work around conflict with WP Super Edit and any other plugins which wipe out default TinyMCE parameters
+function rvy_log_tiny_mce_params( $initArray ) {
+	global $rvy_tiny_mce_params;
+	$rvy_tiny_mce_params = $initArray;
+	return $initArray;
+}
+
+
 // adjust TinyMCE parameters for Revision viewing / edit
-function rvy_tiny_mce_params( &$initArray ) {
-	$mce_buttons = apply_filters('mce_buttons', array('bold', 'italic', 'strikethrough', '|', 'bullist', 'numlist', 'blockquote', '|', 'justifyleft', 'justifycenter', 'justifyright', '|', 'link', 'unlink', 'wp_more', '|', 'spellchecker', 'fullscreen', 'wp_adv' ));
-	$mce_buttons = implode($mce_buttons, ',');
+function rvy_tiny_mce_params( $initArray ) {
+	global $rvy_tiny_mce_params;
+	if ( ! empty($rvy_tiny_mce_params) && is_array($initArray) )	// Restore default TinyMCE parameters in case another plugin wiped them.  This is only done for the Revision Management form.
+		$initArray = array_merge($rvy_tiny_mce_params, $initArray);
+	else
+		$initArray = $rvy_tiny_mce_params;
+		
+	$mce_buttons_1 = apply_filters('mce_buttons', array('bold', 'italic', 'strikethrough', '|', 'bullist', 'numlist', 'blockquote', '|', 'justifyleft', 'justifycenter', 'justifyright', '|', 'link', 'unlink', 'wp_more', '|', 'spellchecker', 'fullscreen', 'wp_adv' ));
+	$mce_buttons_1 = implode($mce_buttons_1, ',');
 
 	$mce_buttons_2 = apply_filters('mce_buttons_2', array('formatselect', 'underline', 'justifyfull', 'forecolor', '|', 'pastetext', 'pasteword', 'removeformat', '|', 'media', 'charmap', '|', 'outdent', 'indent', '|', 'undo', 'redo', 'wp_help' ));
 	$mce_buttons_2 = implode($mce_buttons_2, ',');
@@ -95,11 +115,6 @@ function rvy_tiny_mce_params( &$initArray ) {
 	$mce_buttons_4 = apply_filters('mce_buttons_4', array());
 	$mce_buttons_4 = implode($mce_buttons_4, ',');
 	
-	//$mce_buttons = '';
-	//$mce_buttons_2 = '';
-	//$mce_buttons_3 = '';
-	//$mce_buttons_4 = '';
-	
 	$mce_locale = ( '' == get_locale() ) ? 'en' : strtolower( substr(get_locale(), 0, 2) ); // only ISO 639-1
 	
 	// note custom save_callback since WP 2.9-beta-1 removed default callback method from SwitchEditors
@@ -109,10 +124,6 @@ function rvy_tiny_mce_params( &$initArray ) {
 		'width' => '100%',
 		'theme' => 'advanced',
 		'skin' => 'wp_theme',
-		'theme_advanced_buttons1' => "$mce_buttons",
-		'theme_advanced_buttons2' => "$mce_buttons_2",
-		'theme_advanced_buttons3' => "$mce_buttons_3",
-		'theme_advanced_buttons4' => "$mce_buttons_4",
 		'language' => "$mce_locale",
 		'theme_advanced_toolbar_location' => 'top',
 		'theme_advanced_toolbar_align' => 'left',
@@ -129,11 +140,18 @@ function rvy_tiny_mce_params( &$initArray ) {
 		'media_strict' => false,
 		'save_callback' => 'tmCallbackRvy',
 		'wpeditimage_disable_captions' => true,
-		'plugins' => ''
+		'plugins' => '',
+		'theme_advanced_buttons1' => $mce_buttons_1,
+		'theme_advanced_buttons2' => $mce_buttons_2,
+		'theme_advanced_buttons3' => $mce_buttons_3,
+		'theme_advanced_buttons4' => $mce_buttons_4
 	);
 	
-	$initArray = array_merge( $initArray, $arr );
-	
+	foreach ( $arr as $key => $val ) {
+		if ( ! isset($initArray[$key]) )
+			$initArray[$key] = $val;
+	}
+
 	//$url = parse_url( RVY_URLPATH . '/admin/revisions-rs.css' );
 	//$initArray['content_css'] = $url['path'];
 	
@@ -320,11 +338,11 @@ function rvy_list_post_revisions( $post_id = 0, $status = '', $args = null ) {
 			
 			$actions = '';
 			if ( $revision->ID == $current_id )
-				$class = " style='background-color: #ff8'"; 
+				$class = " class='rvy-revision-row rvy-current-revision'"; 
 			elseif ( $class )
-				$class = '';
+				$class = " class='rvy-revision-row'";
 			else
-				$class = " class='alternate'"; 
+				$class = " class='rvy-revision-row alternate'"; 
 			
 			$datef = __awp( 'M j, Y @ G:i' );
 			
@@ -368,7 +386,7 @@ function rvy_list_post_revisions( $post_id = 0, $status = '', $args = null ) {
 			}
 
 			$rows .= "<tr$class>\n";
-			$rows .= "\t<th style='white-space: nowrap' scope='row'><input type='radio' name='left' value='$revision->ID'$left_checked /><input type='radio' name='right' value='$revision->ID'$right_checked /></th>\n";
+			$rows .= "\t<th scope='row'><input type='radio' name='left' value='$revision->ID'$left_checked /><input type='radio' name='right' value='$revision->ID'$right_checked /></th>\n";
 			$rows .= "\t<td>$date</td>\n";
 			$rows .= "\t<td>$publish_date</td>\n";
 			$rows .= "\t<td>$preview_link</td>\n";
@@ -419,11 +437,11 @@ wp_nonce_field( 'rvy-revisions' );
 
 <table class="widefat post-revisions" cellspacing="0">
 	<col />
-	<col style="width: 35%" />
-	<col style="width: 25%" />
-	<col style="width: 10%" />
-	<col style="width: 15%" />
-	<col style="width: 15%" />
+	<col class="rvy-col1" />
+	<col class="rvy-col2" />
+	<col class="rvy-col3" />
+	<col class="rvy-col4" />
+	<col class="rvy-col5" />
 <thead>
 <tr>
 	<th scope="col"></th>

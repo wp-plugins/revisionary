@@ -190,7 +190,10 @@ class RevisionaryFront {
 
 
 function rvy_front_css() {
-	echo '<link rel="stylesheet" href="' . WP_CONTENT_URL . '/plugins/' . RVY_FOLDER . '/revisionary-front.css" type="text/css" />'."\n";
+	$wp_content = ( is_ssl() || ( is_admin() && defined('FORCE_SSL_ADMIN') && FORCE_SSL_ADMIN ) ) ? str_replace( 'http:', 'https:', WP_CONTENT_URL ) : WP_CONTENT_URL;
+	$path = $wp_content . '/plugins/' . RVY_FOLDER;
+	
+	echo '<link rel="stylesheet" href="' . $path . '/revisionary-front.css" type="text/css" />'."\n";
 }
 
 ?>

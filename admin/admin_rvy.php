@@ -3,8 +3,8 @@
 if( basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME']) )
 	die();
 
-define ('RVY_URLPATH', WP_CONTENT_URL . '/plugins/' . RVY_FOLDER);
-
+$wp_content = ( is_ssl() || ( is_admin() && defined('FORCE_SSL_ADMIN') && FORCE_SSL_ADMIN ) ) ? str_replace( 'http:', 'https:', WP_CONTENT_URL ) : WP_CONTENT_URL;
+define ('RVY_URLPATH', $wp_content . '/plugins/' . RVY_FOLDER);
 
 class RevisionaryAdmin
 {
@@ -166,11 +166,19 @@ class RevisionaryAdmin
 						
 						require_once( 'revision-ui_rvy.php' );
 						
-						add_filter( 'tiny_mce_before_init', 'rvy_tiny_mce_params', 98 );
-					
+						add_filter( 'tiny_mce_before_init', 'rvy_log_tiny_mce_params', 1 );
+						add_filter( 'tiny_mce_before_init', 'rvy_tiny_mce_params', 998 );	// this is only applied to revisionary admin URLs, so not shy about dropping the millennial hammer
+
 						if ( $read_only )
-							add_filter( 'tiny_mce_before_init', 'rvy_tiny_mce_readonly', 99 );
-							
+							add_filter( 'tiny_mce_before_init', 'rvy_tiny_mce_readonly', 999 );
+						
+						// WP Super Edit Workaround - $wp_super_edit->is_tinymce property is currently set true only if URI matches unfilterable list: '/tiny_mce_config\.php|page-new\.php|page\.php|post-new\.php|post\.php/'
+						global $wp_super_edit;
+						
+						if ( ! empty($wp_super_edit) && ! $wp_super_edit->is_tinymce )
+							include_once( 'super-edit-helper_rvy.php' );
+						//
+						
 						wp_tiny_mce();
 					}
 				}
@@ -385,7 +393,7 @@ jQuery(document).ready( function($) {
 		if ( $id )
 			if ( $post =& get_post( $id ) )
 				if ( 'revision' == $post->post_type )
-					$title = sprintf( _x( '%s (revision)', 'post_title (revision)', 'revisionary' ), $post->post_title );
+					$title = sprintf( __( '%s (revision)', 'revisionary' ), $post->post_title );
 
 		return $title;
 	}
@@ -460,8 +468,10 @@ jQuery(document).ready( function($) {
 			$post_arr['guid'] = '';
 			
 			if ( defined('SCOPER_VERSION') ) {
-				if ( isset($post_arr['post_category']) )	// todo: also filter other post taxonomies
-					$post_arr['post_category'] = $this->scoper->filters_admin->flt_pre_object_terms($post_arr['post_category'], 'category');
+				if ( isset($post_arr['post_category']) ) {	// todo: also filter other post taxonomies
+					global $scoper;
+					$post_arr['post_category'] = $scoper->filters_admin->flt_pre_object_terms($post_arr['post_category'], 'category');
+				}
 			}
 					
 			global $current_user, $wpdb;
@@ -543,11 +553,18 @@ jQuery(document).ready( function($) {
 							$monitor_ids = array();
 					} else {
 						require_once(ABSPATH . 'wp-admin/includes/user.php');
-						$admin_search = new WP_User_Search( '', 0, 'administrator' );
-						$monitor_ids = $admin_search->results;
 						
-						$editor_search = new WP_User_Search( '', 0, 'editor' );
-						$monitor_ids = array_merge( $monitor_ids, $editor_search->results );	
+						$use_wp_roles = ( defined( 'SCOPER_MONITOR_ROLES' ) ) ? SCOPER_MONITOR_ROLES : 'administrator,editor';
+						
+						$use_wp_roles = str_replace( ' ', '', $use_wp_roles );
+						$use_wp_roles = explode( ',', $use_wp_roles );
+						
+						$monitor_ids = array();
+
+						foreach ( $use_wp_roles as $role_name ) {
+							$search = new WP_User_Search( '', 0, $role_name );
+							$monitor_ids = array_merge( $monitor_ids, $search->results );
+						}
 					}
 					
 					// intersect default recipients with selected recipients						
