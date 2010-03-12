@@ -1,8 +1,8 @@
-jQuery(document).ready( function($) {
+jQuery(document).ready( function($) {	
 function updateTextRvy() {
 $('#selected_timestamp_div').show();
 $('#selected_timestamp').html(
-	postL10n.unsavedDate + ' <b>' +
+	revL10n.unsavedDate + ' <b>' +
 	$( '#mm option[value=' + $('#mm').val() + ']' ).text() + ' ' +
 	$('#jj').val() + ', ' +
 	$('#aa').val() + ' @ ' +

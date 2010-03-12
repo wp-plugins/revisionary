@@ -129,7 +129,7 @@ function rvy_revision_approve() {
 				
 			$message = sprintf( __('A revision to your %1$s "%2$s" has been approved.', 'revisionary' ), $type_caption, $post->post_title ) . "\r\n\r\n";
 			
-			if ( $revisor = new WP_Scoped_User( $revision->post_author, '', array( 'disable_user_roles' => true, 'disable_group_roles' => true, 'disable_wp_roles' => true ) ) )
+			if ( $revisor = new WP_User( $revision->post_author ) )
 				$message .= sprintf( __('The submitter was %1$s.', 'revisionary'), $revisor->display_name ) . "\r\n\r\n";
 
 			if ( $scheduled ) {
@@ -141,7 +141,7 @@ function rvy_revision_approve() {
 				$message .= __( 'View it online: ', 'revisionary' ) . $post->guid . "\r\n";	
 			}
 
-			if ( $author = new WP_Scoped_User( $post->post_author, '', array( 'disable_user_roles' => true, 'disable_group_roles' => true, 'disable_wp_roles' => true ) ) ) {
+			if ( $author = new WP_User( $post->post_author ) ) {
 				$to_addresses = (array) $author->user_email;
 
 				if ( ini_get( 'allow_url_fopen' ) && rvy_get_option('async_email') ) {					
@@ -174,13 +174,8 @@ function rvy_revision_approve() {
 				$message .= __( 'View it online: ', 'revisionary' ) . $post->guid . "\r\n";	
 			}
 
-			
-			if ( defined( 'SCOPER_VERSION' ) )
-				$author = new WP_Scoped_User( $revision->post_author, '', array( 'disable_user_roles' => true, 'disable_group_roles' => true, 'disable_wp_roles' => true ) );
-			else
-				$author = new WP_User( $revision->post_author, '' );
 
-			if ( $author ) {
+			if ( $author = new WP_User( $revision->post_author, '' ) ) {
 				$to_addresses = (array) $author->user_email;
 
 				if ( ini_get( 'allow_url_fopen' ) && rvy_get_option('async_email') ) {					
@@ -236,16 +231,21 @@ function rvy_revision_restore() {
 	
 		wp_restore_post_revision( $revision_id );
 
+		// also set the revision status to 'inherit' so it is listed as a past revision if the current revision is further changed (As of WP 2.9, wp_restore_post_revision no longer does this automatically)
+		$revision->post_status = 'inherit';
+		$revision = add_magic_quotes( (array) $revision ); //since data is from db
+		wp_update_post( $revision );
+		
 		// possible TODO: support redirect back to WP post/page edit
 		//$query_args = array( 'message' => 5, 'revision' => $revision->ID, 'action' => 'view', 'revision_status' => '' );
 		
 		if ( 'inherit' == $revision->post_status )
-			$last_arg = "&restored_post=$revision->post_parent";
+			$last_arg = "&restored_post=$post->ID";
 		else
-			$last_arg = "&published_post=$revision->post_parent";
+			$last_arg = "&published_post=$post->ID";
 
 		//$redirect = add_query_arg( $query_args, get_edit_post_link( $post->ID, 'url' ) );
-		$redirect = "admin.php?page=rvy-revisions&revision={$revision->post_parent}&action=view{$last_arg}";
+		$redirect = "admin.php?page=rvy-revisions&revision={$post->ID}&action=view{$last_arg}";
 	} while (0);
 
 	if ( ! $redirect ) {
@@ -547,7 +547,7 @@ function rvy_publish_scheduled_revisions() {
 					if ( ! empty($post->ID) )
 						$message .= __( 'View it online: ', 'revisionary' ) . $post->guid . "\r\n";
 		
-					if ( $author = new WP_Scoped_User( $row->post_author, '', array( 'disable_user_roles' => true, 'disable_group_roles' => true, 'disable_wp_roles' => true ) ) )
+					if ( $author = new WP_User( $row->post_author ) )
 						rvy_mail( $author->user_email, $title, $message );
 				}
 				
@@ -558,13 +558,13 @@ function rvy_publish_scheduled_revisions() {
 					
 					$message = sprintf( __('A scheduled revision to your %1$s "%2$s" has been published.', 'revisionary' ), $type_caption, $post->post_title ) . "\r\n\r\n";
 					
-					if ( $revisor = new WP_Scoped_User( $row->post_author, '', array( 'disable_user_roles' => true, 'disable_group_roles' => true, 'disable_wp_roles' => true ) ) )
+					if ( $revisor = new WP_User( $row->post_author ) )
 						$message .= sprintf( __('It was submitted by %1$s.'), $revisor->display_name ) . "\r\n\r\n";
 					
 					if ( ! empty($post->ID) )
 						$message .= __( 'View it online: ', 'revisionary' ) . $post->guid . "\r\n";
 		
-					if ( $author = new WP_Scoped_User( $post->post_author, '', array( 'disable_user_roles' => true, 'disable_group_roles' => true, 'disable_wp_roles' => true ) ) )
+					if ( $author = new WP_User( $post->post_author ) )
 						rvy_mail( $author->user_email, $title, $message );
 				}
 				
@@ -576,7 +576,7 @@ function rvy_publish_scheduled_revisions() {
 					
 					$message = sprintf( __('A scheduled revision to the %1$s "%2$s" has been published.'), $type_caption, $row->post_title ) . "\r\n\r\n";
 					
-					if ( $author = new WP_Scoped_User( $row->post_author, '', array( 'disable_user_roles' => true, 'disable_group_roles' => true, 'disable_wp_roles' => true ) ) )
+					if ( $author = new WP_User( $row->post_author ) )
 						$message .= sprintf( __('It was submitted by %1$s.'), $author->display_name ) . "\r\n\r\n";
 					
 					if ( ! empty($post->ID) )

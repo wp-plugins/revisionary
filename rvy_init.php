@@ -245,6 +245,9 @@ function rvy_retrieve_options( $sitewide = false ) {
 	global $wpdb;
 	
 	if ( $sitewide ) {
+		if ( ! IS_MU_RVY )
+			return;
+
 		global $rvy_site_options;
 		
 		$rvy_site_options = array();

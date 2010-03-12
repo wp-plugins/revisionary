@@ -53,9 +53,14 @@ class RevisionaryAdminHardway {
 				//$query = str_replace("SELECT post_status, COUNT( * ) AS num_posts FROM $wpdb->posts WHERE post_type = 'page'", "SELECT post_status, COUNT( * ) AS num_posts FROM $wpdb->posts WHERE ( post_type = 'page' OR ( post_type = 'revision' AND ( post_status = 'pending' OR post_status = 'future' ) AND post_parent IN ( SELECT ID from $wpdb->posts WHERE post_type = 'page' ) ) )", $query);
 				//$query = str_replace("SELECT post_status, COUNT( * ) AS num_posts FROM $wpdb->posts WHERE post_type = 'post'", "SELECT post_status, COUNT( * ) AS num_posts FROM $wpdb->posts WHERE ( post_type = 'post' OR ( post_type = 'revision' AND ( post_status = 'pending' OR post_status = 'future' ) AND post_parent IN ( SELECT ID from $wpdb->posts WHERE post_type = 'post' ) ) )", $query);
 			
-				$query = str_replace("post_type = 'page'", "( post_type = 'page' OR ( post_type = 'revision' AND ( post_status = 'pending' OR post_status = 'future' ) AND post_parent IN ( SELECT ID from $wpdb->posts WHERE post_type = 'page' ) ) )", $query);
-				$query = str_replace("post_type = 'post'", "( post_type = 'post' OR ( post_type = 'revision' AND ( post_status = 'pending' OR post_status = 'future' ) AND post_parent IN ( SELECT ID from $wpdb->posts WHERE post_type = 'post' ) ) )", $query);
+				$p = ( strpos( $query, 'p.post_type' ) ) ? 'p.' : '';
+	
+				$query = str_replace("{$p}post_type = 'page'", "( {$p}post_type = 'page' OR ( {$p}post_type = 'revision' AND ( {$p}post_status = 'pending' OR {$p}post_status = 'future' ) AND {$p}post_parent IN ( SELECT ID from $wpdb->posts WHERE post_type = 'page' ) ) )", $query);
+				$query = str_replace("{$p}post_type = 'post'", "( {$p}post_type = 'post' OR ( {$p}post_type = 'revision' AND ( {$p}post_status = 'pending' OR {$p}post_status = 'future' ) AND {$p}post_parent IN ( SELECT ID from $wpdb->posts WHERE post_type = 'post' ) ) )", $query);
 				
+				//$query = str_replace("post_type = 'page'", "( post_type = 'page' OR ( post_type = 'revision' AND ( post_status = 'pending' OR post_status = 'future' ) AND post_parent IN ( SELECT ID from $wpdb->posts WHERE post_type = 'page' ) ) )", $query);
+				//$query = str_replace("post_type = 'post'", "( post_type = 'post' OR ( post_type = 'revision' AND ( post_status = 'pending' OR post_status = 'future' ) AND post_parent IN ( SELECT ID from $wpdb->posts WHERE post_type = 'post' ) ) )", $query);
+					
 			} elseif ( strpos($query, "GROUP BY $wpdb->posts.post_status") && strpos($query, "ELECT $wpdb->posts.post_status," ) ) {
 				
 				// also post-process the scoped equivalent 

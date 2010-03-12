@@ -52,6 +52,16 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 == Changelog ==
 
+= 1.0.2 - 11 Mar 2010 =
+* BugFix : Email notification caused error if Role Scoper was not activated
+* BugFix : Database error message (nuisance) in non-MU installations (SELECT meta_key, meta_value FROM WHERE site_id...)
+* BugFix : Publish Now link on Scheduled Revision preview did not work
+* BugFix : With WP > 2.9, newly published revisions also remained listed as a Pending or Scheduled revision
+* BugFix : With WP > 2.9, revision date selection UI showed "undefined" caption next to new date selection
+* BugFix : Link for viewing Scheduled Revisions was captioned as "Pending Revisions" (since 1.0.1) 
+* Compat : WMPL plugin
+
+
 = 1.0.1 - 6 Feb 2010 =
 * BugFix : 	Submitting a Pending Revision to a published Post failed with Fatal Error
 * BugFix : 	PHP short tag caused Parse Error on servers which were not configured to support it

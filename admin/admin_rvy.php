@@ -143,6 +143,17 @@ class RevisionaryAdmin
 		if( false !== strpos( urldecode($_SERVER['REQUEST_URI']), 'admin.php?page=rvy-revisions' ) ) {
 			
 			// add Ajax goodies we need for fancy publish date editing in Revisions Manager and role duration/content date limit editing Bulk Role Admin
+			?>
+			<script type="text/javascript">
+			/* <![CDATA[ */
+			jQuery(document).ready( function($) {
+				$('#rvy-rev-checkall').click(function() {
+					$('.rvy-rev-chk').attr( 'checked', this.checked );
+				});
+			});
+			/* ]]> */
+			</script>
+			<?php	
 			
 			//wp_print_scripts( array( 'post' ) );	 // WP 2.9 broke this for Revisionary usage; manually insert pertinent scripts below instead
 			echo "\n" . "<script type='text/javascript' src='" . RVY_URLPATH . "/admin/revision-edit.js'></script>";
@@ -202,19 +213,9 @@ jQuery(document).ready( function($) {
 </script>
 <?php	
 			} // endif read_only
-	
-?>
-<script type="text/javascript">
-/* <![CDATA[ */
-jQuery(document).ready( function($) {
-	$('#rvy-rev-checkall').click(function() {
-		$('.rvy-rev-chk').attr( 'checked', this.checked );
-	});
-});
-/* ]]> */
-</script>
-<?php	
+
 			require_once( 'revision-ui_rvy.php' );
+
 			rvy_revisions_js();
 		}
 		
@@ -525,14 +526,9 @@ jQuery(document).ready( function($) {
 				
 				$message = sprintf( __('A pending revision to the %1$s "%2$s" has been submitted.', 'revisionary'), $type_caption, $post_arr['post_title'] ) . "\r\n\r\n";
 				
-				if ( defined('SCOPER_VERSION') ) {
-					if ( $author = new WP_Scoped_User( $post_arr['post_author'], '', array( 'disable_user_roles' => true, 'disable_group_roles' => true, 'disable_wp_roles' => true ) ) )
-						$message .= sprintf( __('It was submitted by %1$s.', 'revisionary' ), $author->display_name ) . "\r\n\r\n";
-				} else {
-					if ( $author = new WP_User( $post_arr['post_author'], '' ) )
-						$message .= sprintf( __('It was submitted by %1$s.', 'revisionary' ), $author->display_name ) . "\r\n\r\n";	
-				}
-				
+				if ( $author = new WP_User( $post_arr['post_author'] ) )
+					$message .= sprintf( __('It was submitted by %1$s.', 'revisionary' ), $author->display_name ) . "\r\n\r\n";
+
 				if ( $revision_id )
 					$message .= __( 'Review it here: ', 'revisionary' ) . admin_url("admin.php?page=rvy-revisions&action=view&revision={$revision_id}") . "\r\n";
 				

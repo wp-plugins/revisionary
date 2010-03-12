@@ -130,11 +130,11 @@ class RevisionaryFront {
 						$link_caption = sprintf( __( 'Restore this Past Revision', 'revisionary' ), $date_msg );
 						break;
 					}
-				
-					if ( in_array( $revision->post_status, array( 'pending', 'future' ) ) ) {
+
+					if ( in_array( $revision->post_status, array( 'pending' ) ) ) {
 						$link = wp_nonce_url( 'wp-admin/' . "admin.php?page=rvy-revisions&amp;revision=$revision_id&amp;diff=false&amp;action=approve", "approve-post_$published_post_id|$revision_id" );
 					
-					} elseif ( in_array( $revision->post_status, array( 'inherit' ) ) ) {
+					} elseif ( in_array( $revision->post_status, array( 'inherit', 'future' ) ) ) {
 						$link = wp_nonce_url( 'wp-admin/' . "admin.php?page=rvy-revisions&amp;revision=$revision_id&amp;diff=false&amp;action=restore", "restore-post_$published_post_id|$revision_id" );
 					
 					} else

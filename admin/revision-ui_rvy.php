@@ -517,7 +517,7 @@ var wpListL10n = {
 var postboxL10n = {
 	requestFile: "<?php echo $ajax_url?>"
 };
-var postL10n = {
+var revL10n = {
 	publishOn: "<?php _e('Date as:', 'revisionary')?>",
 	publishOnFuture: "<?php _e('Schedule for:', 'revisionary')?>",
 	publishOnPast: "<?php _e('Published on:', 'revisionary')?>",

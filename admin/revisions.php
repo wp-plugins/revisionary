@@ -501,7 +501,7 @@ foreach ( array_keys($revision_status_captions) as $_revision_status ) {
 		case 'pending':
 			$status_caption = __( 'Pending Revisions', 'revisionary' );
 			break;
-		case 'scheduled':
+		case 'future':
 			$status_caption = __( 'Scheduled Revisions', 'revisionary' );
 			break;
 	}
