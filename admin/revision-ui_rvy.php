@@ -11,15 +11,19 @@
  */
 
 function rvy_metabox_notification_list( $topic ) {
+
 	if ( 'pending_revision' == $topic ) {	
-		$object_type = ( strpos( $_SERVER['REQUEST_URI'], 'page' ) ) ? 'page' : 'post';
+		if ( ! rvy_get_option('pending_rev_notify_admin') )
+			return;
+		
+		$object_type = awp_post_type_from_uri();
 		$object_id = rvy_detect_post_id();
 
 		$id_prefix = 'prev_cc';
 
 		$post_publishers = array();
 		$default_ids = array();
-		
+
 		if ( defined('SCOPER_VERSION') && ! defined('SCOPER_DEFAULT_MONITOR_GROUPS') ) {
 			global $scoper;
 
@@ -28,7 +32,7 @@ function rvy_metabox_notification_list( $topic ) {
 				$default_ids = ScoperAdminLib::get_group_members( $group->ID, COL_ID_RS, true );
 
 				$post_publishers = $scoper->users_who_can( "edit_{$object_type}", COLS_ALL_RVY, 'post', $object_id );
-				
+
 				$can_publish_post = array();
 				foreach ( $post_publishers as $key => $user ) {
 					$can_publish_post []= $user->ID;
@@ -66,7 +70,7 @@ function rvy_metabox_notification_list( $topic ) {
 		
 		require_once('agents_checklist_rvy.php');
 		
-		echo("<div id='rvy_cclist rvy_cclist_$topic'>");
+		echo("<div id='rvy_cclist_$topic'>");
 		RevisionaryAgentsChecklist::agents_checklist( 'user', $post_publishers, $id_prefix, $default_ids );
 		echo('</div>');
 	}
@@ -75,7 +79,7 @@ function rvy_metabox_notification_list( $topic ) {
 
 function rvy_metabox_revisions( $status ) {
 	global $revisionary;
-	
+
 	$property_name = $status . '_revisions';
 	if ( ! empty( $revisionary->filters_admin_item_ui->$property_name ) )
 		echo $revisionary->filters_admin_item_ui->$property_name;

@@ -200,9 +200,12 @@ function rvy_revision_approve() {
 	} while (0);
 	
 	if ( ! $redirect ) {
-		if ( ! empty($post) && is_object($post) && ( 'page' == $post->post_type ) ) 
-			$redirect = 'edit-pages.php';
-		else
+		if ( ! empty($post) && is_object($post) && ( 'page' == $post->post_type ) ) {
+			if ( awp_ver( '3.0-dev' ) )
+				$redirect = 'edit.php?post_type=page';
+			else
+				$redirect = 'edit-pages.php';
+		} else
 			$redirect = 'edit.php';
 	}
 
@@ -249,9 +252,12 @@ function rvy_revision_restore() {
 	} while (0);
 
 	if ( ! $redirect ) {
-		if ( $post && ( 'page' == $post->post_type ) ) 
-			$redirect = 'edit-pages.php';
-		else
+		if ( ! empty($post) && is_object($post) && ( 'page' == $post->post_type ) ) {
+			if ( awp_ver( '3.0-dev' ) )
+				$redirect = 'edit.php?post_type=page';
+			else
+				$redirect = 'edit-pages.php';
+		} else
 			$redirect = 'edit.php';
 	}
 
@@ -278,13 +284,13 @@ function rvy_revision_delete() {
 	$redirect = '';
 	
 	do {
-		if ( !$revision = wp_get_post_revision( $revision_id ) )
+		if ( ! $revision = wp_get_post_revision( $revision_id ) )
 			break;
 
-		if ( !$post = get_post( $revision->post_parent ) )
+		if ( ! $post = get_post( $revision->post_parent ) )
 			break;
 
-		if ( !current_user_can( "delete_{$post->post_type}", $revision->post_parent ) ) {
+		if ( ! current_user_can( "delete_{$post->post_type}", $revision->post_parent ) ) {
 			global $current_user;
 
 			if ( ( 'pending' != $revision->post_status ) || ( $revision->post_author != $current_user->ID ) )	// allow submitters to delete their own still-pending revisions
@@ -300,10 +306,16 @@ function rvy_revision_delete() {
 		$redirect = "admin.php?page=rvy-revisions&revision={$revision->post_parent}&action=view&revision_status=$revision_status&deleted=1";
 	} while (0);
 	
-	if ( ! $redirect ) {
-		if ( $post && ( 'page' == $post->post_type ) ) 
-			$redirect = 'edit-pages.php';
-		else
+	if ( ! empty( $_GET['return'] ) && ! empty( $_SERVER['HTTP_REFERER'] ) ) {
+		$redirect = str_replace( 'trashed=', 'deleted=', $_SERVER['HTTP_REFERER'] );
+		
+	} elseif ( ! $redirect ) {
+		if ( $post && ( 'page' == $post->post_type ) ) {
+			if ( awp_ver( '3.0-dev' ) )
+				$redirect = 'edit.php?post_type=page';
+			else
+				$redirect = 'edit-pages.php';
+		} else
 			$redirect = 'edit.php';
 	}
 
@@ -448,9 +460,12 @@ function rvy_revision_edit() {
 	} while (0);
 	
 	if ( ! $redirect ) {
-		if ( $post && ( 'page' == $post->post_type ) ) 
-			$redirect = 'edit-pages.php';
-		else
+		if ( $post && ( 'page' == $post->post_type ) ) {
+			if ( awp_ver( '3.0-dev' ) )
+				$redirect = 'edit.php?post_type=page';
+			else
+				$redirect = 'edit-pages.php';
+		} else
 			$redirect = 'edit.php';
 	}
 
@@ -486,9 +501,12 @@ function rvy_revision_unschedule() {
 	} while (0);
 	
 	if ( ! $redirect ) {
-		if ( $post && ( 'page' == $post->post_type ) ) 
-			$redirect = 'edit-pages.php';
-		else
+		if ( $post && ( 'page' == $post->post_type ) ) {
+			if ( awp_ver( '3.0-dev' ) )
+				$redirect = 'edit.php?post_type=page';
+			else
+				$redirect = 'edit-pages.php';
+		} else
 			$redirect = 'edit.php';
 	}
 
@@ -608,7 +626,7 @@ function rvy_publish_scheduled_revisions() {
 			
 							$post_publishers = $scoper->users_who_can( "edit_{$object_type}", COLS_ALL_RVY, 'post', $object_id );
 							
-							foreach ( $post_publishers as $key => $user )
+							foreach ( $post_publishers as $user )
 								if ( in_array( $user->ID, $default_ids ) )
 									$to_addresses []= $user->user_email;
 						}

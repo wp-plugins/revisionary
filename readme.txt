@@ -52,6 +52,13 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 == Changelog ==
 
+= 1.0.3 - 6 May 2010 =
+* Compat : WP elimination of page.php, edit-pages.php, page-new.php broke many aspects of page filtering
+* BugFix : Trash link did not work for revisions in Edit Posts/Pages listing
+* Change : Administrators and Editors now retain Quick Edit link for non-revisions in Edit Pages, Edit Posts listing
+* BugFix : "Publishers to Notify" metabox was included even if no eligible recipients are designated
+
+
 = 1.0.2 - 11 Mar 2010 =
 * BugFix : Email notification caused error if Role Scoper was not activated
 * BugFix : Database error message (nuisance) in non-MU installations (SELECT meta_key, meta_value FROM WHERE site_id...)

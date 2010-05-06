@@ -3,13 +3,13 @@
 Plugin Name: Revisionary
 Plugin URI: http://agapetry.net/
 Description: Enables qualified users to submit changes to currently published posts or pages.  These changes, if approved by an Editor, can be published immediately or scheduled for future publication.
-Version: 1.0.2
+Version: 1.0.3
 Author: Kevin Behrens
 Author URI: http://agapetry.net/
 Min WP Version: 2.6
 License: GPL version 2 - http://www.opensource.org/licenses/gpl-license.php
 */
-	
+
 /*
 Copyright (c) 2009, Kevin Behrens.
 
@@ -30,6 +30,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 if( basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME']) )
 	die( 'This page cannot be called directly.' );
 
+if ( strpos( $_SERVER['SCRIPT_NAME'], 'p-admin/index-extra.php' ) || strpos( $_SERVER['SCRIPT_NAME'], 'p-admin/update.php' ) )
+	return;
+
 if ( defined( 'RVY_VERSION' ) ) {
 	// don't allow two copies of RV to run simultaneously
 	if ( is_admin() && strpos( $_SERVER['SCRIPT_NAME'], 'p-admin/plugins.php' ) && ! strpos( urldecode($_SERVER['REQUEST_URI']), 'deactivate' ) ) {
@@ -39,7 +42,7 @@ if ( defined( 'RVY_VERSION' ) ) {
 	return;
 }
 
-define ('RVY_VERSION', '1.0.2');
+define ('RVY_VERSION', '1.0.3');
 
 define ('COLS_ALL_RVY', 0);
 define ('COL_ID_RVY', 1);
@@ -94,16 +97,14 @@ define ('RVY_ABSPATH', WP_CONTENT_DIR . '/plugins/' . RVY_FOLDER);
 
 $bail = 0;
 
-if ( ! awp_ver('2.9') ) { // WP 2.9 requires MySQL 4.1 (TODO: confirm this)
+if ( awp_ver( '2.7' ) ) {  // older db servers running on WP < 2.7 will have to fail silently because the has_cap check was introduced in 2.7
 	global $wpdb;
-	
+
 	if ( ! $wpdb->has_cap( 'subqueries' ) ) {
 		rvy_notice('Sorry, Revisionary requires a database server that supports subqueries (such as MySQL 4.1+).  Please upgrade your server or deactivate Revisionary.');
 		$bail = 1;
 	}
-}
-
-if ( ! awp_ver('2.6') ) {
+} elseif ( ! awp_ver('2.6') ) {
 	rvy_notice('Sorry, Revisionary requires WordPress 2.6.0 or higher.  Please upgrade Wordpress or deactivate Revisionary.');
 	$bail = 1;
 }

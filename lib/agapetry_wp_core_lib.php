@@ -158,6 +158,32 @@ function agp_user_can($reqd_caps, $object_id = 0, $user_id = 0, $args = array() 
 }
 }
 
+if ( ! function_exists('awp_post_type_from_uri') ) {
+function awp_post_type_from_uri() {
+	$script_name = $_SERVER['SCRIPT_NAME'];
+	
+	// As of WP 3.0, post.php is used for all post types (TODO: move this to a function)
+	if ( strpos( $script_name, 'page-new.php' ) || strpos( $script_name, 'page.php' ) || strpos( $script_name, 'edit-pages.php' ) )
+		return 'page';
+	else {
+		if ( awp_ver( '3.0-dev' ) ) {
+			if ( strpos( $script_name, 'post-new.php' ) || strpos( $script_name, 'edit.php' ) ) {
+				$object_type = ! empty( $_GET['post_type'] ) ? $_GET['post_type'] : 'post';
+				
+			} elseif ( ! empty( $_GET['post'] ) ) {	 // post.php
+				if ( $_post = get_post( $_GET['post'] ) )
+					$object_type = $_post->post_type;
+			}
+		}
+
+		if ( ! empty($object_type) )
+			return $object_type;
+		else
+			return 'post';
+	}
+}
+}
+
 // WP < 2.8 does not define get_site_option().  This is also a factor for non-mu installations, which will use the blog-specific options table anyway
 if ( ! awp_ver( '2.8' ) && ! function_exists('get_site_option') ) {
 function get_site_option( $key, $default = false, $use_cache = true ) {

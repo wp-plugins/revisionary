@@ -37,9 +37,10 @@ jQuery(document).ready( function($) {
 	function add_meta_boxes() {
 		if ( rvy_get_option( 'pending_revisions' ) ) {
 			require_once( 'revision-ui_rvy.php' );
+			
 			add_meta_box( 'pending_revisions', __( 'Pending Revisions', 'revisionary'), create_function( '', "rvy_metabox_revisions('pending');"), 'post' );
 			add_meta_box( 'pending_revisions', __( 'Pending Revisions', 'revisionary'), create_function( '', "rvy_metabox_revisions('pending');"), 'page' );
-				
+
 			add_meta_box( 'pending_revision_notify', __( 'Publishers to Notify of Your Revision', 'revisionary'), create_function( '', "rvy_metabox_notification_list('pending_revision');"), 'post' );
 			add_meta_box( 'pending_revision_notify', __( 'Publishers to Notify of Your Revision', 'revisionary'), create_function( '', "rvy_metabox_notification_list('pending_revision');"), 'page' );
 		}
@@ -65,14 +66,15 @@ jQuery(document).ready( function($) {
 			return;
 		
 		$src_name = 'post';
-		$object_type = ( strpos( $_SERVER['REQUEST_URI'], 'page' ) ) ? 'page' : 'post';
+
+		$object_type = awp_post_type_from_uri();
 		
 		if ( empty($wp_meta_boxes[$object_type]) )
 			return;
 		
 		//$object_id = $this->scoper->data_sources->detect('id', $src_name, '', $object_type);
 		$object_id = rvy_detect_post_id();
-		
+
 		// This block will be moved to separate class
 		foreach ( $wp_meta_boxes[$object_type] as $context => $priorities ) {
 			foreach ( $priorities as $priority => $boxes ) {
@@ -89,13 +91,12 @@ jQuery(document).ready( function($) {
 							
 					// Remove Revision Notification List metabox if this user is NOT submitting a pending revision
 					} elseif ( 'pending_revision_notify' == $box_id ) {
-						if ( ! $object_id || agp_user_can( "edit_{$object_type}", $object_id, '', array( 'skip_revision_allowance' => true ) ) )
+						if ( ! $object_id || ! rvy_get_option('pending_rev_notify_admin') || agp_user_can( "edit_{$object_type}", $object_id, '', array( 'skip_revision_allowance' => true ) ) )
 							unset( $wp_meta_boxes[$object_type][$context][$priority][$box_id] );
 					}
 				}
 			}
-		}
-				
+		}		
 	}
 
 } // end class

@@ -69,7 +69,7 @@ class RvyOptionUI {
 			$this->all_otype_options []= $option_name;
 			
 			if ( isset($this->def_otype_options[$option_name]) ) {
-				if ( ! $return['val'] = scoper_get_option( $option_name, $this->sitewide, $this->customize_defaults ) )
+				if ( ! $return['val'] = rvy_get_option( $option_name, $this->sitewide, $this->customize_defaults ) )
 					$return['val'] = array();
 					
 				$return['val'] = array_merge($this->def_otype_options[$option_name], $return['val']);

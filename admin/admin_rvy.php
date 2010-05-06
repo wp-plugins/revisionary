@@ -65,6 +65,7 @@ class RevisionaryAdmin
 			) {
 				add_filter( 'the_title', array(&$this, 'flt_post_title'), 10, 2 );
 				add_filter( 'get_edit_post_link', array(&$this, 'flt_edit_post_link'), 10, 3 );
+				add_filter( 'get_delete_post_link', array(&$this, 'flt_delete_post_link'), 10, 1 );  // note: WP 2.9 does not return id argument as 2nd variable
 				add_filter( 'post_link', array(&$this, 'flt_preview_post_link'), 10, 2 );
 			}
 			
@@ -223,6 +224,8 @@ jQuery(document).ready( function($) {
 		// TODO: replace some of this JS with equivalent JQuery
 		if ( ! defined('SCOPER_VERSION') )
 			echo "\n" . "<script type='text/javascript' src='" . RVY_URLPATH . "/admin/revisionary.js'></script>";
+			
+		echo "\n" . "<script type='text/javascript' src='" . RVY_URLPATH . "/admin/revisionary-extra.js'></script>";
 	}
 	
 	function flt_contextual_help_list ($help, $screen) {
@@ -299,7 +302,7 @@ jQuery(document).ready( function($) {
 		global $rvy_any_listed_revisions;
 		
 		if ( $rvy_any_listed_revisions )
-			echo "<div id='rs_hide_quickedit'></div>";
+			echo "<div id='rs_hide_quickedit_ids'>" . implode( ",", $rvy_any_listed_revisions ) . "</div>";
 	}
 
 	
@@ -348,7 +351,7 @@ jQuery(document).ready( function($) {
 		$defaults = array ( 'object_type' => '', 'id' => '' );
 		$args = array_merge( $defaults, (array) $args );
 		extract($args);
-		
+
 		if ( 'revision' == $topic ) {
 			if ( 'manage' == $operation ) {
 				if ( strpos( $link, 'revision.php' ) ) {
@@ -371,13 +374,35 @@ jQuery(document).ready( function($) {
 		return $link;
 	}
 	
+	// Thanks to hiphipvargas for providing this function
+	function flt_delete_post_link( $link ) {
+        if ( strpos( $link, 'revision.php' ) ) {
+	        // note: WP 2.9 does not return ID argument as 2nd variable, so parse it out of link
+	        $link_arr = array();
+			$linkv = parse_url( str_replace('&amp;', '&', $link) );
+			parse_str( $linkv['query'], $link_arr );
+
+	        if ( isset( $link_arr['revision'] ) ) {
+	       		$link = "admin.php?page=rvy-revisions&amp;action=delete&amp;&amp;return=1&amp;revision=". $link_arr['revision'];
+
+	        	$link = 'javascript:if(confirm("'. __('Delete'). '?")) window.location="'. wp_nonce_url( $link, 'delete-revision_' . $link_arr['revision'] ). '"';
+			}
+	    }
+
+		return $link;
+    }
+	
 	function flt_edit_post_link( $link, $id, $context ) {
 		if ( $post = &get_post( $id ) )
 			if ( 'revision' == $post->post_type ) {
 				$link = RevisionaryAdmin::convert_link( $link, 'revision', 'manage' );
 			
 				global $rvy_any_listed_revisions;
-				$rvy_any_listed_revisions = true;
+				
+				if ( ! isset( $rvy_any_listed_revisions ) )
+					$rvy_any_listed_revisions = array();
+				
+				$rvy_any_listed_revisions []= $id;
 			}
 		return $link;
 	}
@@ -489,7 +514,11 @@ jQuery(document).ready( function($) {
 				$wpdb->query("UPDATE $wpdb->posts SET post_status = 'pending', post_parent = '$this->impose_pending_rev' $date_clause WHERE ID = '$revision_id'");
 	
 				if ( 'page' == $object_type ) {
-					$manage_uri = 'edit-pages.php';
+					if ( awp_ver( '3.0-dev' ) )
+						$manage_uri = 'edit.php?post_type=page';
+					else
+						$manage_uri = 'edit-pages.php';
+						
 					$manage_caption = __( 'Return to Edit Pages', 'revisionary' );
 				} else {
 					$manage_uri = 'edit.php';
@@ -653,7 +682,12 @@ jQuery(document).ready( function($) {
 			rvy_update_next_publish_date();
 
 			if ( 'page' == $object_type ) {
-				$manage_uri = 'edit-pages.php';
+				
+				if ( awp_ver( '3.0-dev' ) )
+					$manage_uri = 'edit.php?post_type=page';
+				else
+					$manage_uri = 'edit-pages.php';
+				
 				$manage_caption = __( 'Return to Edit Pages', 'revisionary' );
 			} else {
 				$manage_uri = 'edit.php';

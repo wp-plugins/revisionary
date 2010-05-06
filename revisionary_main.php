@@ -48,18 +48,18 @@ class Revisionary
 	function flt_user_has_cap($wp_blogcaps, $reqd_caps, $args)	{
 		if ( ! rvy_get_option('pending_revisions') )
 			return $wp_blogcaps;
-		
-		$post_id = rvy_detect_post_id();
 
 		$script_name = $_SERVER['SCRIPT_NAME'];
 		
 		if ( ! $this->skip_revision_allowance ) {
+			$object_type = awp_post_type_from_uri();
+			$post_id = rvy_detect_post_id();
+			
 			// Allow Contributors / Revisors to edit published post/page, with change stored as a revision pending review
 			$replace_caps = array('edit_published_posts', 'edit_private_posts', 'publish_posts');
 			if ( array_intersect( $reqd_caps, $replace_caps) ) {	// don't need to fudge the capreq for post.php unless existing post has public/private status
 				if ( is_preview() || strpos($script_name, 'p-admin/edit.php') || strpos($script_name, 'p-admin/edit-pages.php') || strpos($script_name, 'p-admin/widgets.php') || ( in_array( get_post_field('post_status', $post_id ), array('publish', 'private') ) ) ) {
-
-					if ( strpos($script_name, 'p-admin/page.php') || strpos($script_name, 'p-admin/edit-pages.php') )
+					if ( 'page' == $object_type )
 						$use_cap_req = 'edit_pages';
 					else
 						$use_cap_req = 'edit_posts';
@@ -82,7 +82,9 @@ class Revisionary
 			}
 		}
 		
-		if ( in_array( 'edit_others_posts', $reqd_caps ) && ( strpos($script_name, 'p-admin/page.php') || strpos($script_name, 'p-admin/page-new.php') ) ) {
+		if ( in_array( 'edit_others_posts', $reqd_caps ) && ( 'page' == $object_type ) ) {
+			if ( ! $object_type )
+				$object_type = awp_post_type_from_uri();
 			
 			// Allow contributors to edit published post/page, with change stored as a revision pending review
 			if ( ! rvy_metaboxes_started('page') && ! strpos($script_name, 'p-admin/revision.php') && false === strpos(urldecode($_SERVER['REQUEST_URI']), 'admin.php?page=rvy-revisions' )  ) // don't enable contributors to view/restore revisions
