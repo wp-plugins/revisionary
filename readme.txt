@@ -52,6 +52,11 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 == Changelog ==
 
+= 1.0.4 - 6 May 2010 =
+* BugFix : Pending Revision Approval email used invalid permalink if permalink structure changed since original post storage
+* BugFix : Schedule Revision Publication email used invalid permalink if permalink structure changed since original post storage
+
+
 = 1.0.3 - 6 May 2010 =
 * Compat : WP elimination of page.php, edit-pages.php, page-new.php broke many aspects of page filtering
 * BugFix : Trash link did not work for revisions in Edit Posts/Pages listing

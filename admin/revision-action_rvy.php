@@ -138,7 +138,7 @@ function rvy_revision_approve() {
 				
 				$message .= __( 'Review it here: ', 'revisionary' ) . admin_url("admin.php?page=rvy-revisions&action=view&revision={$revision->ID}") . "\r\n\r\n";
 			} else {
-				$message .= __( 'View it online: ', 'revisionary' ) . $post->guid . "\r\n";	
+				$message .= __( 'View it online: ', 'revisionary' ) . get_permalink($post->ID) . "\r\n";	
 			}
 
 			if ( $author = new WP_User( $post->post_author ) ) {
@@ -171,7 +171,7 @@ function rvy_revision_approve() {
 				
 				$message .= __( 'Review it here: ', 'revisionary' ) . admin_url("admin.php?page=rvy-revisions&action=view&revision={$revision->ID}") . "\r\n\r\n";
 			} else {
-				$message .= __( 'View it online: ', 'revisionary' ) . $post->guid . "\r\n";	
+				$message .= __( 'View it online: ', 'revisionary' ) . get_permalink($post->ID) . "\r\n";	
 			}
 
 
@@ -563,7 +563,7 @@ function rvy_publish_scheduled_revisions() {
 					$message = sprintf( __('The scheduled revision you submitted for the %1$s "%2$s" has been published.', 'revisionary' ), $type_caption, $row->post_title ) . "\r\n\r\n";
 					
 					if ( ! empty($post->ID) )
-						$message .= __( 'View it online: ', 'revisionary' ) . $post->guid . "\r\n";
+						$message .= __( 'View it online: ', 'revisionary' ) . get_permalink($post->ID) . "\r\n";
 		
 					if ( $author = new WP_User( $row->post_author ) )
 						rvy_mail( $author->user_email, $title, $message );
@@ -580,7 +580,7 @@ function rvy_publish_scheduled_revisions() {
 						$message .= sprintf( __('It was submitted by %1$s.'), $revisor->display_name ) . "\r\n\r\n";
 					
 					if ( ! empty($post->ID) )
-						$message .= __( 'View it online: ', 'revisionary' ) . $post->guid . "\r\n";
+						$message .= __( 'View it online: ', 'revisionary' ) . get_permalink($post->ID) . "\r\n";
 		
 					if ( $author = new WP_User( $post->post_author ) )
 						rvy_mail( $author->user_email, $title, $message );
@@ -598,7 +598,7 @@ function rvy_publish_scheduled_revisions() {
 						$message .= sprintf( __('It was submitted by %1$s.'), $author->display_name ) . "\r\n\r\n";
 					
 					if ( ! empty($post->ID) )
-						$message .= __( 'View it online: ', 'revisionary' ) . $post->guid . "\r\n";
+						$message .= __( 'View it online: ', 'revisionary' ) . get_permalink($post->ID) . "\r\n";
 
 					$object_id = ( isset($post) && isset($post->ID) ) ? $post->ID : $row->ID;
 					$object_type = ( isset($post) && isset($post->post_type) ) ? $post->post_type : 'post';
