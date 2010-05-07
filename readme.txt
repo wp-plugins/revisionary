@@ -3,7 +3,7 @@ Contributors: kevinB
 Donate link: http://agapetry.net/news/introducing-role-scoper/#role-scoper-download
 Tags: revision, access, permissions, cms, user, groups, members, admin, pages, posts, page, Post
 Requires at least: 2.6
-Tested up to: 2.9
+Tested up to: 3.0
 Stable Tag: 1.0.2
 
 Enables qualified users to submit changes to currently published posts or pages.  These changes, if approved by an Editor, can be published immediately or scheduled for future publication.
@@ -52,13 +52,17 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 == Changelog ==
 
+= 1.0.5 - 7 May 2010 =
+* Compat : WP 3.0 Multisite menu items had invalid link
+
+
 = 1.0.4 - 6 May 2010 =
 * BugFix : Pending Revision Approval email used invalid permalink if permalink structure changed since original post storage
 * BugFix : Schedule Revision Publication email used invalid permalink if permalink structure changed since original post storage
 
 
 = 1.0.3 - 6 May 2010 =
-* Compat : WP elimination of page.php, edit-pages.php, page-new.php broke many aspects of page filtering
+* Compat : WP 3.0 elimination of page.php, edit-pages.php, page-new.php broke many aspects of page filtering
 * BugFix : Trash link did not work for revisions in Edit Posts/Pages listing
 * Change : Administrators and Editors now retain Quick Edit link for non-revisions in Edit Pages, Edit Posts listing
 * BugFix : "Publishers to Notify" metabox was included even if no eligible recipients are designated

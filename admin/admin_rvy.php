@@ -268,11 +268,13 @@ jQuery(document).ready( function($) {
 			
 		// WP MU site options
 		if ( IS_MU_RVY ) {
+			$pfx = ( awp_ver('3.0-dev') ) ? 'ms' : 'wpmu';
+			
 			// RS Site Options
-			add_submenu_page('wpmu-admin.php', __('Revisionary Options', 'revisionary'), __('Revisionary Options', 'revisionary'), 'read', 'rvy-site_options');
+			add_submenu_page("$pfx-admin.php", __('Revisionary Options', 'revisionary'), __('Revisionary Options', 'revisionary'), 'read', 'rvy-site_options');
 			
 			$func = "include_once('$path' . '/admin/options.php');rvy_options( true );";
-			add_action('wpmu-admin_page_rvy-site_options', create_function( '', $func ) );	
+			add_action("$pfx-admin_page_rvy-site_options", create_function( '', $func ) );	
 
 			global $rvy_default_options, $rvy_options_sitewide;
 			
@@ -282,10 +284,10 @@ jQuery(document).ready( function($) {
 			
 			if ( count($rvy_options_sitewide) != count($rvy_default_options) ) {
 				// RS Default Options (for per-blog settings)
-				add_submenu_page('wpmu-admin.php', __('Revisionary Option Defaults', 'revisionary'), __('Revisionary Defaults', 'revisionary'), 'read', 'rvy-default_options');
+				add_submenu_page("$pfx-admin.php", __('Revisionary Option Defaults', 'revisionary'), __('Revisionary Defaults', 'revisionary'), 'read', 'rvy-default_options');
 				
 				$func = "include_once('$path' . '/admin/options.php');rvy_options( false, true );";
-				add_action('wpmu-admin_page_rvy-default_options', create_function( '', $func ) );	
+				add_action("$pfx-admin_page_rvy-default_options", create_function( '', $func ) );	
 			}
 		}
 		

@@ -58,7 +58,7 @@ if ( ! function_exists('awp_is_mu') ) {
 function awp_is_mu() {
 	global $wpdb, $wpmu_version;
 	
-	return ( ! empty($wpmu_version) || ( ! empty( $wpdb->base_prefix ) && ( $wpdb->base_prefix != $wpdb->prefix ) ) );
+	return ( ( defined('MULTISITE') && MULTISITE ) || function_exists('get_current_site_name') || ! empty($wpmu_version) || ( ! empty( $wpdb->base_prefix ) && ( $wpdb->base_prefix != $wpdb->prefix ) ) );
 }
 }
 
