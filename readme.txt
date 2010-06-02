@@ -4,7 +4,7 @@ Donate link: http://agapetry.net/news/introducing-role-scoper/#role-scoper-downl
 Tags: revision, access, permissions, cms, user, groups, members, admin, pages, posts, page, Post
 Requires at least: 2.6
 Tested up to: 3.0
-Stable Tag: 1.0.2
+Stable Tag: 1.0.5
 
 Enables qualified users to submit changes to currently published posts or pages.  These changes, if approved by an Editor, can be published immediately or scheduled for future publication.
 
