@@ -1,5 +1,4 @@
 <?php
-
 function rvy_load_textdomain() {
 	if ( defined('RVY_TEXTDOMAIN_LOADED') )
 		return;

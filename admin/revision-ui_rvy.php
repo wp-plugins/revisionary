@@ -1,5 +1,4 @@
 <?php
-
 /**
  * revision-ui_rvy.php
  * 
@@ -10,6 +9,18 @@
  * 
  */
 
+ // clear TinyMCE plugin conflicts (this is only applied for the Revision Manager url)
+function rvy_clear_mce_plugins( $mce_plugins ) {
+	if ( is_array( $mce_plugins ) ) {
+		$mce_offenders = array( 'cforms' );
+		$mce_plugins = array_diff_key( $mce_plugins, array_fill_keys( $mce_offenders, true ) );
+	}
+		
+	return $mce_plugins;
+}
+add_filter( 'mce_external_plugins', 'rvy_clear_mce_plugins', 99 );
+ 
+ 
 function rvy_metabox_notification_list( $topic ) {
 
 	if ( 'pending_revision' == $topic ) {	
