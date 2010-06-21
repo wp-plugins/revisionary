@@ -4,7 +4,7 @@ Donate link: http://agapetry.net/news/introducing-role-scoper/#role-scoper-downl
 Tags: revision, access, permissions, cms, user, groups, members, admin, pages, posts, page, Post
 Requires at least: 2.6
 Tested up to: 3.0
-Stable Tag: 1.0.6
+Stable Tag: 1.0.7
 
 Enables qualified users to submit changes to currently published posts or pages.  These changes, if approved by an Editor, can be published immediately or scheduled for future publication.
 
@@ -51,6 +51,10 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 
 == Changelog ==
+
+= 1.0.7 - 21 June 2010 =
+* BugFix : Revisionary prevented the normal scheduling of drafts for first-time publishing
+
 
 = 1.0.6 - 18 June 2010 =
 * Compat : CForms conflict broke TinyMCE edit form in Revisions Manager 

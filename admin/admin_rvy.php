@@ -2,7 +2,7 @@
 // menu icons by Jonas Rask: http://www.jonasraskdesign.com/
 if( basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME']) )
 	die();
-
+	
 $wp_content = ( is_ssl() || ( is_admin() && defined('FORCE_SSL_ADMIN') && FORCE_SSL_ADMIN ) ) ? str_replace( 'http:', 'https:', WP_CONTENT_URL ) : WP_CONTENT_URL;
 define ('RVY_URLPATH', $wp_content . '/plugins/' . RVY_FOLDER);
 
@@ -445,9 +445,12 @@ jQuery(document).ready( function($) {
 	
 	// If Scheduled Revisions are enabled, don't allow WP to force current post status to future based on publish date
 	function flt_insert_post_data( $data, $postarr ) {
-		if ( ( 'future' == $data['post_status'] ) && ( 'publish' == $postarr['post_status'] ) )
-			$data['post_status'] = 'publish';
-			
+		if ( ( 'future' == $data['post_status'] ) && ( 'publish' == $postarr['post_status'] ) ) {
+			// don't interfere with scheduling of unpublished drafts
+			if ( in_array( $_POST['original_post_status'], array( 'publish', 'private' ) )  || in_array( $_POST['hidden_post_status'], array( 'publish', 'private' ) ) )
+				$data['post_status'] = 'publish';
+		}
+		
 		return $data;
 	}
 	
@@ -644,7 +647,11 @@ jQuery(document).ready( function($) {
 		
 		if ( isset($_POST['action']) && ( 'autosave' == $_POST['action'] ) )
 			return;
-			
+		
+		// don't interfere with scheduling of unpublished drafts
+		if ( ! in_array( $_POST['original_post_status'], array( 'publish', 'private' ) )  && ! in_array( $_POST['hidden_post_status'], array( 'publish', 'private' ) ) )
+			return;	
+
 		$post_arr = $_POST;
 		
 		if ( ! empty($post_arr['post_date_gmt']) && ( strtotime($post_arr['post_date_gmt'] ) > agp_time_gmt() ) ) {
