@@ -55,59 +55,12 @@ class RvyOptionUI {
 		
 		return $return;
 	}
-	
-	
-	function otype_option_checkboxes( $option_name, $caption, $tab_name, $section_name, $hint_text, $trailing_html, $args = '' ) {
-		global $scoper;
-		
-		if ( ! is_array($args) )
-			$args = array();
-		
-		$return = array( 'in_scope' => false, 'val' => array() );
-		
-		if ( in_array( $option_name, $this->form_options[$tab_name][$section_name] ) ) {
-			$this->all_otype_options []= $option_name;
-			
-			if ( isset($this->def_otype_options[$option_name]) ) {
-				if ( ! $return['val'] = rvy_get_option( $option_name, $this->sitewide, $this->customize_defaults ) )
-					$return['val'] = array();
-					
-				$return['val'] = array_merge($this->def_otype_options[$option_name], $return['val']);
-				
-				$plural_display_name = ( isset($args['plural_display_name']) ) ? $args['plural_display_name'] : true;
-				
-				foreach ( $return['val'] as $src_otype => $val ) {
-					$display_name_plural = $scoper->admin->interpret_src_otype($src_otype, $plural_display_name); //arg: use plural display name
-						
-					$id = str_replace(':', '_', $option_name . '-' . $src_otype);
-					
-					echo "<label for='$id'>";
-					echo "<input name='$id' type='checkbox' id='$id' value='1' " . checked('1', $val, false) . " /> ";
-	
-					printf( $caption, $display_name_plural );
-					echo ('</label><br />');
-				} // end foreach src_otype
-					
-				if ( $hint_text && $this->display_hints )
-					echo "<span class='rs-subtext'>" . $hint_text . "</span>";
-			
-				if ( $trailing_html )
-					echo $trailing_html;
-					
-			} // endif default option isset
-			
-			$return['in_scope'] = true;
-				
-		} // endif in this option is controlled in this scope
-		
-		return $return;
-	}
 }
 	
 	
 function rvy_options( $sitewide = false, $customize_defaults = false ) {
 
-if ( ! current_user_can( 'manage_options' ) || ( $sitewide && ! is_site_admin() ) )
+if ( ! current_user_can( 'manage_options' ) || ( $sitewide && ! is_super_admin() ) )
 	wp_die(__awp('Cheatin&#8217; uh?'));
 
 if ( $sitewide )
@@ -123,6 +76,7 @@ $ui->tab_captions = array( 'features' => __( 'Features', 'revisionary' ), 'optsc
 
 $ui->section_captions = array(
 	'features' => array(
+		'role_definition' => __('Role Definition', 'revisionary'),
 		'revisions'		=> __('Revisions', 'revisionary'),
 		'notification'	=> __('Email Notification', 'revisionary')
 	)
@@ -140,7 +94,8 @@ $ui->option_captions = array(
 	'rev_approval_notify_revisor' => __('Email the Revisor when a Pending Revision is approved', 'revisionary'),
 	'publish_scheduled_notify_author' => __('Email the original Author when a Scheduled Revision is published', 'revisionary'),
 	'publish_scheduled_notify_revisor' => __('Email the Revisor when a Scheduled Revision is published', 'revisionary'),
-	'async_email' => __('Asynchronous Email Processing', 'revisionary')
+	'async_email' => __('Asynchronous Email Processing', 'revisionary'),
+	'revisor_role_add_custom_rolecaps' => __('Include capabilities for all custom post types in the WordPress Revisor role', 'revisionary' ) 
 );
 
 if ( defined('SCOPER_VERSION') ) {
@@ -154,6 +109,7 @@ if ( defined('SCOPER_VERSION') ) {
 
 $ui->form_options = array( 
 'features' => array(
+	'role_definition' => 	array( 'revisor_role_add_custom_rolecaps' ),
 	'revisions'		=>		array( 'scheduled_revisions', 'pending_revisions', 'diff_display_strip_tags', 'async_scheduled_publish' ),
 	'notification'	=>		array( 'pending_rev_notify_admin', 'pending_rev_notify_author', 'rev_approval_notify_author', 'rev_approval_notify_revisor', 'publish_scheduled_notify_admin', 'publish_scheduled_notify_author', 'publish_scheduled_notify_revisor', 'async_email' )
 )
@@ -256,7 +212,7 @@ if ( rvy_get_option('display_hints', $sitewide, $customize_defaults) ) {
 	echo '<div class="rs-optionhint">';
 	_e('This page enables <strong>optional</strong> adjustment of Revisionary\'s features. For most installations, the default settings are fine.', 'revisionary');
 	
-	if ( IS_MU_RVY && is_site_admin() ) {
+	if ( IS_MU_RVY && is_super_admin() ) {
 		if ( $sitewide ) {
 			if ( ! $customize_defaults ) {
 				$link_open = "<a href='admin.php?page=rvy-options'>";
@@ -284,6 +240,20 @@ $table_class = 'form-table rs-form-table';
 
 <?php
 // possible TODO: replace redundant hardcoded IDs with $id
+
+	$section = 'role_definition';			// --- ROLE DEFINITION SECTION ---
+
+	if ( ! empty( $ui->form_options[$tab][$section] ) ) :?>
+		<tr valign="top"><th scope="row">
+		<?php echo $ui->section_captions[$tab][$section]; ?>
+		</th><td>
+
+		<?php 
+		$ui->option_checkbox( 'revisor_role_add_custom_rolecaps', $tab, $section, '', '' );
+		?>
+		</td></tr>
+	<?php endif; // any options accessable in this section
+
 
 $pending_revisions_available = ! IS_MU_RVY || $sitewide || empty( $rvy_options_sitewide['pending_revisions'] ) || rvy_get_option( 'pending_revisions', true );
 $scheduled_revisions_available = ! IS_MU_RVY || $sitewide || empty( $rvy_options_sitewide['scheduled_revisions'] ) || rvy_get_option( 'scheduled_revisions', true );
@@ -326,7 +296,7 @@ $pending_revisions_available || $scheduled_revisions_available ) :
 		
 		<?php 
 		if( $pending_revisions_available ) {
-			$subcaption = ( defined('SCOPER_VERSION') && $group = ScoperAdminLib::get_group_by_name( '[Scheduled Revision Monitors]' ) ) ?
+			$subcaption = ( defined('SCOPER_VERSION') && $group = ScoperAdminLib::get_group_by_name( '[Pending Revision Monitors]' ) ) ?
 				sprintf( " &bull;&nbsp;<a href='%s'>" . __('select recipients', 'revisionary') . "</a>", "admin.php?page=rs-groups&mode=edit&id=$group->ID" ) : '';
 			
 			// TODO: $ui->option_dropdown() method
@@ -380,7 +350,7 @@ $pending_revisions_available || $scheduled_revisions_available ) :
 		if( $scheduled_revisions_available ) {
 			echo '<br />';
 					
-			$subcaption = ( defined('SCOPER_VERSION') && $group = ScoperAdminLib::get_group_by_name( '[Pending Revision Monitors]' ) ) ?
+			$subcaption = ( defined('SCOPER_VERSION') && $group = ScoperAdminLib::get_group_by_name( '[Scheduled Revision Monitors]' ) ) ?
 				sprintf( " &bull;&nbsp;<a href='%s'>" . __('select recipients', 'revisionary') . "</a>", "admin.php?page=rs-groups&mode=edit&id=$group->ID" ) : '';
 
 			$hint = '';

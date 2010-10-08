@@ -54,7 +54,9 @@ function rvy_revision_diff() {
 	} while ( 0 );
 
 	
-	if ( empty($post) || ! in_array( $post->post_type, array( 'post', 'page' ) ) )
+	$public_types = array_diff( get_post_types( array( 'public' => true ) ), array( 'attachment' ) );
+	
+	if ( empty($post) || ! in_array( $post->post_type, $public_types ) )
 		$redirect = 'edit.php';
 	else
 		$redirect = "admin.php?page=rvy-revisions&action=diff&left=$left&right=$right";	
@@ -121,10 +123,11 @@ function rvy_revision_approve() {
 			$scheduled = $revision->post_date;
 		}
 		
-		
+
+		$type_obj = get_post_type_object( $post->post_type );
+		$type_caption = $type_obj->labels->singular_name;
+
 		if ( $db_action && ( $post->post_author != $revision->post_author ) && rvy_get_option( 'rev_approval_notify_author' ) ) {
-			$type_caption = ( 'page' == $post->post_type ) ? __('page') : __('post');
-			
 			$title = sprintf(__('[%s] Revision Approval Notice', 'revisionary' ), get_option('blogname'));
 				
 			$message = sprintf( __('A revision to your %1$s "%2$s" has been approved.', 'revisionary' ), $type_caption, $post->post_title ) . "\r\n\r\n";
@@ -160,8 +163,6 @@ function rvy_revision_approve() {
 		
 		
 		if ( $db_action && rvy_get_option( 'rev_approval_notify_revisor' ) ) {
-			$type_caption = ( 'page' == $post->post_type ) ? __('page') : __('post');
-			
 			$title = sprintf(__('[%s] Revision Approval Notice', 'revisionary' ), get_option('blogname'));
 				
 			$message = sprintf( __('The revision you submitted for the %1$s "%2$s" has been approved.', 'revisionary' ), $type_caption, $revision->post_title ) . "\r\n\r\n";
@@ -200,11 +201,8 @@ function rvy_revision_approve() {
 	} while (0);
 	
 	if ( ! $redirect ) {
-		if ( ! empty($post) && is_object($post) && ( 'page' == $post->post_type ) ) {
-			if ( awp_ver( '3.0-dev' ) )
-				$redirect = 'edit.php?post_type=page';
-			else
-				$redirect = 'edit-pages.php';
+		if ( ! empty($post) && is_object($post) && ( 'post' != $post->post_type ) ) {
+			$redirect = "edit.php?post_type={$post->post_type}";
 		} else
 			$redirect = 'edit.php';
 	}
@@ -252,11 +250,8 @@ function rvy_revision_restore() {
 	} while (0);
 
 	if ( ! $redirect ) {
-		if ( ! empty($post) && is_object($post) && ( 'page' == $post->post_type ) ) {
-			if ( awp_ver( '3.0-dev' ) )
-				$redirect = 'edit.php?post_type=page';
-			else
-				$redirect = 'edit-pages.php';
+		if ( ! empty($post) && is_object($post) && ( 'post' != $post->post_type ) ) {
+			$redirect = "edit.php?post_type={$post->post_type}";
 		} else
 			$redirect = 'edit.php';
 	}
@@ -310,11 +305,8 @@ function rvy_revision_delete() {
 		$redirect = str_replace( 'trashed=', 'deleted=', $_SERVER['HTTP_REFERER'] );
 		
 	} elseif ( ! $redirect ) {
-		if ( $post && ( 'page' == $post->post_type ) ) {
-			if ( awp_ver( '3.0-dev' ) )
-				$redirect = 'edit.php?post_type=page';
-			else
-				$redirect = 'edit-pages.php';
+		if ( ! empty($post) && is_object($post) && ( 'post' != $post->post_type ) ) {
+			$redirect = "edit.php?post_type={$post->post_type}";
 		} else
 			$redirect = 'edit.php';
 	}
@@ -460,11 +452,8 @@ function rvy_revision_edit() {
 	} while (0);
 	
 	if ( ! $redirect ) {
-		if ( $post && ( 'page' == $post->post_type ) ) {
-			if ( awp_ver( '3.0-dev' ) )
-				$redirect = 'edit.php?post_type=page';
-			else
-				$redirect = 'edit-pages.php';
+		if ( ! empty($post) && is_object($post) && ( 'post' != $post->post_type ) ) {
+			$redirect = "edit.php?post_type={$post->post_type}";
 		} else
 			$redirect = 'edit.php';
 	}
@@ -501,11 +490,8 @@ function rvy_revision_unschedule() {
 	} while (0);
 	
 	if ( ! $redirect ) {
-		if ( $post && ( 'page' == $post->post_type ) ) {
-			if ( awp_ver( '3.0-dev' ) )
-				$redirect = 'edit.php?post_type=page';
-			else
-				$redirect = 'edit-pages.php';
+		if ( ! empty($post) && is_object($post) && ( 'post' != $post->post_type ) ) {
+			$redirect = "edit.php?post_type={$post->post_type}";
 		} else
 			$redirect = 'edit.php';
 	}
@@ -555,9 +541,10 @@ function rvy_publish_scheduled_revisions() {
 				
 				$post =& get_post( $row->post_parent );
 				
+				$type_obj = get_post_type_object( $post->post_type );
+				$type_caption = $type_obj->labels->singular_name;
+				
 				if ( rvy_get_option( 'publish_scheduled_notify_revisor' ) ) {
-					$type_caption = ( $post && ( 'page' == $post->post_type ) ) ? __('page') : __('post');
-					
 					$title = sprintf(__('[%s] Scheduled Revision Publication Notice', 'revisionary' ), get_option('blogname'));
 					
 					$message = sprintf( __('The scheduled revision you submitted for the %1$s "%2$s" has been published.', 'revisionary' ), $type_caption, $row->post_title ) . "\r\n\r\n";
@@ -570,8 +557,6 @@ function rvy_publish_scheduled_revisions() {
 				}
 				
 				if ( ( $post->post_author != $revision->post_author ) && rvy_get_option( 'publish_scheduled_notify_author' ) ) {
-					$type_caption = ( $post && ( 'page' == $post->post_type ) ) ? __('page') : __('post');
-					
 					$title = sprintf(__('[%s] Scheduled Revision Publication Notice', 'revisionary' ), get_option('blogname'));
 					
 					$message = sprintf( __('A scheduled revision to your %1$s "%2$s" has been published.', 'revisionary' ), $type_caption, $post->post_title ) . "\r\n\r\n";
@@ -588,8 +573,6 @@ function rvy_publish_scheduled_revisions() {
 				
 
 				if ( rvy_get_option( 'publish_scheduled_notify_admin' ) ) {
-					$type_caption = ( ! empty($post) && 'page' == $post->post_type ) ? __('page') : __('post');
-					
 					$title = sprintf(__('[%s] Scheduled Revision Publication'), get_option('blogname'));
 					
 					$message = sprintf( __('A scheduled revision to the %1$s "%2$s" has been published.'), $type_caption, $row->post_title ) . "\r\n\r\n";

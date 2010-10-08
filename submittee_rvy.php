@@ -7,7 +7,7 @@ class Revisionary_Submittee {
 
 	function handle_submission($action, $sitewide = false, $customize_defaults = false) {
 		if ( ( $sitewide || $customize_defaults ) ) {
-			if ( ! is_site_admin() )
+			if ( ! is_super_admin() )
 				wp_die(__awp('Cheatin&#8217; uh?'));
 		
 		} elseif ( ! current_user_can( 'manage_options' ) )

@@ -33,7 +33,7 @@ function awp_ver($wp_ver_requirement) {
 // TODO: move these function to core-admin_lib.php, update extensions accordingly
 if ( ! function_exists('awp_plugin_info_url') ) {
 function awp_plugin_info_url( $plugin_slug ) {
-	$url = ( awp_ver('2.7') ) ? admin_url("plugin-install.php?tab=plugin-information&plugin=$plugin_slug") : "http://wordpress.org/extend/plugins/$plugin_slug";
+	$url = admin_url("plugin-install.php?tab=plugin-information&plugin=$plugin_slug");
 	return $url;
 }
 }
@@ -49,7 +49,7 @@ if ( ! function_exists('awp_plugin_search_url') ) {
 function awp_plugin_search_url( $search, $search_type = 'tag' ) {
 	$wp_org_dir = 'tags';
 	
-	$url = ( awp_ver('2.7') ) ? admin_url("plugin-install.php?tab=search&type=$search_type&s=$search") : "http://wordpress.org/extend/plugins/$wp_org_dir/$search";
+	$url = admin_url("plugin-install.php?tab=search&type=$search_type&s=$search");
 	return $url;
 }
 }
@@ -87,7 +87,7 @@ function agp_date_i18n( $datef, $timestamp ) {
 // Role Scoper < 1.1 was missing function_exists check for awp_user_can
 if ( ! function_exists('agp_user_can') ) {
 function agp_user_can($reqd_caps, $object_id = 0, $user_id = 0, $args = array() ) {
-	if ( function_exists('is_site_admin') && is_site_admin() ) 
+	if ( function_exists('is_super_admin') && is_super_admin() ) 
 		return true;
 
 	// $args supports 'skip_revision_allowance'.  For now, skip array_merge with defaults, for perf
@@ -95,12 +95,17 @@ function agp_user_can($reqd_caps, $object_id = 0, $user_id = 0, $args = array() 
 	if ( empty($user) )
 		return false;
 		
-	if ($user_id && ($user_id != $user->ID) ) {
+	if ( $user_id && ($user_id != $user->ID) ) {
 		$user = new WP_User($user_id);  // don't need Scoped_User because only using allcaps property (which contain WP blogcaps)
 		if ( empty($user) )
 			return false;
 	}
 
+	if ( ! empty( $args['skip_revision_allowance'] ) ) {
+		global $revisionary;
+		$revisionary->skip_revision_allowance = true;	// this will affect the behavior of Role Scoper's user_has_cap filter
+	}
+	
 	$reqd_caps = (array) $reqd_caps;
 	$check_caps = $reqd_caps;
 	foreach ( $check_caps as $cap_name ) {
@@ -108,11 +113,6 @@ function agp_user_can($reqd_caps, $object_id = 0, $user_id = 0, $args = array() 
 			$reqd_caps = array_diff( $reqd_caps, array($cap_name) );
 			$reqd_caps = array_unique( array_merge( $reqd_caps, $meta_caps ) );
 		}
-	}
-	
-	if ( ! empty( $args['skip_revision_allowance'] ) ) {
-		global $revisionary;
-		$revisionary->skip_revision_allowance = true;	// this will affect the behavior of Role Scoper's user_has_cap filter
 	}
 	
 	if ( defined('SCOPER_VERSION') && ( 'blog' == $object_id ) ) {
@@ -125,7 +125,7 @@ function agp_user_can($reqd_caps, $object_id = 0, $user_id = 0, $args = array() 
 	}
 	
 	$_args = ( 'blog' == $object_id ) ? array( $reqd_caps, $user->ID, 0 ) : array( $reqd_caps, $user->ID, $object_id );
-	
+
 	$capabilities = apply_filters('user_has_cap', $user->allcaps, $reqd_caps, $_args);
 	
 	if ( defined('SCOPER_VERSION') && ('blog' == $object_id) ) {
@@ -142,8 +142,8 @@ function agp_user_can($reqd_caps, $object_id = 0, $user_id = 0, $args = array() 
 		if( empty($capabilities[$cap_name]) || ! $capabilities[$cap_name] ) {
 			// if we're about to fail due to a missing create_child_pages cap, honor edit_pages cap as equivalent
 			// TODO: abstract this with cap_defs property
-			if ( 'create_child_pages' == $cap_name ) {
-				$alternate_cap_name = 'edit_pages';
+			if ( 0 === strpos( $cap_name, 'create_child_' ) ) {
+				$alternate_cap_name = str_replace( 'create_child_', 'edit_', $cap_name );
 				$_args = array( array($alternate_cap_name), $user->ID, $object_id );
 				$capabilities = apply_filters('user_has_cap', $user->allcaps, array($alternate_cap_name), $_args);
 				
@@ -162,39 +162,23 @@ if ( ! function_exists('awp_post_type_from_uri') ) {
 function awp_post_type_from_uri() {
 	$script_name = $_SERVER['SCRIPT_NAME'];
 	
-	// As of WP 3.0, post.php is used for all post types (TODO: move this to a function)
-	if ( strpos( $script_name, 'page-new.php' ) || strpos( $script_name, 'page.php' ) || strpos( $script_name, 'edit-pages.php' ) )
-		return 'page';
-	else {
-		if ( awp_ver( '3.0-dev' ) ) {
-			if ( strpos( $script_name, 'post-new.php' ) || strpos( $script_name, 'edit.php' ) ) {
-				$object_type = ! empty( $_GET['post_type'] ) ? $_GET['post_type'] : 'post';
-				
-			} elseif ( ! empty( $_GET['post'] ) ) {	 // post.php
-				if ( $_post = get_post( $_GET['post'] ) )
-					$object_type = $_post->post_type;
-			}
-		}
+	if ( strpos( $script_name, 'post-new.php' ) || strpos( $script_name, 'edit.php' ) ) {
+		$object_type = ! empty( $_GET['post_type'] ) ? $_GET['post_type'] : 'post';
+		
+	} elseif ( ! empty( $_GET['post'] ) ) {	 // post.php
+		if ( $_post = get_post( $_GET['post'] ) )
+			$object_type = $_post->post_type;
+	}
 
-		if ( ! empty($object_type) )
-			return $object_type;
+	if ( ! empty($object_type) )
+		return $object_type;
+	else {
+		global $post;
+		if ( ! empty($post->post_type) )
+			return $post->post_type;
 		else
 			return 'post';
 	}
-}
-}
-
-// WP < 2.8 does not define get_site_option().  This is also a factor for non-mu installations, which will use the blog-specific options table anyway
-if ( ! awp_ver( '2.8' ) && ! function_exists('get_site_option') ) {
-function get_site_option( $key, $default = false, $use_cache = true ) {
-	return get_option($key, $default);
-}
-}
-
-// WP < 2.8 does not define add_site_option().  This is also a factor for non-mu installations, which will use the blog-specific options table anyway
-if ( ! awp_ver( '2.8' ) && ! function_exists('add_site_option') ) {
-function add_site_option( $key, $value ) {
-	return update_option($key, $value);
 }
 }
 

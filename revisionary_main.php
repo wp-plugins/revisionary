@@ -51,30 +51,23 @@ class Revisionary
 
 		$script_name = $_SERVER['SCRIPT_NAME'];
 		
+		$object_type = awp_post_type_from_uri();
+		
+		$object_type_obj = get_post_type_object( $object_type );
+		$cap = $object_type_obj->cap;
+		
+		$edit_published_cap = ( isset($cap->edit_published_posts) ) ? $cap->edit_published_posts : "edit_published_{$object_type}s";
+		$edit_private_cap = ( isset($cap->edit_private_posts) ) ? $cap->edit_private_posts : "edit_private_{$object_type}s";
+		
 		if ( ! $this->skip_revision_allowance ) {
-			$object_type = awp_post_type_from_uri();
 			$post_id = rvy_detect_post_id();
-			
+
 			// Allow Contributors / Revisors to edit published post/page, with change stored as a revision pending review
-			$replace_caps = array('edit_published_posts', 'edit_private_posts', 'publish_posts');
+			$replace_caps = array( 'edit_published_posts', $edit_published_cap, 'edit_private_posts', $edit_private_cap, $cap->publish_posts, 'publish_posts' );
 			if ( array_intersect( $reqd_caps, $replace_caps) ) {	// don't need to fudge the capreq for post.php unless existing post has public/private status
 				if ( is_preview() || strpos($script_name, 'p-admin/edit.php') || strpos($script_name, 'p-admin/edit-pages.php') || strpos($script_name, 'p-admin/widgets.php') || ( in_array( get_post_field('post_status', $post_id ), array('publish', 'private') ) ) ) {
-					if ( 'page' == $object_type )
-						$use_cap_req = 'edit_pages';
-					else
-						$use_cap_req = 'edit_posts';
+					$use_cap_req = "edit_{$object_type}s";
 				
-					if ( ! empty( $wp_blogcaps[$use_cap_req] ) )
-						foreach ( $replace_caps as $replace_cap_name )
-							$wp_blogcaps[$replace_cap_name] = true;
-				}
-			}
-			
-			$replace_caps = array('edit_published_pages', 'edit_private_pages', 'publish_pages');
-			if ( array_intersect( $reqd_caps, $replace_caps) ) {	// don't need to fudge the capreq for page.php unless existing page has public/private status
-				if ( is_preview() || strpos($script_name, 'p-admin/edit.php') || strpos($script_name, 'p-admin/edit-pages.php') || strpos($script_name, 'p-admin/widgets.php') || ( in_array( get_post_field('post_status', $post_id ), array('publish', 'private') ) ) ) {
-					$use_cap_req = 'edit_pages';
-					
 					if ( ! empty( $wp_blogcaps[$use_cap_req] ) )
 						foreach ( $replace_caps as $replace_cap_name )
 							$wp_blogcaps[$replace_cap_name] = true;
@@ -82,15 +75,13 @@ class Revisionary
 			}
 		}
 		
-		if ( in_array( 'edit_others_posts', $reqd_caps ) && ( 'page' == $object_type ) ) {
-			if ( ! $object_type )
-				$object_type = awp_post_type_from_uri();
-			
+		// Special provision for Pages as of WP 2.8.4 (may become unnecessary in future WP versions)
+		if ( in_array( 'edit_others_posts', $reqd_caps ) && ( 'post' != $object_type ) ) {
 			// Allow contributors to edit published post/page, with change stored as a revision pending review
-			if ( ! rvy_metaboxes_started('page') && ! strpos($script_name, 'p-admin/revision.php') && false === strpos(urldecode($_SERVER['REQUEST_URI']), 'admin.php?page=rvy-revisions' )  ) // don't enable contributors to view/restore revisions
-				$use_cap_req = 'edit_pages';
+			if ( ! rvy_metaboxes_started() && ! strpos($script_name, 'p-admin/revision.php') && false === strpos(urldecode($_SERVER['REQUEST_URI']), 'admin.php?page=rvy-revisions' )  ) // don't enable contributors to view/restore revisions
+				$use_cap_req = $cap->edit_posts;
 			else
-				$use_cap_req = 'edit_published_pages';
+				$use_cap_req = $edit_published_cap;
 				
 			if ( ! empty( $wp_blogcaps[$use_cap_req] ) )
 				$wp_blogcaps['edit_others_posts'] = true;
@@ -106,10 +97,9 @@ class Revisionary
 			
 			if ( ! $this->skip_revision_allowance ) {
 				if ( $pos = strpos( $where, "wp_trunk_posts.post_author = $current_user->id AND" ) ) {  
-					if ( strpos( $_SERVER['REQUEST_URI'], 'page' ) )
-						$cap = 'edit_others_pages';
-					else
-						$cap = 'edit_others_posts';
+					$object_type = awp_post_type_from_uri();
+					
+					$cap = "edit_others_{$object_type}s";
 					
 					if ( current_user_can( $cap ) ) {
 						$where = str_replace( "wp_trunk_posts.post_author = $current_user->id AND", '', $where );	// current syntax as of WP 2.8.4

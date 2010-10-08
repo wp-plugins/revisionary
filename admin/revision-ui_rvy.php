@@ -42,7 +42,7 @@ function rvy_metabox_notification_list( $topic ) {
 
 				$default_ids = ScoperAdminLib::get_group_members( $group->ID, COL_ID_RS, true );
 
-				$post_publishers = $scoper->users_who_can( "edit_{$object_type}", COLS_ALL_RVY, 'post', $object_id );
+				$post_publishers = $scoper->users_who_can( "edit_{$object_type}", COLS_ALL_RVY, 'post', $object_id, array( 'force_refresh' => true ) );
 
 				$can_publish_post = array();
 				foreach ( $post_publishers as $key => $user ) {
@@ -201,7 +201,9 @@ function rvy_post_revision_title( $revision, $link = true, $date_field = 'post_d
 		if ( !$revision = get_post( $revision ) )
 			return $revision;
 
-	if ( ! in_array( $revision->post_type, array( 'post', 'page', 'revision' ) ) )
+	$public_types = array_diff( get_post_types( array( 'public' => true ) ), array( 'attachment' ) );
+			
+	if ( ! in_array( $revision->post_type, $public_types ) )
 		return false;
 	
 	/* translators: revision date format, see http://php.net/date */
@@ -303,7 +305,8 @@ function rvy_list_post_revisions( $post_id = 0, $status = '', $args = null ) {
 	$rows = '';
 	$class = false;
 	
-	$can_edit_post = agp_user_can( "edit_{$post->post_type}", $post->ID, '', array( 'skip_revision_allowance' => true ) );
+	$type_obj = get_post_type_object( $post->post_type );
+	$can_edit_post = agp_user_can( $type_obj->cap->edit_post, $post->ID, '', array( 'skip_revision_allowance' => true ) );
 
 	$count = 0;
 	$left_checked_done = false;

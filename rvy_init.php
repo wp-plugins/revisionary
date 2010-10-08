@@ -2,13 +2,35 @@
 if( basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME']) )
 	die();
 
+
+// auto-define the Revisor role to include custom post type capabilities equivalent to those added for post, page in rvy_add_revisor_role()
+function rvy_add_revisor_custom_caps() {
+	if ( ! rvy_get_option( 'revisor_role_add_custom_rolecaps' ) )
+		return;
+
+	global $wp_roles;
+
+	if ( isset( $wp_roles->roles['revisor'] ) ) {
+		if ( $custom_types = get_post_types( array( 'public' => true, '_builtin' => false ), 'object' ) ) {
+			foreach( $custom_types as $post_type => $type_obj ) {
+				$cap = $type_obj->cap;	
+				$custom_caps = array_fill_keys( array( $cap->read_private_posts, $cap->edit_posts, $cap->edit_others_posts, "delete_{$post_type}s" ), true );
+
+				$wp_roles->roles['revisor']['capabilities'] = array_merge( $wp_roles->roles['revisor']['capabilities'], $custom_caps );
+				$wp_roles->role_objects['revisor']->capabilities = array_merge( $wp_roles->role_objects['revisor']->capabilities, $custom_caps );
+			}
+		}
+	}
+}
+
+
 function rvy_activate() {
 	rvy_add_revisor_role();
 	
 	// force this timestamp to be regenerated, in case something went wrong before
 	delete_option( 'rvy_next_rev_publish_gmt' );
 }
-	
+
 function rvy_detect_post_id() {
 	if ( ! empty( $_GET['post'] ) )
 		$post_id = $_GET['post'];
@@ -429,12 +451,6 @@ function rvy_notice($message) {
 	$err = new WP_Error('Revisionary', $message);
 }
 
-if ( ! awp_ver( '2.8' ) && ! function_exists('_x') ) {
-	function _x( $text, $context, $domain ) {
-		return _c( "$text|$context", $domain );
-	}
-}
-
 function rvy_mail( $address, $title, $message ) {
 	$blog_name = get_option( 'blogname' );
 	$admin_email = get_option( 'admin_email' );
@@ -448,4 +464,5 @@ function rvy_mail( $address, $title, $message ) {
 	else
 		@wp_mail( $address, $title, $message, $headers );
 }
+
 ?>

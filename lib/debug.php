@@ -86,7 +86,7 @@ function rvy_log_mem_usage( $label, $display_total = true ) {
 // http://us2.php.net/manual/en/function.print-r.php#80289
 if ( ! function_exists('dump') ) {
 function dump(&$var, $info = FALSE, $display_objects = true)
-{
+{	
 	if ( ! defined('RS_DEBUG') )
 		return;
 

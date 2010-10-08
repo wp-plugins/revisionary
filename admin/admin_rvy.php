@@ -1,5 +1,14 @@
 <?php
+/**
+ * admin_rvy.php
+ * 
+ * @author 		Kevin Behrens
+ * @copyright 	Copyright 2010
+ * 
+ */
+
 // menu icons by Jonas Rask: http://www.jonasraskdesign.com/
+
 if( basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME']) )
 	die();
 	
@@ -19,12 +28,8 @@ class RevisionaryAdmin
 		if ( ! defined('XMLRPC_REQUEST') && ! strpos($_SERVER['SCRIPT_NAME'], 'p-admin/async-upload.php' ) ) {
 			add_action('admin_menu', array(&$this,'build_menu'));
 			
-			if ( strpos($_SERVER['SCRIPT_NAME'], 'p-admin/plugins.php') ) {
-				if ( awp_ver( '2.8' ) )
-					add_filter( 'plugin_row_meta', array(&$this, 'flt_plugin_action_links'), 10, 2 );
-				else
-					add_filter( 'plugin_action_links', array(&$this, 'flt_plugin_action_links'), 10, 2 );
-			}
+			if ( strpos($_SERVER['SCRIPT_NAME'], 'p-admin/plugins.php') )
+				add_filter( 'plugin_row_meta', array(&$this, 'flt_plugin_action_links'), 10, 2 );
 		}
 		
 		add_action('admin_footer-edit.php', array(&$this, 'act_hide_quickedit_for_revisions') );
@@ -123,8 +128,7 @@ class RevisionaryAdmin
 	// adds an Options link next to Deactivate, Edit in Plugins listing
 	function flt_plugin_action_links($links, $file) {
 		if ( $file == RVY_BASENAME ) {
-			if ( awp_ver('2.8') )
-				$links[] = "<a href='http://agapetry.net/forum/'>" . __awp('Support Forum') . "</a>";
+			$links[] = "<a href='http://agapetry.net/forum/'>" . __awp('Support Forum') . "</a>";
 			
 			$page = ( IS_MU_RVY ) ? 'rvy-site_options' : 'rvy-options';
 			$links[] = "<a href='admin.php?page=$page'>" . __awp('Options') . "</a>";
@@ -159,7 +163,7 @@ class RevisionaryAdmin
 			//wp_print_scripts( array( 'post' ) );	 // WP 2.9 broke this for Revisionary usage; manually insert pertinent scripts below instead
 			echo "\n" . "<script type='text/javascript' src='" . RVY_URLPATH . "/admin/revision-edit.js'></script>";
 			
-			if ( ( empty( $_GET['action'] ) || 'view' == $_GET['action'] ) && ! empty( $_GET['revision'] ) ) {
+			if ( ( empty( $_GET['action'] ) || in_array( $_GET['action'], array( 'view', 'edit' ) ) ) && ! empty( $_GET['revision'] ) ) {
 				if ( $revision =& get_post( $_GET['revision'] ) ) {
 					if ( ( 'revision' != $revision->post_type ) || $post =& get_post( $revision->post_parent ) ) {
 				
@@ -224,12 +228,13 @@ jQuery(document).ready( function($) {
 		// TODO: replace some of this JS with equivalent JQuery
 		if ( ! defined('SCOPER_VERSION') )
 			echo "\n" . "<script type='text/javascript' src='" . RVY_URLPATH . "/admin/revisionary.js'></script>";
-			
-		echo "\n" . "<script type='text/javascript' src='" . RVY_URLPATH . "/admin/revisionary-extra.js'></script>";
 	}
 	
 	function flt_contextual_help_list ($help, $screen) {
-		if ( in_array( $screen, array( 'edit', 'edit-pages', 'page', 'post', 'settings_page_rvy-revisions', 'settings_page_rvy-options' ) ) ) {
+		if ( is_object($screen) )
+			$screen = $screen->id;
+		
+		if ( in_array( $screen, array( 'edit', 'post', 'settings_page_rvy-revisions', 'settings_page_rvy-options' ) ) ) {
 			if ( ! isset($help[$screen]) )
 				$help[$screen] = '';
 
@@ -268,13 +273,11 @@ jQuery(document).ready( function($) {
 			
 		// WP MU site options
 		if ( IS_MU_RVY ) {
-			$pfx = ( awp_ver('3.0-dev') ) ? 'ms' : 'wpmu';
-			
 			// RS Site Options
-			add_submenu_page("$pfx-admin.php", __('Revisionary Options', 'revisionary'), __('Revisionary Options', 'revisionary'), 'read', 'rvy-site_options');
+			add_submenu_page("ms-admin.php", __('Revisionary Options', 'revisionary'), __('Revisionary Options', 'revisionary'), 'read', 'rvy-site_options');
 			
 			$func = "include_once('$path' . '/admin/options.php');rvy_options( true );";
-			add_action("$pfx-admin_page_rvy-site_options", create_function( '', $func ) );	
+			add_action("ms-admin_page_rvy-site_options", create_function( '', $func ) );	
 
 			global $rvy_default_options, $rvy_options_sitewide;
 			
@@ -284,10 +287,10 @@ jQuery(document).ready( function($) {
 			
 			if ( count($rvy_options_sitewide) != count($rvy_default_options) ) {
 				// RS Default Options (for per-blog settings)
-				add_submenu_page("$pfx-admin.php", __('Revisionary Option Defaults', 'revisionary'), __('Revisionary Defaults', 'revisionary'), 'read', 'rvy-default_options');
+				add_submenu_page("ms-admin.php", __('Revisionary Option Defaults', 'revisionary'), __('Revisionary Defaults', 'revisionary'), 'read', 'rvy-default_options');
 				
 				$func = "include_once('$path' . '/admin/options.php');rvy_options( false, true );";
-				add_action("$pfx-admin_page_rvy-default_options", create_function( '', $func ) );	
+				add_action("ms-admin_page_rvy-default_options", create_function( '', $func ) );	
 			}
 		}
 		
@@ -303,8 +306,20 @@ jQuery(document).ready( function($) {
 	function act_hide_quickedit_for_revisions() {
 		global $rvy_any_listed_revisions;
 		
-		if ( $rvy_any_listed_revisions )
-			echo "<div id='rs_hide_quickedit_ids'>" . implode( ",", $rvy_any_listed_revisions ) . "</div>";
+		$post_type = awp_post_type_from_uri();
+		$type_obj = get_post_type_object($post_type);
+		$prefix = ( $type_obj->hierarchical ) ? 'page' : 'post';
+		?>
+		<script type="text/javascript">
+		/* <![CDATA[ */
+		jQuery(document).ready( function($) {
+		<?php foreach( $rvy_any_listed_revisions as $id ): ?>
+			$( '#<?php echo($prefix . '-' . $id);?> span.inline' ).hide();
+		<?php endforeach; ?>
+		});
+		/* ]]> */
+		</script>
+		<?php
 	}
 
 	
@@ -314,37 +329,43 @@ jQuery(document).ready( function($) {
 		// TODO: allow revisioning of slug, menu order, comment status, ping status ?
 		// TODO: leave Revisions metabox for links to user's own pending revisions
 		if ( rvy_get_option( 'pending_revisions' ) ) {
-			$object_type = ( strpos( $_SERVER['REQUEST_URI'], 'page' ) ) ? 'page' : 'post';
-						
+			global $post;
+			if ( ! empty($post->post_type) )
+				$object_type = $post->post_type;
+			else
+				$object_type = awp_post_type_from_uri();
+
 			//global $scoper;
 			//$object_id = $scoper->data_sources->detect( 'id', $context->source );
 			$object_id = rvy_detect_post_id();
-			
-			$can_edit = agp_user_can( "edit_{$object_type}", $object_id, '', array( 'skip_revision_allowance' => true ) );
 
-			if ( $object_id && ! $can_edit ) {
-				if ( 'page' == $object_type )
-					$unrevisable_css_ids = array( 'pageparentdiv', 'authordiv', 'pageauthordiv', 'postcustom', 'pagecustomdiv', 'pageslugdiv', 'commentstatusdiv', 'pagecommentstatusdiv', 'password-span', 'visibility', 'edit-slug-box' );
-			 	else
-					$unrevisable_css_ids = array( 'categorydiv', 'authordiv', 'postcustom', 'customdiv', 'slugdiv', 'commentstatusdiv', 'password-span', 'trackbacksdiv',  'tagsdiv-post_tag', 'visibility', 'edit-slug-box' );
-					
-				echo( "\n<style type='text/css'>\n<!--\n" );
-					
-				foreach ( $unrevisable_css_ids as $id ) {
-					// TODO: determine if id is a metabox or not
-					
-					// thanks to piemanek for tip on using remove_meta_box for any core admin div
-					remove_meta_box($id, $object_type, 'normal');
-					remove_meta_box($id, $object_type, 'advanced');
-					
-					// also hide via CSS in case the element is not a metabox
-					echo "#$id { display: none !important; }\n";  // this line adapted from Clutter Free plugin by Mark Jaquith
-				}
-					
-				echo "-->\n</style>\n";
+			if ( $object_id ) {
+				$type_obj = get_post_type_object( $object_type );
 				
-				// display the current status, but hide edit link
-				echo "\n<style type='text/css'>\n<!--\n.edit-post-status { display: none !important; }\n-->\n</style>\n";  // this line adapted from Clutter Free plugin by Mark Jaquith
+				if ( ! agp_user_can( $type_obj->cap->edit_post, $object_id, '', array( 'skip_revision_allowance' => true ) ) ) { 
+					//if ( 'page' == $object_type )
+						$unrevisable_css_ids = array( 'pageparentdiv', 'pageauthordiv', 'pagecustomdiv', 'pageslugdiv', 'pagecommentstatusdiv' );
+				 	//else
+						$unrevisable_css_ids = array_merge( $unrevisable_css_ids, array( 'categorydiv', 'authordiv', 'postcustom', 'customdiv', 'slugdiv', 'commentstatusdiv', 'password-span', 'trackbacksdiv',  'tagsdiv-post_tag', 'visibility', 'edit-slug-box' ) );
+						
+					echo( "\n<style type='text/css'>\n<!--\n" );
+						
+					foreach ( $unrevisable_css_ids as $id ) {
+						// TODO: determine if id is a metabox or not
+						
+						// thanks to piemanek for tip on using remove_meta_box for any core admin div
+						remove_meta_box($id, $object_type, 'normal');
+						remove_meta_box($id, $object_type, 'advanced');
+						
+						// also hide via CSS in case the element is not a metabox
+						echo "#$id { display: none !important; }\n";  // this line adapted from Clutter Free plugin by Mark Jaquith
+					}
+						
+					echo "-->\n</style>\n";
+					
+					// display the current status, but hide edit link
+					echo "\n<style type='text/css'>\n<!--\n.edit-post-status { display: none !important; }\n-->\n</style>\n";  // this line adapted from Clutter Free plugin by Mark Jaquith
+				}
 			}
 		}	
 	}
@@ -517,19 +538,9 @@ jQuery(document).ready( function($) {
 				$future_date = ( ! empty($post_arr['post_date']) && ( strtotime($post_arr['post_date_gmt'] ) > agp_time_gmt() ) );
 				
 				$wpdb->query("UPDATE $wpdb->posts SET post_status = 'pending', post_parent = '$this->impose_pending_rev' $date_clause WHERE ID = '$revision_id'");
-	
-				if ( 'page' == $object_type ) {
-					if ( awp_ver( '3.0-dev' ) )
-						$manage_uri = 'edit.php?post_type=page';
-					else
-						$manage_uri = 'edit-pages.php';
-						
-					$manage_caption = __( 'Return to Edit Pages', 'revisionary' );
-				} else {
-					$manage_uri = 'edit.php';
-					$manage_caption = __( 'Return to Edit Posts', 'revisionary' );
-				}
-				
+
+				$manage_link = $this->get_manage_link( $object_type );
+								
 				if ( $future_date )
 					$msg = __('Your modification has been saved for editorial review.  If approved, it will be published on the date you specified.', 'revisionary') . ' ';
 				else
@@ -543,7 +554,7 @@ jQuery(document).ready( function($) {
 					$msg .= sprintf( '<a href="%s">' . __('Go back to Submit Another revision (possibly for a different publish date).', 'revisionary') . '</a>', "javascript:back();" );
 					$msg .= '<br /><br /></li><li>';
 				}
-				$msg .= sprintf( '<a href="%s">' . $manage_caption . '</a>', admin_url($manage_uri) );
+				$msg .= sprintf( '<a href="%s">' . $manage_link->caption . '</a>', admin_url($manage_link->uri) );
 				$msg .= '</li></ul>';
 
 			} else {
@@ -554,7 +565,8 @@ jQuery(document).ready( function($) {
 			$admin_notify = rvy_get_option( 'pending_rev_notify_admin' );
 			$author_notify = rvy_get_option( 'pending_rev_notify_author' );
 			if ( $admin_notify || $author_notify ) {
-				$type_caption = ( 'page' == $object_type ) ? __('page') : __('post');
+				$type_obj = get_post_type_object( $object_type );
+				$type_caption = $type_obj->labels->singular_name;
 				
 				$title = sprintf(__('[%s] Pending Revision Notification', 'revisionary'), get_option('blogname'));
 				
@@ -647,9 +659,12 @@ jQuery(document).ready( function($) {
 		
 		if ( isset($_POST['action']) && ( 'autosave' == $_POST['action'] ) )
 			return;
-		
+
+		$original_post_status = ( isset( $_POST['original_post_status'] ) ) ? $_POST['original_post_status'] : '';
+		$hidden_post_status = ( isset( $_POST['hidden_post_status'] ) ) ? $_POST['hidden_post_status'] : '';
+			
 		// don't interfere with scheduling of unpublished drafts
-		if ( ! in_array( $_POST['original_post_status'], array( 'publish', 'private' ) )  && ! in_array( $_POST['hidden_post_status'], array( 'publish', 'private' ) ) )
+		if ( ! in_array( $original_post_status, array( 'publish', 'private' ) )  && ! in_array( $hidden_post_status, array( 'publish', 'private' ) ) )
 			return;	
 
 		$post_arr = $_POST;
@@ -690,18 +705,7 @@ jQuery(document).ready( function($) {
 			require_once('revision-action_rvy.php');
 			rvy_update_next_publish_date();
 
-			if ( 'page' == $object_type ) {
-				
-				if ( awp_ver( '3.0-dev' ) )
-					$manage_uri = 'edit.php?post_type=page';
-				else
-					$manage_uri = 'edit-pages.php';
-				
-				$manage_caption = __( 'Return to Edit Pages', 'revisionary' );
-			} else {
-				$manage_uri = 'edit.php';
-				$manage_caption = __( 'Return to Edit Posts', 'revisionary' );
-			}
+			$manage_link = $this->get_manage_link( $object_type );
 			
 			$msg = __('Your modification was saved as a Scheduled Revision.', 'revisionary') . ' ';
 			
@@ -710,13 +714,30 @@ jQuery(document).ready( function($) {
 			$msg .= '<br /><br /></li><li>';
 			$msg .= sprintf( '<a href="%s">' . __('Go back to Schedule Another revision.', 'revisionary') . '</a>', "javascript:back();" );
 			$msg .= '<br /><br /></li><li>';
-			$msg .= sprintf( '<a href="%s">' . $manage_caption . '</a>', admin_url($manage_uri) );
+			$msg .= sprintf( '<a href="%s">' . $manage_link->caption . '</a>', admin_url($manage_link->uri) );
 			$msg .= '</li></ul>';
 			
 			wp_die( $msg, __('Scheduled Revision Created', 'revisionary'), array( 'response' => 0 ) );
 		}
 	}
 	
-	
+	function get_manage_link( $post_type ) {
+		$arr = (object) array();
+		
+		// maintaining these for back compat with existing translations
+		if ( 'post' == $post_type ) {
+			$arr->uri = 'edit.php';
+			$arr->caption = __( 'Return to Edit Posts', 'revisionary' );
+		} elseif ( 'page' == $post_type ) {
+			$arr->uri = "edit.php?post_type=$post_type";
+			$arr->caption = __( 'Return to Edit Pages', 'revisionary' );
+		} else {
+			$wp_post_type = get_post_type_object( $post_type );
+			$arr->uri = "edit.php?post_type=$post_type";
+			$arr->caption = sprintf( __( 'Return to Edit %s', 'revisionary' ), $wp_post_type->labels->name );
+		}
+		
+		return $arr;
+	}
 } // end class RevisionaryAdmin
 ?>

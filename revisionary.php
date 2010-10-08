@@ -3,15 +3,15 @@
 Plugin Name: Revisionary
 Plugin URI: http://agapetry.net/
 Description: Enables qualified users to submit changes to currently published posts or pages.  These changes, if approved by an Editor, can be published immediately or scheduled for future publication.
-Version: 1.0.7
+Version: 1.1.RC
 Author: Kevin Behrens
 Author URI: http://agapetry.net/
-Min WP Version: 2.6
+Min WP Version: 3.0
 License: GPL version 2 - http://www.opensource.org/licenses/gpl-license.php
 */
 
 /*
-Copyright (c) 2009, Kevin Behrens.
+Copyright (c) 2010, Kevin Behrens.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -42,14 +42,10 @@ if ( defined( 'RVY_VERSION' ) ) {
 	return;
 }
 
-define ('RVY_VERSION', '1.0.7');
+define ('RVY_VERSION', '1.1.RC');
 
 define ('COLS_ALL_RVY', 0);
 define ('COL_ID_RVY', 1);
-
-define( 'RVY_MIN_DATE_STRING', '0000-00-00 00:00:00' );
-define( 'RVY_MAX_DATE_STRING', '2035-01-01 00:00:00' );
-define( 'RVY_MAX_DATE_VALUE', strtotime( constant('RVY_MAX_DATE_STRING') ) );
 
 if ( defined('RS_DEBUG') ) {
 	include_once('lib/debug.php');
@@ -97,16 +93,16 @@ define ('RVY_ABSPATH', WP_CONTENT_DIR . '/plugins/' . RVY_FOLDER);
 
 $bail = 0;
 
-if ( awp_ver( '2.7' ) ) {  // older db servers running on WP < 2.7 will have to fail silently because the has_cap check was introduced in 2.7
+if ( ! awp_ver('3.0') ) {
+	rvy_notice('Sorry, Revisionary requires WordPress 3.0 or higher.  Please upgrade Wordpress or use Revisionary 1.0.x');
+	$bail = 1;
+} else {	
 	global $wpdb;
 
 	if ( ! $wpdb->has_cap( 'subqueries' ) ) {
 		rvy_notice('Sorry, Revisionary requires a database server that supports subqueries (such as MySQL 4.1+).  Please upgrade your server or deactivate Revisionary.');
 		$bail = 1;
 	}
-} elseif ( ! awp_ver('2.6') ) {
-	rvy_notice('Sorry, Revisionary requires WordPress 2.6.0 or higher.  Please upgrade Wordpress or deactivate Revisionary.');
-	$bail = 1;
 }
 
 if ( ! $bail ) {
@@ -116,6 +112,7 @@ if ( ! $bail ) {
 	
 	// since sequence of set_current_user and init actions seems unreliable, make sure our current_user is loaded first
 	add_action('init', 'rvy_init', 1);
+	add_action('init', 'rvy_add_revisor_custom_caps', 99);
 }
 
 ?>

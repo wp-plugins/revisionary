@@ -57,6 +57,9 @@ if ( ! $revision_id && ! $left && ! $right ) {
 
 $revision_status_captions = array( 'inherit' => __( 'Past', 'revisionary' ), 'pending' => __awp('Pending', 'revisionary'), 'future' => __awp( 'Scheduled', 'revisionary' ) );
 
+if( 'edit' == $action )
+	$action = 'view';
+
 switch ( $action ) :
 case 'diff' :
 	if ( !$left_revision  = get_post( $left ) )
@@ -110,7 +113,9 @@ default :
 		if ( ! $rvy_post = get_post( $revision_id) )
 			break;
 
-		if ( ! in_array( $rvy_post->post_type, array( 'post', 'page' ) ) ) {
+		$public_types = array_diff( get_post_types( array( 'public' => true ) ), array( 'attachment' ) );
+	
+		if ( ! in_array( $rvy_post->post_type, $public_types ) ) {
 			$rvy_post = '';  // todo: is this necessary?
 			break;
 		}
