@@ -202,7 +202,8 @@ function rvy_post_revision_title( $revision, $link = true, $date_field = 'post_d
 			return $revision;
 
 	$public_types = array_diff( get_post_types( array( 'public' => true ) ), array( 'attachment' ) );
-			
+	$public_types []= 'revision';
+	
 	if ( ! in_array( $revision->post_type, $public_types ) )
 		return false;
 	
@@ -383,7 +384,7 @@ function rvy_list_post_revisions( $post_id = 0, $status = '', $args = null ) {
 					$publish_date = '(' . agp_date_i18n( $datef, strtotime($revision->post_date) ) . ')';
 				else
 					$publish_date = '';
-				
+					
 			} else {
 				$preview_link = '<a href="' . site_url("?p={$revision->ID}&amp;mark_current_revision=1") . '" target="_blank">' . __awp( 'Preview' ) . '</a>';
 				

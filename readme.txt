@@ -52,6 +52,10 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 == Changelog ==
 
+= 1.1.RC.2 - 11 Oct 2010 =
+* BugFix : Listed revisions in Revision Editor were not linked for viewing / editing (since 1.1.RC)
+
+
 = 1.1.RC - 8 Oct 2010 =
 * Feature : Support Custom Post Types
 * Change : Better internal support for custom statuses
