@@ -16,7 +16,7 @@ Doesn't it seem like setting a published post/page to a future date should sched
 
 Revisionary enables qualified users to submit changes to currently published posts or pages.  Contributors also gain the ability to submit revisions to their own published content.  These changes, if approved by an Editor, can be published immediately or scheduled for future publication.
 
-For WP 2.7 to 2.9, use <a href="http://wordpress.org/extend/plugins/revisionary/download/">Revisionary 1.0.x</a>
+For WP 2.7 to 2.9, use <a href="http://agapetry.net/downloads/revisionary_legacy">Revisionary 1.0.x</a>
 
 = Partial Feature List =
 * Pending Revisions allow designated users to suggest changes to a currently published post/page
