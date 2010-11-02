@@ -63,7 +63,11 @@ class Revisionary
 			$post_id = rvy_detect_post_id();
 
 			// Allow Contributors / Revisors to edit published post/page, with change stored as a revision pending review
-			$replace_caps = array( 'edit_published_posts', $edit_published_cap, 'edit_private_posts', $edit_private_cap, $cap->publish_posts, 'publish_posts' );
+			$replace_caps = array( 'edit_published_posts', $edit_published_cap, 'edit_private_posts', $edit_private_cap );
+			
+			if ( ! strpos( $script_name, 'p-admin/edit.php' ) )
+				$replace_caps = array_merge( $replace_caps, array( $cap->publish_posts, 'publish_posts' ) );
+			
 			if ( array_intersect( $reqd_caps, $replace_caps) ) {	// don't need to fudge the capreq for post.php unless existing post has public/private status
 				if ( is_preview() || strpos($script_name, 'p-admin/edit.php') || strpos($script_name, 'p-admin/edit-pages.php') || strpos($script_name, 'p-admin/widgets.php') || ( in_array( get_post_field('post_status', $post_id ), array('publish', 'private') ) ) ) {
 					$use_cap_req = "edit_{$object_type}s";

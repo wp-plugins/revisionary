@@ -112,6 +112,25 @@ class RevisionaryAdmin
 		
 		if ( strpos( $_SERVER['REQUEST_URI'], 'edit.php' ) || strpos( $_SERVER['REQUEST_URI'], 'edit-pages.php' ) )
 			add_filter( 'get_post_time', array(&$this, 'flt_get_post_time'), 10, 3 );
+
+		add_action( 'post_submitbox_start', array( &$this, 'pending_rev_checkbox' ) );
+	}
+
+	function pending_rev_checkbox() {
+		global $post;
+
+		$status_obj = get_post_status_object( $post->post_status );
+		
+		if ( ! $status_obj || ( ! $status_obj->public && ! $status_obj->private ) )
+			return;
+
+		$type_obj = get_post_type_object( $post->post_type );
+		
+		if ( ! agp_user_can( $type_obj->cap->edit_post, $post->ID, '', array( 'skip_revision_allowance' => true ) ) )
+			return;
+
+		$caption = __( 'save as pending revision', 'revisionary' );
+		echo "<div style='float:right; margin: 0.5em'><label for='rvy_save_as_pending_rev'><input type='checkbox' style='width: 1em; min-width: 1em; text-align: right;' name='rvy_save_as_pending_rev' value='1' id='rvy_save_as_pending_rev' />$caption</label></div>";
 	}
 	
 	function act_log_revision_save() {
@@ -346,7 +365,10 @@ jQuery(document).ready( function($) {
 					//if ( 'page' == $object_type )
 						$unrevisable_css_ids = array( 'pageparentdiv', 'pageauthordiv', 'pagecustomdiv', 'pageslugdiv', 'pagecommentstatusdiv' );
 				 	//else
-						$unrevisable_css_ids = array_merge( $unrevisable_css_ids, array( 'categorydiv', 'authordiv', 'postcustom', 'customdiv', 'slugdiv', 'commentstatusdiv', 'password-span', 'trackbacksdiv',  'tagsdiv-post_tag', 'visibility', 'edit-slug-box' ) );
+						$unrevisable_css_ids = array_merge( $unrevisable_css_ids, array( 'categorydiv', 'authordiv', 'postcustom', 'customdiv', 'slugdiv', 'commentstatusdiv', 'password-span', 'trackbacksdiv',  'tagsdiv-post_tag', 'visibility', 'edit-slug-box', 'postimagediv' ) );
+
+					foreach( get_taxonomies( array(), 'object' ) as $taxonomy => $tx_obj )
+						$unrevisable_css_ids []= ( $tx_obj->hierarchical ) ? "{$taxonomy}div" : "tagsdiv-$taxonomy";
 						
 					echo( "\n<style type='text/css'>\n<!--\n" );
 						
@@ -477,6 +499,10 @@ jQuery(document).ready( function($) {
 	
 	
 	function flt_pendingrev_post_status($status) {
+		if ( ! empty( $_POST['rvy_save_as_pending_rev'] ) && ! empty($_POST['post_ID']) ) {
+			$this->impose_pending_rev = $_POST['post_ID'];
+		}
+		
 		if ( is_content_administrator_rvy() )
 			return $status;
 		
@@ -567,8 +593,9 @@ jQuery(document).ready( function($) {
 			if ( $admin_notify || $author_notify ) {
 				$type_obj = get_post_type_object( $object_type );
 				$type_caption = $type_obj->labels->singular_name;
-				
-				$title = sprintf(__('[%s] Pending Revision Notification', 'revisionary'), get_option('blogname'));
+
+				$blogname = wp_specialchars_decode( get_option('blogname'), ENT_QUOTES );
+				$title = sprintf( __('[%s] Pending Revision Notification', 'revisionary'), $blogname );
 				
 				$message = sprintf( __('A pending revision to the %1$s "%2$s" has been submitted.', 'revisionary'), $type_caption, $post_arr['post_title'] ) . "\r\n\r\n";
 				
@@ -580,7 +607,7 @@ jQuery(document).ready( function($) {
 				
 					
 				// establish the publisher recipients
-				if ( $admin_notify && ('always' != $admin_notify ) && ! empty($post_arr['prev_cc_user']) ) {
+				if ( $admin_notify && ! empty($post_arr['prev_cc_user']) ) {
 					if ( defined( 'SCOPER_VERSION' ) && ! defined( 'SCOPER_DEFAULT_MONITOR_GROUPS' ) ) {
 						global $scoper;
 						
@@ -609,8 +636,10 @@ jQuery(document).ready( function($) {
 						}
 					}
 					
-					// intersect default recipients with selected recipients						
-					$monitor_ids = array_intersect( $post_arr['prev_cc_user'], $monitor_ids );
+					if ( 'always' != $admin_notify ) {
+						// intersect default recipients with selected recipients						
+						$monitor_ids = array_intersect( $post_arr['prev_cc_user'], $monitor_ids );
+					}
 				} else
 					$monitor_ids = array();
 				

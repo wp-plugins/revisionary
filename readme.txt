@@ -4,7 +4,7 @@ Donate link: http://agapetry.net/news/introducing-role-scoper/#role-scoper-downl
 Tags: revision, access, permissions, cms, user, groups, members, admin, pages, posts, page, Post
 Requires at least: 3.0
 Tested up to: 3.0.1
-Stable Tag: 1.0.7
+Stable Tag: 1.1
 
 Enables qualified users to submit changes to currently published posts or pages.  These changes, if approved by an Editor, can be published immediately or scheduled for future publication.
 
@@ -52,6 +52,18 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 == Changelog ==
 
+= 1.1 - 2 Nov 2010 =
+* BugFix : Revision Approval notices were not sent if "always send" option enabled
+* Feature : "save as pending revision" option when logged user has full editing capabilities in Edit Post/Page form
+
+
+= 1.1.RC3 - 29 Oct 2010 =
+* BugFix : Revision preview link returned 404 (since 1.1.RC)
+* BugFix : Revision Approval emails were not sent reliably with "Asynchronous Email" option enabled (since 1.0)
+* BugFix : Custom taxonomy selection UI was not hidden when submitting a revision
+* BugFix : In Quick Edit form, Published option sometimes displayed inappropriately
+
+
 = 1.1.RC.2 - 11 Oct 2010 =
 * BugFix : Listed revisions in Revision Editor were not linked for viewing / editing (since 1.1.RC)
 
@@ -60,6 +72,7 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 * Feature : Support Custom Post Types
 * Change : Better internal support for custom statuses
 * BugFix : On Options page, links to "Pending Revision Monitors" and "Scheduled Revision Monitors" were reversed
+* BugFix : Revision Edit link from Edit Posts/Pages listing led to uneditable revision display
 * Change : Raise minimum WP version to 3.0
 
 

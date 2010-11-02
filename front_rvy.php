@@ -178,9 +178,11 @@ class RevisionaryFront {
 		
 		if ( $pub_post = get_post($published_post_id) ) {
 			$type_obj = get_post_type_object( $pub_post->post_type );
-			
-			if ( current_user_can( $type_obj->cap->edit_post, $published_post_id ) )
+
+			if ( current_user_can( $type_obj->cap->edit_post, $published_post_id ) ) {
+				$request = str_replace( "post_type = 'post'", "post_type = 'revision'", $request );
 				$request = str_replace( "post_type = '{$pub_post->post_type}'", "post_type = 'revision'", $request );
+			}
 		}
 
 		return $request;

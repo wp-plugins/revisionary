@@ -452,17 +452,17 @@ function rvy_notice($message) {
 }
 
 function rvy_mail( $address, $title, $message ) {
-	$blog_name = get_option( 'blogname' );
-	$admin_email = get_option( 'admin_email' );
+	//$blog_name = get_option( 'blogname' );
+	//$admin_email = get_option( 'admin_email' );
 	
-    $headers = 'From: ' . $blog_name . ' <' . $admin_email . '>' . "\r\n";
-    $headers .= 'Reply-To: ' . $blog_name . ' <'. $admin_email . '>' . "\r\n";
-	$headers .= 'Return-Path: ' . $blog_name . ' <'. $admin_email . '>' . "\r\n";
+    //$headers = 'From: ' . $blog_name . ' <' . $admin_email . '>' . "\r\n";
+    //$headers .= 'Reply-To: ' . $blog_name . ' <'. $admin_email . '>' . "\r\n";
+	//$headers .= 'Return-Path: ' . $blog_name . ' <'. $admin_email . '>' . "\r\n";
 
 	if ( defined( 'RS_DEBUG' ) )
-		wp_mail( $address, $title, $message, $headers );
+		wp_mail( $address, $title, $message );
 	else
-		@wp_mail( $address, $title, $message, $headers );
+		@wp_mail( $address, $title, $message );
 }
 
 ?>
