@@ -6,7 +6,7 @@ Requires at least: 2.7
 Tested up to: 3.0.1
 Stable Tag: 1.0.9
 
-Enables qualified users to submit changes to currently published posts or pages.  These changes, if approved by an Editor, can be published immediately or scheduled for future publication.
+Moderated editing of published content.  Following approval by an editor, the revision can be published immediately or scheduled.
 
 == Description ==
 
