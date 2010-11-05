@@ -42,9 +42,18 @@ class RevisionaryFront {
 
 				if ( file_exists( $custom_template ) ) 
 					return $custom_template;
+			} 
+			else {
+				if ( empty($parent) )
+					$parent = get_post( $id );
+
+				if ( $parent && ( 'post' != $parent->post_type ) ) {
+					$templates = array( 'single-' . $parent->post_type . '.php', 'single.php' );
+					$single_template = locate_template( $templates );	
+				}
 			}
 		}
-		
+
 		return $single_template;	
 	}
 	
@@ -91,13 +100,15 @@ class RevisionaryFront {
 				
 				$parent = get_post( $revision->post_parent );
 
-
 				if ( in_array( $revision->post_status, array( 'pending', 'future', 'inherit' ) ) )
 					$published_post_id = $revision->post_parent;
 				
 
 				// This topbar is presently only for those with restore / approve / publish rights
-				if ( agp_user_can( "edit_{$parent->post_type}", $revision->post_parent, '', array( 'skip_revision_allowance' => true ) ) ) {
+				if ( $type_obj = get_post_type_object( $parent->post_type ) )
+					$cap_name = $type_obj->cap->edit_post;	
+
+				if ( agp_user_can( $cap_name, $revision->post_parent, '', array( 'skip_revision_allowance' => true ) ) ) {
 					load_plugin_textdomain('revisionary', '', RVY_FOLDER . '/languages');
 					
 					switch ( $revision->post_status ) {
@@ -177,11 +188,11 @@ class RevisionaryFront {
 
 		
 		if ( $pub_post = get_post($published_post_id) ) {
-			$type_obj = get_post_type_object( $pub_post->post_type );
-
-			if ( current_user_can( $type_obj->cap->edit_post, $published_post_id ) ) {
-				$request = str_replace( "post_type = 'post'", "post_type = 'revision'", $request );
-				$request = str_replace( "post_type = '{$pub_post->post_type}'", "post_type = 'revision'", $request );
+			if ( $type_obj = get_post_type_object( $pub_post->post_type ) ) {
+				if ( current_user_can( $type_obj->cap->edit_post, $published_post_id ) ) {
+					$request = str_replace( "post_type = 'post'", "post_type = 'revision'", $request );
+					$request = str_replace( "post_type = '{$pub_post->post_type}'", "post_type = 'revision'", $request );
+				}
 			}
 		}
 

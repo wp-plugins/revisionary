@@ -78,6 +78,12 @@ class RevisionaryAdminHardway {
 				foreach ( $post_types as $post_type )
 					$query = str_replace("$wpdb->posts.post_type = '$post_type'", "( $wpdb->posts.post_type = '$post_type' OR ( $wpdb->posts.post_type = 'revision' AND $wpdb->posts.post_parent IN ( SELECT ID from $wpdb->posts WHERE post_type = '$post_type' ) ) AND ( $status_clause ) )", $query);
 
+               	// work around Event Calendar Pro conflict
+				if ( strpos( $query, "eventStart.meta_value as EventStartDate" ) ) {
+					$query = str_replace( 
+					'( eventStart.meta_key = "_EventStartDate" AND eventEnd.meta_key = "_EventEndDate" )', 
+					'( ( eventStart.meta_key = "_EventStartDate" AND eventEnd.meta_key = "_EventEndDate" ) OR wp_posts.post_type = "revision" )', $query );
+				}
 			} // endif SELECT query
 			
 		} // endif query pertains in any way to pending status and/or revisions

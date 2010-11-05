@@ -26,10 +26,10 @@ class RevisionaryAdminFiltersItemUI {
 
 		$object_id = rvy_detect_post_id();
 		
-		$type_obj = get_post_type_object( $object_type );
-		
-		if ( ! $object_id || agp_user_can( $type_obj->cap->edit_post, $object_id, '', array( 'skip_revision_allowance' => true ) ) )
-			return;
+		if ( $type_obj = get_post_type_object( $object_type ) ) {
+			if ( ! $object_id || agp_user_can( $type_obj->cap->edit_post, $object_id, '', array( 'skip_revision_allowance' => true ) ) )
+				return;
+		}
 			
 ?>
 <script type="text/javascript">
@@ -98,8 +98,10 @@ jQuery(document).ready( function($) {
 							
 					// Remove Revision Notification List metabox if this user is NOT submitting a pending revision
 					} elseif ( 'pending_revision_notify' == $box_id ) {
-						if ( ! $object_id || ! rvy_get_option('pending_rev_notify_admin') || agp_user_can( "edit_{$object_type}", $object_id, '', array( 'skip_revision_allowance' => true ) ) )
-							unset( $wp_meta_boxes[$object_type][$context][$priority][$box_id] );
+						if ( $type_obj = get_post_type_object( $object_type ) ) {
+							if ( ! $object_id || ! rvy_get_option('pending_rev_notify_admin') || agp_user_can( $type_obj->cap->edit_post, $object_id, '', array( 'skip_revision_allowance' => true ) ) )
+								unset( $wp_meta_boxes[$object_type][$context][$priority][$box_id] );
+						}
 					}
 				}
 			}

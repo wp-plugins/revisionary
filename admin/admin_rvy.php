@@ -124,10 +124,10 @@ class RevisionaryAdmin
 		if ( ! $status_obj || ( ! $status_obj->public && ! $status_obj->private ) )
 			return;
 
-		$type_obj = get_post_type_object( $post->post_type );
-		
-		if ( ! agp_user_can( $type_obj->cap->edit_post, $post->ID, '', array( 'skip_revision_allowance' => true ) ) )
-			return;
+		if ( $type_obj = get_post_type_object( $post->post_type ) ) {
+			if ( ! agp_user_can( $type_obj->cap->edit_post, $post->ID, '', array( 'skip_revision_allowance' => true ) ) )
+				return;
+		}
 
 		$caption = __( 'save as pending revision', 'revisionary' );
 		echo "<div style='float:right; margin: 0.5em'><label for='rvy_save_as_pending_rev'><input type='checkbox' style='width: 1em; min-width: 1em; text-align: right;' name='rvy_save_as_pending_rev' value='1' id='rvy_save_as_pending_rev' />$caption</label></div>";
@@ -194,9 +194,11 @@ class RevisionaryAdmin
 
 						elseif ( ( 'pending' == $revision->post_status ) && ( $revision->post_author == $current_user->ID ) )
 							$read_only = false;
-						else
-							$read_only = ! current_user_can( "edit_{$post->post_type}", $revision->post_parent );
-						
+						else {
+							if ( $type_obj = get_post_type_object( $post->post_type ) )
+								$read_only = ! current_user_can( $type_obj->cap->edit_post, $revision->post_parent );
+						}
+
 						$this->tinymce_readonly = $read_only;
 						
 						require_once( 'revision-ui_rvy.php' );
@@ -360,8 +362,8 @@ jQuery(document).ready( function($) {
 
 			if ( $object_id ) {
 				$type_obj = get_post_type_object( $object_type );
-				
-				if ( ! agp_user_can( $type_obj->cap->edit_post, $object_id, '', array( 'skip_revision_allowance' => true ) ) ) { 
+
+				if ( $type_obj && ! agp_user_can( $type_obj->cap->edit_post, $object_id, '', array( 'skip_revision_allowance' => true ) ) ) { 
 					//if ( 'page' == $object_type )
 						$unrevisable_css_ids = array( 'pageparentdiv', 'pageauthordiv', 'pagecustomdiv', 'pageslugdiv', 'pagecommentstatusdiv' );
 				 	//else
@@ -512,10 +514,10 @@ jQuery(document).ready( function($) {
 		if ( isset($_POST['post_ID']) && isset($_POST['post_type']) ) {
 			$post_id = $_POST['post_ID'];
 
-			$can_edit = agp_user_can( "edit_{$_POST['post_type']}", $post_id, '', array( 'skip_revision_allowance' => true ) );
-			
-			if ( ! $can_edit )
-				$this->impose_pending_rev = $post_id;
+			if ( $type_obj = get_post_type_object( $_POST['post_type'] ) ) {
+				if ( ! agp_user_can( $type_obj->cap->edit_post, $post_id, '', array( 'skip_revision_allowance' => true ) ) )
+					$this->impose_pending_rev = $post_id;
+			}
 		}
 		
 		return $status;
@@ -616,8 +618,10 @@ jQuery(document).ready( function($) {
 						if ( $group = ScoperAdminLib::get_group_by_name( '[Pending Revision Monitors]' ) ) {
 							$monitor_ids = ScoperAdminLib::get_group_members( $group->ID, COL_ID_RS, true );
 							
-							$post_publisher_ids = $scoper->users_who_can( "edit_{$object_type}", COL_ID_RVY, 'post', $this->impose_pending_rev );
-							$monitor_ids = array_intersect( $monitor_ids, $post_publisher_ids );
+							if ( $type_obj = get_post_type_object( $object_type ) ) {
+								$post_publisher_ids = $scoper->users_who_can( $type_obj->cap->edit_post, COL_ID_RVY, 'post', $this->impose_pending_rev );
+								$monitor_ids = array_intersect( $monitor_ids, $post_publisher_ids );
+							}
 						} else
 							$monitor_ids = array();
 					} else {

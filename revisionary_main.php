@@ -69,18 +69,18 @@ class Revisionary
 				$replace_caps = array_merge( $replace_caps, array( $cap->publish_posts, 'publish_posts' ) );
 			
 			if ( array_intersect( $reqd_caps, $replace_caps) ) {	// don't need to fudge the capreq for post.php unless existing post has public/private status
-				if ( is_preview() || strpos($script_name, 'p-admin/edit.php') || strpos($script_name, 'p-admin/edit-pages.php') || strpos($script_name, 'p-admin/widgets.php') || ( in_array( get_post_field('post_status', $post_id ), array('publish', 'private') ) ) ) {
-					$use_cap_req = "edit_{$object_type}s";
-				
-					if ( ! empty( $wp_blogcaps[$use_cap_req] ) )
-						foreach ( $replace_caps as $replace_cap_name )
-							$wp_blogcaps[$replace_cap_name] = true;
+				if ( is_preview() || strpos($script_name, 'p-admin/edit.php') || strpos($script_name, 'p-admin/widgets.php') || ( in_array( get_post_field('post_status', $post_id ), array('publish', 'private') ) ) ) {
+					if ( $type_obj = get_post_type_object( $object_type ) ) {
+						if ( ! empty( $wp_blogcaps[ $type_obj->cap->edit_posts ] ) )
+							foreach ( $replace_caps as $replace_cap_name )
+								$wp_blogcaps[$replace_cap_name] = true;
+					}
 				}
 			}
 		}
 		
 		// Special provision for Pages as of WP 2.8.4 (may become unnecessary in future WP versions)
-		if ( in_array( 'edit_others_posts', $reqd_caps ) && ( 'post' != $object_type ) ) {
+		if ( is_admin() && in_array( 'edit_others_posts', $reqd_caps ) && ( 'post' != $object_type ) ) {
 			// Allow contributors to edit published post/page, with change stored as a revision pending review
 			if ( ! rvy_metaboxes_started() && ! strpos($script_name, 'p-admin/revision.php') && false === strpos(urldecode($_SERVER['REQUEST_URI']), 'admin.php?page=rvy-revisions' )  ) // don't enable contributors to view/restore revisions
 				$use_cap_req = $cap->edit_posts;
@@ -90,7 +90,7 @@ class Revisionary
 			if ( ! empty( $wp_blogcaps[$use_cap_req] ) )
 				$wp_blogcaps['edit_others_posts'] = true;
 		}
-		
+
 		// TODO: possible need to redirect revision cap check to published parent post/page ( RS cap-interceptor "maybe_revision" )
 		return $wp_blogcaps;			
 	}
@@ -103,11 +103,11 @@ class Revisionary
 				if ( $pos = strpos( $where, "wp_trunk_posts.post_author = $current_user->id AND" ) ) {  
 					$object_type = awp_post_type_from_uri();
 					
-					$cap = "edit_others_{$object_type}s";
-					
-					if ( current_user_can( $cap ) ) {
-						$where = str_replace( "wp_trunk_posts.post_author = $current_user->id AND", '', $where );	// current syntax as of WP 2.8.4
-						$where = str_replace( "wp_trunk_posts.post_author = '$current_user->id' AND", '', $where );
+					if ( $type_obj = get_post_type_object( $object_type ) ) {
+						if ( current_user_can( $type_obj->cap->edit_others_posts ) ) {
+							$where = str_replace( "wp_trunk_posts.post_author = $current_user->id AND", '', $where );	// current syntax as of WP 2.8.4
+							$where = str_replace( "wp_trunk_posts.post_author = '$current_user->id' AND", '', $where );
+						}
 					}
 				}
 			}

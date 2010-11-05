@@ -27,20 +27,19 @@ class RevisionaryAdminHardway_Ltd {
 		if ( strpos($query, "ELECT post_status, COUNT( * ) AS num_posts ") && preg_match("/FROM\s*{$posts}\s*WHERE post_type\s*=\s*'([^ ]+)'/", $query, $matches) ) {
 			if ( ! empty( $matches[1] ) ) {
 				$_post_type = $matches[1];
-				$type_obj = get_post_type_object( $_post_type );
 				
-				global $current_user;
-	
-				$cap_name = $type_obj->cap->edit_others_posts;
-				
-				if ( ! empty($current_user->allcaps[$cap_name]) ) {
-					static $private_stati;
-					
-					if ( ! isset( $private_stati ) )
-						$private_stati = get_post_stati( array( 'private' => true ) );
-					
-					foreach( $private_stati as $_status )  // as of WP 2.8.4, this substring is wrapped by parenthesis with nonstandard padding, so reduce chance of breakage by leaving them out of the replacement
-						$query = str_replace( "post_status != '$_status' OR ( post_author = '{$current_user->ID}' AND post_status = '$_status' )", '1=1', $query);
+				if ( $type_obj = get_post_type_object( $_post_type ) ) {
+					global $current_user;
+
+					if ( ! empty( $current_user->allcaps[ $type_obj->cap->edit_others_posts ] ) ) {
+						static $private_stati;
+						
+						if ( ! isset( $private_stati ) )
+							$private_stati = get_post_stati( array( 'private' => true ) );
+						
+						foreach( $private_stati as $_status )  // as of WP 2.8.4, this substring is wrapped by parenthesis with nonstandard padding, so reduce chance of breakage by leaving them out of the replacement
+							$query = str_replace( "post_status != '$_status' OR ( post_author = '{$current_user->ID}' AND post_status = '$_status' )", '1=1', $query);
+					}
 				}
 			}
 		}

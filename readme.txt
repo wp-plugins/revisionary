@@ -4,7 +4,7 @@ Donate link: http://agapetry.net/news/introducing-role-scoper/#role-scoper-downl
 Tags: revision, access, permissions, cms, user, groups, members, admin, pages, posts, page, Post
 Requires at least: 3.0
 Tested up to: 3.0.1
-Stable Tag: 1.1
+Stable Tag: 1.1.1
 
 Moderated editing of published content.  Following approval by an editor, the revision can be published immediately or scheduled.
 
@@ -53,6 +53,12 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 
 == Changelog ==
+
+= 1.1.1 - 5 Nov 2010 =
+* BugFix : Fatal Error if theme displays post edit link on front end
+* BugFix : Did not observe capability definitions for custom post types (assumed capability_type = post_type)
+* Compat : Event Calendar Pro - revisions of sp_events were not included in Edit Posts listing due to postmeta clause applied by ECP
+
 
 = 1.1 - 2 Nov 2010 =
 * BugFix : Revision Approval notices were not sent if "always send" option enabled

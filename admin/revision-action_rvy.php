@@ -23,9 +23,13 @@ function rvy_revision_diff() {
 		if ( !$right_revision = get_post( $right ) )
 			break;
 	
-		if ( !current_user_can( 'read_post', $left_revision->ID ) || !current_user_can( 'read_post', $right_revision->ID ) )
-			break;
-
+		if ( $post = get_post( $left_revision->post_parent ) ) {
+			if ( $type_obj = get_post_type_object( $post->post_type ) ) {
+				if ( !current_user_can( $type_obj->cap->read_post, $left_revision->ID ) || !current_user_can( $type_obj->cap->read_post, $right_revision->ID ) )
+					break;
+			}
+		}
+
 		// If we're comparing a revision to itself, redirect to the 'view' page for that revision or the edit page for that post
 		if ( $left_revision->ID == $right_revision->ID ) {
 			if ( file_exists( 'js/revisions-js.php' ) )
@@ -82,8 +86,10 @@ function rvy_revision_approve() {
 		if ( !$post = get_post( $revision->post_parent ) )
 			break;
 
-		if ( ! agp_user_can( "edit_{$post->post_type}", $revision->post_parent, '', array( 'skip_revision_allowance' => true ) ) )
-			break;
+		if ( $type_obj = get_post_type_object( $post->post_type ) ) {
+			if ( ! agp_user_can( $type_obj->cap->edit_post, $revision->post_parent, '', array( 'skip_revision_allowance' => true ) ) )
+				break;
+		}
 
 		check_admin_referer( "approve-post_$post->ID|$revision->ID" );
 		
@@ -225,8 +231,10 @@ function rvy_revision_restore() {
 		if ( !$post = get_post( $revision->post_parent ) )
 			break;
 
-		if ( ! agp_user_can( "edit_{$post->post_type}", $revision->post_parent, '', array( 'skip_revision_allowance' => true ) ) )
-			break;
+		if ( $type_obj = get_post_type_object( $post->post_type ) ) {
+			if ( ! agp_user_can( $type_obj->cap->edit_post, $revision->post_parent, '', array( 'skip_revision_allowance' => true ) ) )
+				break;
+		}
 
 		check_admin_referer( "restore-post_$post->ID|$revision->ID" );
 	
@@ -285,12 +293,14 @@ function rvy_revision_delete() {
 		if ( ! $post = get_post( $revision->post_parent ) )
 			break;
 
-		if ( ! current_user_can( "delete_{$post->post_type}", $revision->post_parent ) ) {
-			global $current_user;
-
-			if ( ( 'pending' != $revision->post_status ) || ( $revision->post_author != $current_user->ID ) )	// allow submitters to delete their own still-pending revisions
-				break;
-		}
+		if ( $type_obj = get_post_type_object( $post->post_type ) ) {
+			if ( ! current_user_can( $type_obj->cap->delete_post, $revision->post_parent ) ) {
+				global $current_user;
+	
+				if ( ( 'pending' != $revision->post_status ) || ( $revision->post_author != $current_user->ID ) )	// allow submitters to delete their own still-pending revisions
+					break;
+			}
+		}
 		
 		check_admin_referer('delete-revision_' .  $revision_id);
 
@@ -344,10 +354,14 @@ function rvy_revision_bulk_delete() {
 					continue;
 			}
 				
-			if ( ! current_user_can( "delete_{$post->post_type}", $revision->post_parent ) ) {
-				if ( ( 'pending' != $revision->post_status ) || ( $revision->post_author != $current_user->ID ) )	// allow submitters to delete their own still-pending revisions
-					continue;
-			}
+			if ( $post = get_post( $revision->post_parent ) ) {
+				if ( $type_obj = get_post_type_object( $post->post_type ) ) {
+					if ( ! current_user_can( $type_obj->cap->delete_post, $revision->post_parent ) ) {
+						if ( ( 'pending' != $revision->post_status ) || ( $revision->post_author != $current_user->ID ) )	// allow submitters to delete their own still-pending revisions
+							continue;
+					}
+				}
+			}
 		
 			// before deleting the revision, note its status for redirect
 			$revision_status = $revision->post_status;
@@ -380,13 +394,15 @@ function rvy_revision_edit() {
 		if ( !$post = get_post( $revision->post_parent ) )
 			break;
 
-		if ( ! agp_user_can( "edit_{$post->post_type}", $revision->post_parent, '', array( 'skip_revision_allowance' => true ) ) ) {
-			global $current_user;
-
-			if ( ( 'pending' != $revision->post_status ) || ( $revision->post_author != $current_user->ID ) )	// allow submitters to edit their own still-pending revisions
-				break;
+		if ( $type_obj = get_post_type_object( $post->post_type ) ) {
+			if ( ! agp_user_can( $type_obj->cap->edit_post, $revision->post_parent, '', array( 'skip_revision_allowance' => true ) ) ) {
+				global $current_user;
+	
+				if ( ( 'pending' != $revision->post_status ) || ( $revision->post_author != $current_user->ID ) )	// allow submitters to edit their own still-pending revisions
+					break;
+			}
 		}
-		
+		
 		check_admin_referer('update-revision_' .  $revision_id);
 
 		delete_option( 'rvy_next_rev_publish_gmt' );
@@ -475,9 +491,11 @@ function rvy_revision_unschedule() {
 
 		if ( !$post = get_post( $revision->post_parent ) )
 			break;
-					
-		if ( ! agp_user_can( "edit_{$post->post_type}", $revision->post_parent, '', array( 'skip_revision_allowance' => true ) ) )
-			break;
+				
+		if ( $type_obj = get_post_type_object( $post->post_type ) ) {
+			if ( ! agp_user_can( $type_obj->cap->edit_post, $revision->post_parent, '', array( 'skip_revision_allowance' => true ) ) )
+				break;
+		}
 		
 		check_admin_referer('unschedule-revision_' .  $revision_id);
 
@@ -609,11 +627,13 @@ function rvy_publish_scheduled_revisions() {
 						if ( $group = ScoperAdminLib::get_group_by_name( '[Scheduled Revision Monitors]' ) ) {
 							$default_ids = ScoperAdminLib::get_group_members( $group->ID, COL_ID_RS, true );
 			
-							$post_publishers = $scoper->users_who_can( "edit_{$object_type}", COLS_ALL_RVY, 'post', $object_id );
-							
-							foreach ( $post_publishers as $user )
-								if ( in_array( $user->ID, $default_ids ) )
-									$to_addresses []= $user->user_email;
+							if ( $type_obj = get_post_type_object( $object_type ) ) {
+								$post_publishers = $scoper->users_who_can( $type_obj->cap->edit_post, COLS_ALL_RVY, 'post', $object_id );
+
+								foreach ( $post_publishers as $user )
+									if ( in_array( $user->ID, $default_ids ) )
+										$to_addresses []= $user->user_email;
+							}
 						}
 						
 					} else {
