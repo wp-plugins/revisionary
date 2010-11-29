@@ -398,7 +398,16 @@ function rvy_revision_edit() {
 			if ( ! agp_user_can( $type_obj->cap->edit_post, $revision->post_parent, '', array( 'skip_revision_allowance' => true ) ) ) {
 				global $current_user;
 	
-				if ( ( 'pending' != $revision->post_status ) || ( $revision->post_author != $current_user->ID ) )	// allow submitters to edit their own still-pending revisions
+				// post-assigned Revisor role is sufficient to edit others' revisions, but post-assigned Contributor role is not
+				if ( isset( $GLOBALS['cap_interceptor'] ) )
+					$GLOBALS['cap_interceptor']->require_full_object_role = true;
+
+				$can_edit_others = agp_user_can( $type_obj->cap->edit_others_posts, $revision->post_parent );
+
+				if ( isset( $GLOBALS['cap_interceptor'] ) )
+					$GLOBALS['cap_interceptor']->require_full_object_role = false;
+
+				if ( ( 'pending' != $revision->post_status ) || ( ( $revision->post_author != $current_user->ID ) && ! $can_edit_others ) )	// allow submitters to edit their own still-pending revisions
 					break;
 			}
 		}

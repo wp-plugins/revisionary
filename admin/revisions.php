@@ -137,7 +137,13 @@ default :
 		if ( !current_user_can( 'read_post', $revision->ID ) || !current_user_can( 'read_post', $rvy_post->ID ) )
 			break;
 	}
-		
+
+	if ( $type_obj = get_post_type_object( $rvy_post->post_type ) ) {
+		$edit_cap = $type_obj->cap->edit_post;
+		$edit_others_cap = $type_obj->cap->edit_others_posts;
+		$delete_cap = $type_obj->cap->delete_post;
+	}
+
 	// Sets up the diff radio buttons
 	$right = $rvy_post->ID;
 
@@ -170,7 +176,7 @@ default :
 		endswitch;
 
 		if ( ('diff' != $action) && ($rvy_post->ID != $revision->ID) ) {
-			if ( agp_user_can( "edit_{$rvy_post->post_type}", $rvy_post->ID, '', array( 'skip_revision_allowance' => true ) ) ) {
+			if ( agp_user_can( $edit_cap, $rvy_post->ID, '', array( 'skip_revision_allowance' => true ) ) ) {
 				switch( $revision->post_status ) :
 				case 'future' :
 					$caption = str_replace( ' ', '&nbsp;', __('Publish Now', 'revisionary') );
@@ -237,9 +243,21 @@ if ( ! $revision_status )
 <?php
 global $current_user;
 
-$can_edit = ('revision' == $revision->post_type ) && (
-    ( ( $revision->post_author == $current_user->ID ) && ( 'pending' == $revision->post_status ) ) 
-	|| agp_user_can( "edit_{$rvy_post->post_type}", $rvy_post->ID, '', array( 'skip_revision_allowance' => true ) ) );
+if ( ! $can_fully_edit_post = agp_user_can( $edit_cap, $rvy_post->ID, '', array( 'skip_revision_allowance' => true ) ) ) {
+	// post-assigned Revisor role is sufficient to edit others' revisions, but post-assigned Contributor role is not
+	if ( isset( $GLOBALS['cap_interceptor'] ) )
+		$GLOBALS['cap_interceptor']->require_full_object_role = true;
+	
+	$_can_edit_others = agp_user_can( $edit_others_cap, $rvy_post->ID );
+
+	if ( isset( $GLOBALS['cap_interceptor'] ) )
+		$GLOBALS['cap_interceptor']->require_full_object_role = false;
+}
+
+$can_edit = ( 'revision' == $revision->post_type ) && (
+    $can_fully_edit_post || 
+	( ( $revision->post_author == $current_user->ID || $_can_edit_others ) && ( 'pending' == $revision->post_status ) ) 
+	 );
 
 if ( $can_edit ) {
 	wp_nonce_field('update-revision_' .  $revision->ID);
@@ -278,7 +296,8 @@ if ( ! empty($restore_link) )
 		$msg = __('The revision was published.', 'revisionary');
 
 	elseif ( ! empty($_GET['delete_request']) ) {
-		if ( current_user_can( "delete_{$rvy_post->post_type}", $rvy_post->ID ) || ( ( 'pending' == $revision->post_status ) && ( $revision->post_author == $current_user->ID ) ) )
+		if ( current_user_can( $delete_cap, $rvy_post->ID, '', array( 'skip_revision_allowance' => true ) ) 
+		|| ( ( 'pending' == $revision->post_status ) && ( $revision->post_author == $current_user->ID ) ) )
 			$msg = __('To delete the revision, click the link below.', 'revisionary');
 		else
 			$msg = __('You do not have permission to delete that revision.', 'revisionary');

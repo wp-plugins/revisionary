@@ -276,10 +276,13 @@ jQuery(document).ready( function($) {
 	
 		// For Revisions Manager access, satisfy WordPress' demand that all admin links be properly defined in menu
 		if ( false !== strpos( urldecode($_SERVER['REQUEST_URI']), 'admin.php?page=rvy-revisions' ) ) {
-			add_options_page( __('Revisions', 'revisionary'), __('Revisions', 'revisionary'), 'read', 'rvy-revisions');
+			//add_options_page( __('Revisions', 'revisionary'), __('Revisions', 'revisionary'), 'read', 'rvy-revisions');
+			//add_action( 'settings_page_rvy-revisions' , $func );
 			
-			$func = "include_once('$path' . '/admin/revisions.php');";
-			add_action( 'settings_page_rvy-revisions' , create_function( '', $func ) );
+			$func_content = "include_once('$path' . '/admin/revisions.php');";
+			$func = create_function( '', $func_content );
+			
+			add_submenu_page( 'none', __('Revisions', 'revisionary'), __('Revisions', 'revisionary'), 'read', 'rvy-revisions', $func );
 		}
 
 		if ( ! current_user_can( 'manage_options' ) )
@@ -327,6 +330,9 @@ jQuery(document).ready( function($) {
 	function act_hide_quickedit_for_revisions() {
 		global $rvy_any_listed_revisions;
 		
+		if ( empty( $rvy_any_listed_revisions ) )
+			return;
+
 		$post_type = awp_post_type_from_uri();
 		$type_obj = get_post_type_object($post_type);
 		$prefix = ( $type_obj->hierarchical ) ? 'page' : 'post';

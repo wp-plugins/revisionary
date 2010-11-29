@@ -4,7 +4,7 @@ Donate link: http://agapetry.net/news/introducing-role-scoper/#role-scoper-downl
 Tags: revision, access, permissions, cms, user, groups, members, admin, pages, posts, page, Post
 Requires at least: 3.0
 Tested up to: 3.0.1
-Stable Tag: 1.1.1
+Stable Tag: 1.1.2
 
 Moderated editing of published content.  Following approval by an editor, the revision can be published immediately or scheduled.
 
@@ -53,6 +53,11 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 
 == Changelog ==
+
+= 1.1.2 - 29 Nov 2010 =
+* Compat : Role Scoper - Post-assigned Revisor role was not honored to update another users' revision with RS 1.3+
+* BugFix : While in Revisions Manager, invalid "Revisions" submenu link was displayed in Settings menu
+
 
 = 1.1.1 - 5 Nov 2010 =
 * BugFix : Fatal Error if theme displays post edit link on front end
