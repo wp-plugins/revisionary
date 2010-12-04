@@ -8,11 +8,11 @@ class RevisionaryAdminFiltersItemUI {
 	var $pending_revisions = array();
 	var $future_revisions = array();
 	
+	// note: in current implementations, this must be instatiated on admin_head action
 	function RevisionaryAdminFiltersItemUI () {
-		add_action('admin_menu', array(&$this, 'add_meta_boxes'));
-		add_action('do_meta_boxes', array(&$this, 'act_tweak_metaboxes') );
-		
-		add_action('admin_head', array(&$this, 'add_js') );
+		$this->add_js();
+		$this->add_meta_boxes();
+		$this->act_tweak_metaboxes();
 	}
 	
 	function add_js() {
@@ -30,6 +30,8 @@ class RevisionaryAdminFiltersItemUI {
 			if ( ! $object_id || agp_user_can( $type_obj->cap->edit_post, $object_id, '', array( 'skip_revision_allowance' => true ) ) )
 				return;
 		}
+		
+		wp_deregister_script( 'autosave' );
 			
 ?>
 <script type="text/javascript">

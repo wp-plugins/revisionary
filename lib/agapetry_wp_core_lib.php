@@ -125,7 +125,7 @@ function agp_user_can($reqd_caps, $object_id = 0, $user_id = 0, $args = array() 
 	}
 	
 	$_args = ( 'blog' == $object_id ) ? array( $reqd_caps, $user->ID, 0 ) : array( $reqd_caps, $user->ID, $object_id );
-
+	
 	$capabilities = apply_filters('user_has_cap', $user->allcaps, $reqd_caps, $_args);
 	
 	if ( defined('SCOPER_VERSION') && ('blog' == $object_id) ) {

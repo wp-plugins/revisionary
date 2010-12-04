@@ -197,7 +197,7 @@ function rvy_revision_approve() {
 			// asynchronous secondary site call to avoid delays
 			rvy_log_async_request('process_mail');
 			$url = site_url( 'index.php?action=process_mail' );
-			wp_remote_post( $url, array( 'timeout' => 0.1, 'blocking' => false, 'sslverify' => apply_filters('https_local_ssl_verify', true ) ) );
+			wp_remote_post( $url, array( 'timeout' => 5, 'blocking' => false, 'sslverify' => apply_filters('https_local_ssl_verify', true ) ) );
 		}
 
 		// possible TODO: support redirect back to WP post/page edit
@@ -704,7 +704,7 @@ function rvy_update_next_publish_date() {
 
 function rvy_process_mail() {
 	rvy_confirm_async_execution( 'process_mail' );
-	
+	
 	$pending_mail = get_option( 'pending_mail_rvy' );
 	
 	if ( ! is_array($pending_mail) )

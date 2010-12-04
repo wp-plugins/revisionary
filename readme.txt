@@ -4,7 +4,7 @@ Donate link: http://agapetry.net/news/introducing-role-scoper/#role-scoper-downl
 Tags: revision, access, permissions, cms, user, groups, members, admin, pages, posts, page, Post
 Requires at least: 3.0
 Tested up to: 3.0.1
-Stable Tag: 1.1.2
+Stable Tag: 1.1.3
 
 Moderated editing of published content.  Following approval by an editor, the revision can be published immediately or scheduled.
 
@@ -53,6 +53,12 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 
 == Changelog ==
+
+= 1.1.3 - 3 Dec 2010 =
+* BugFix : Autosave error message displayed while a revisor edits a published post prior to submitting a pending revision
+* BugFix : Email notifications failed on some servers if Asynchronous option enabled
+* Compat : Role Scoper - With RS 1.3 to 1.3.12, if another plugin (Events Manager) triggers a secondary edit_posts cap check when a Revisor attempts to edit another user's unpublished post, a pending revision is generated instead of just updating the unpublished post
+
 
 = 1.1.2 - 29 Nov 2010 =
 * Compat : Role Scoper - Post-assigned Revisor role was not honored to update another users' revision with RS 1.3+

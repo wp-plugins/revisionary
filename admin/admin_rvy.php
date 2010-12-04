@@ -35,22 +35,8 @@ class RevisionaryAdmin
 		add_action('admin_footer-edit.php', array(&$this, 'act_hide_quickedit_for_revisions') );
 		add_action('admin_footer-edit-pages.php', array(&$this, 'act_hide_quickedit_for_revisions') );
 		
+		add_action('admin_head', array(&$this, 'add_editor_ui') );
 		add_action('admin_head', array(&$this, 'act_hide_admin_divs') );
-		
-		
-		$script_name = $_SERVER['SCRIPT_NAME'];							// possible todo: separate file for term edit
-		$item_edit_scripts = apply_filters( 'item_edit_scripts_rvy', array('p-admin/post-new.php', 'p-admin/post.php', 'p-admin/page.php', 'p-admin/page-new.php', 'p-admin/categories.php') );
-		$item_edit_scripts []= 'p-admin/admin-ajax.php';
-
-		foreach( $item_edit_scripts as $edit_script ) {
-			if ( strpos( $script_name, $edit_script ) ) {
-				global $revisionary;
-				
-				require_once( 'filters-admin-ui-item_rvy.php' );
-				$revisionary->filters_admin_item_ui = new RevisionaryAdminFiltersItemUI();
-				break;
-			}
-		}
 		
 		if ( ! defined( 'SCOPER_VERSION' ) || defined( 'USE_RVY_RIGHTNOW' ) )
 			require_once( 'admin-dashboard_rvy.php' );	
@@ -116,6 +102,21 @@ class RevisionaryAdmin
 		add_action( 'post_submitbox_start', array( &$this, 'pending_rev_checkbox' ) );
 	}
 
+	function add_editor_ui() {
+		if ( in_array( $GLOBALS['pagenow'], array( 'post.php', 'post-new.php' ) ) ) {
+			global $post;
+			if ( $post ) {
+				$status_obj = get_post_status_object( $post->post_status );
+
+				// only apply revisionary UI for currently published or scheduled posts
+				if ( $status_obj->public || $status_obj->private || ( 'future' == $post->post_status ) ) {
+					require_once( 'filters-admin-ui-item_rvy.php' );
+					$GLOBALS['revisionary']->filters_admin_item_ui = new RevisionaryAdminFiltersItemUI();
+				}
+			}
+		}	
+	}
+	
 	function pending_rev_checkbox() {
 		global $post;
 
@@ -507,6 +508,17 @@ jQuery(document).ready( function($) {
 	
 	
 	function flt_pendingrev_post_status($status) {
+		if ( empty( $_POST['post_ID'] ) )
+			return $status;
+
+		// Make sure the stored post is published / scheduled		
+		// With Events Manager plugin active, Role Scoper 1.3 to 1.3.12 caused this filter to fire prematurely as part of object_id detection, flagging for pending_rev needlessly on update of an unpublished post
+		if ( $stored_post = get_post( $_POST['post_ID'] ) )
+			$status_obj = get_post_status_object( $stored_post->post_status );
+
+		if ( empty($status_obj) || ( ! $status_obj->public && ! $status_obj->private && ( 'future' != $published_post->post_status ) ) )
+			return $status;
+		
 		if ( ! empty( $_POST['rvy_save_as_pending_rev'] ) && ! empty($_POST['post_ID']) ) {
 			$this->impose_pending_rev = $_POST['post_ID'];
 		}
@@ -663,7 +675,7 @@ jQuery(document).ready( function($) {
 				
 				if ( $monitor_ids ) {
 					global $wpdb;
-					$to_addresses = $wpdb->get_col( "SELECT user_email FROM $wpdb->users WHERE ID IN ('" . implode( "','", $monitor_ids ) . "')" );
+					$to_addresses = array_unique( $wpdb->get_col( "SELECT user_email FROM $wpdb->users WHERE ID IN ('" . implode( "','", $monitor_ids ) . "')" ) );
 				} else
 					$to_addresses = array();
 
@@ -677,7 +689,7 @@ jQuery(document).ready( function($) {
 						// asynchronous secondary site call to avoid delays
 						rvy_log_async_request('process_mail');
 						$url = site_url( 'index.php?action=process_mail' );
-						wp_remote_post( $url, array('timeout' => 0.1, 'blocking' => false, 'sslverify' => apply_filters('https_local_ssl_verify', true)) );
+						wp_remote_post( $url, array('timeout' => 5, 'blocking' => false, 'sslverify' => apply_filters('https_local_ssl_verify', true)) );
 					} else {
 						foreach ( $to_addresses as $address )
 							rvy_mail($address, $title, $message);

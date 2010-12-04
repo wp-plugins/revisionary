@@ -51,7 +51,7 @@ function rvy_metabox_notification_list( $topic ) {
 					if ( ! in_array( $user->ID, $default_ids ) )
 						unset(  $post_publishers[$key] );
 				}
-	
+				
 				$default_ids = array_intersect( $default_ids, $can_publish_post );
 				$default_ids = array_fill_keys( $default_ids, true );
 			}

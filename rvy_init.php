@@ -165,7 +165,7 @@ function rvy_init() {
 						// asynchronous secondary site call to avoid delays // TODO: pass site key here
 						rvy_log_async_request('publish_scheduled');
 						$url = site_url( 'index.php?action=publish_scheduled' );
-						wp_remote_post( $url, array('timeout' => 0.1, 'blocking' => false, 'sslverify' => apply_filters('https_local_ssl_verify', true)) );
+						wp_remote_post( $url, array('timeout' => 5, 'blocking' => false, 'sslverify' => apply_filters('https_local_ssl_verify', true)) );
 					} else {
 						define( 'DOING_CRON', true );
 						require_once('admin/revision-action_rvy.php');
