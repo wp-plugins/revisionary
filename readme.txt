@@ -3,7 +3,7 @@ Contributors: kevinB
 Donate link: http://agapetry.net/news/introducing-role-scoper/#role-scoper-download
 Tags: revision, access, permissions, cms, user, groups, members, admin, pages, posts, page, Post
 Requires at least: 3.0
-Tested up to: 3.0.1
+Tested up to: 3.1
 Stable Tag: 1.1.3
 
 Moderated editing of published content.  Following approval by an editor, the revision can be published immediately or scheduled.
