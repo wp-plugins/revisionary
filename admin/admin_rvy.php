@@ -516,7 +516,7 @@ jQuery(document).ready( function($) {
 		if ( $stored_post = get_post( $_POST['post_ID'] ) )
 			$status_obj = get_post_status_object( $stored_post->post_status );
 
-		if ( empty($status_obj) || ( ! $status_obj->public && ! $status_obj->private && ( 'future' != $published_post->post_status ) ) )
+		if ( empty($status_obj) || ( ! $status_obj->public && ! $status_obj->private && ( 'future' != $stored_post->post_status ) ) )
 			return $status;
 		
 		if ( ! empty( $_POST['rvy_save_as_pending_rev'] ) && ! empty($_POST['post_ID']) ) {

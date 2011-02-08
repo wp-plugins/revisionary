@@ -27,8 +27,20 @@ class RevisionaryAdminFiltersItemUI {
 		$object_id = rvy_detect_post_id();
 		
 		if ( $type_obj = get_post_type_object( $object_type ) ) {
-			if ( ! $object_id || agp_user_can( $type_obj->cap->edit_post, $object_id, '', array( 'skip_revision_allowance' => true ) ) )
+			if ( ! $object_id || agp_user_can( $type_obj->cap->edit_post, $object_id, '', array( 'skip_revision_allowance' => true ) ) ) {
+				// for logged user who can fully edit a published post, clarify the meaning of setting future publish date
+				?>
+				<script type="text/javascript">
+				/* <![CDATA[ */
+				jQuery(document).ready( function($) {
+					postL10n.schedule = "<?php _e('Schedule Revision', 'revisionary' )?>";
+				});
+				/* ]]> */
+				</script>
+				<?php
+				
 				return;
+			}
 		}
 		
 		wp_deregister_script( 'autosave' );
@@ -38,6 +50,8 @@ class RevisionaryAdminFiltersItemUI {
 /* <![CDATA[ */
 jQuery(document).ready( function($) {
 	$('#publish').val("<?php _e('Submit Revision', 'revisionary' )?>");
+	postL10n.update = "<?php _e('Submit Revision', 'revisionary' )?>";
+	postL10n.schedule = "<?php _e('Submit Scheduled Revision', 'revisionary' )?>";
 });
 /* ]]> */
 </script>
