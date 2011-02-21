@@ -52,6 +52,8 @@ jQuery(document).ready( function($) {
 	$('#publish').val("<?php _e('Submit Revision', 'revisionary' )?>");
 	postL10n.update = "<?php _e('Submit Revision', 'revisionary' )?>";
 	postL10n.schedule = "<?php _e('Submit Scheduled Revision', 'revisionary' )?>";
+	
+	$('#post-preview').hide();
 });
 /* ]]> */
 </script>

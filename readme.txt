@@ -58,6 +58,7 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 * BugFix : "Submit Revision" button caption changed to "Update" or "Schedule" following publish date selection
 * BugFix : PHP Warning on post creation / update
 * BugFix : Pending / Scheduled Revisions could not be previewed by Revisors
+* Change : Hide Preview button from Revisors when editing for pending revision submission
 
 
 = 1.1.3 - 3 Dec 2010 =
