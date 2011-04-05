@@ -12,6 +12,9 @@
 if( basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME']) )
 	die();
 	
+if ( IS_MU_RS )
+	require_once( 'admin_lib-mu_rvy.php' );
+	
 $wp_content = ( is_ssl() || ( is_admin() && defined('FORCE_SSL_ADMIN') && FORCE_SSL_ADMIN ) ) ? str_replace( 'http:', 'https:', WP_CONTENT_URL ) : WP_CONTENT_URL;
 define ('RVY_URLPATH', $wp_content . '/plugins/' . RVY_FOLDER);
 
@@ -26,6 +29,10 @@ class RevisionaryAdmin
 		add_action('admin_head', array(&$this, 'admin_head'));
 		
 		if ( ! defined('XMLRPC_REQUEST') && ! strpos($_SERVER['SCRIPT_NAME'], 'p-admin/async-upload.php' ) ) {
+			// New Network menu with WP 3.1
+			if ( defined( 'IS_MU_RVY' ) )
+				add_action('network_admin_menu', 'rvy_mu_site_menu' );
+
 			add_action('admin_menu', array(&$this,'build_menu'));
 			
 			if ( strpos($_SERVER['SCRIPT_NAME'], 'p-admin/plugins.php') )
@@ -271,8 +278,10 @@ jQuery(document).ready( function($) {
 	}
 	
 	
-			
 	function build_menu() {
+		if ( strpos( $_SERVER['REQUEST_URI'], 'wp-admin/network/' ) )
+			return;
+	
 		$path = RVY_ABSPATH;
 	
 		// For Revisions Manager access, satisfy WordPress' demand that all admin links be properly defined in menu
@@ -295,29 +304,11 @@ jQuery(document).ready( function($) {
 			$func = "include_once('$path' . '/admin/about.php');";
 			add_action( 'settings_page_rvy-about' , create_function( '', $func ) );
 		}
-			
-		// WP MU site options
-		if ( IS_MU_RVY ) {
-			// RS Site Options
-			add_submenu_page("ms-admin.php", __('Revisionary Options', 'revisionary'), __('Revisionary Options', 'revisionary'), 'read', 'rvy-site_options');
-			
-			$func = "include_once('$path' . '/admin/options.php');rvy_options( true );";
-			add_action("ms-admin_page_rvy-site_options", create_function( '', $func ) );	
-
-			global $rvy_default_options, $rvy_options_sitewide;
-			
-			// omit Option Defaults menu item if all options are controlled sitewide
-			if ( empty($rvy_default_options) )
-				rvy_refresh_default_options();
-			
-			if ( count($rvy_options_sitewide) != count($rvy_default_options) ) {
-				// RS Default Options (for per-blog settings)
-				add_submenu_page("ms-admin.php", __('Revisionary Option Defaults', 'revisionary'), __('Revisionary Defaults', 'revisionary'), 'read', 'rvy-default_options');
-				
-				$func = "include_once('$path' . '/admin/options.php');rvy_options( false, true );";
-				add_action("ms-admin_page_rvy-default_options", create_function( '', $func ) );	
-			}
-		}
+		
+		global $rvy_default_options, $rvy_options_sitewide;
+		
+		if ( empty($rvy_default_options) )
+			rvy_refresh_default_options();
 		
 		// omit Blog-Specific Options menu item if all options are controlled sitewide
 		if ( ! IS_MU_RVY || ( count($rvy_options_sitewide) != count($rvy_default_options) ) ) {
@@ -654,6 +645,7 @@ jQuery(document).ready( function($) {
 
 						foreach ( $use_wp_roles as $role_name ) {
 							$search = new WP_User_Search( '', 0, $role_name );
+							
 							$monitor_ids = array_merge( $monitor_ids, $search->results );
 						}
 					}

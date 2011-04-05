@@ -4,7 +4,7 @@ Donate link: http://agapetry.net/news/introducing-role-scoper/#role-scoper-downl
 Tags: revision, access, permissions, cms, user, groups, members, admin, pages, posts, page, Post
 Requires at least: 3.0
 Tested up to: 3.1
-Stable Tag: 1.1.3
+Stable Tag: 1.1.4
 
 Moderated editing of published content.  Following approval by an editor, the revision can be published immediately or scheduled.
 
@@ -54,10 +54,11 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 == Changelog ==
 
-= 1.1.4-dev =
+= 1.1.4 - 5 Apr 2011 =
+* BugFix : Role Options, Role Defaults menu items were not available on 3.1 multisite
+* BugFix : Pending / Scheduled Revisions could not be previewed by Revisors
 * BugFix : "Submit Revision" button caption changed to "Update" or "Schedule" following publish date selection
 * BugFix : PHP Warning on post creation / update
-* BugFix : Pending / Scheduled Revisions could not be previewed by Revisors
 * Change : Hide Preview button from Revisors when editing for pending revision submission
 
 
