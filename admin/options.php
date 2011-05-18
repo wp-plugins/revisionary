@@ -94,7 +94,6 @@ $ui->option_captions = array(
 	'rev_approval_notify_revisor' => __('Email the Revisor when a Pending Revision is approved', 'revisionary'),
 	'publish_scheduled_notify_author' => __('Email the original Author when a Scheduled Revision is published', 'revisionary'),
 	'publish_scheduled_notify_revisor' => __('Email the Revisor when a Scheduled Revision is published', 'revisionary'),
-	'async_email' => __('Asynchronous Email Processing', 'revisionary'),
 	'revisor_role_add_custom_rolecaps' => __('Include capabilities for all custom post types in the WordPress Revisor role', 'revisionary' ) 
 );
 
@@ -111,7 +110,7 @@ $ui->form_options = array(
 'features' => array(
 	'role_definition' => 	array( 'revisor_role_add_custom_rolecaps' ),
 	'revisions'		=>		array( 'scheduled_revisions', 'pending_revisions', 'diff_display_strip_tags', 'async_scheduled_publish' ),
-	'notification'	=>		array( 'pending_rev_notify_admin', 'pending_rev_notify_author', 'rev_approval_notify_author', 'rev_approval_notify_revisor', 'publish_scheduled_notify_admin', 'publish_scheduled_notify_author', 'publish_scheduled_notify_revisor', 'async_email' )
+	'notification'	=>		array( 'pending_rev_notify_admin', 'pending_rev_notify_author', 'rev_approval_notify_author', 'rev_approval_notify_revisor', 'publish_scheduled_notify_admin', 'publish_scheduled_notify_author', 'publish_scheduled_notify_revisor' )
 )
 );
 
@@ -362,10 +361,6 @@ $pending_revisions_available || $scheduled_revisions_available ) :
 			$hint = '';
 			$ui->option_checkbox( 'publish_scheduled_notify_revisor', $tab, $section, $hint, '' );
 		}
-		
-		echo '<br />';
-		$hint = __( 'Send all revision notification emails asynchronously, via a secondary http request from the server.', 'revisionary' );
-		$ui->option_checkbox( 'async_email', $tab, $section, $hint, '' );
 		
 		if( $pending_revisions_available ) {
 			if ( in_array( 'pending_rev_notify_admin', $ui->form_options[$tab][$section] ) || in_array( 'pending_rev_notify_author', $ui->form_options[$tab][$section] ) ) {

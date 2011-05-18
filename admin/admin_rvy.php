@@ -671,21 +671,10 @@ jQuery(document).ready( function($) {
 				} else
 					$to_addresses = array();
 
-					
+
 				if ( $to_addresses ) {
-					if ( ini_get( 'allow_url_fopen' ) && rvy_get_option('async_email') ) {					
-						$pending_mail = (array) get_option( 'pending_mail_rvy' );
-						$pending_mail []= array( 'to' => $to_addresses, 'title' => $title, 'message' => $message );	
-						update_option( 'pending_mail_rvy', $pending_mail );
-	
-						// asynchronous secondary site call to avoid delays
-						rvy_log_async_request('process_mail');
-						$url = site_url( 'index.php?action=process_mail' );
-						wp_remote_post( $url, array('timeout' => 5, 'blocking' => false, 'sslverify' => apply_filters('https_local_ssl_verify', true)) );
-					} else {
-						foreach ( $to_addresses as $address )
-							rvy_mail($address, $title, $message);
-					}
+					foreach ( $to_addresses as $address )
+						rvy_mail($address, $title, $message);
 				}
 			}
 			

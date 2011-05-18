@@ -125,11 +125,6 @@ function rvy_init() {
 				require_once('admin/revision-action_rvy.php');
 				add_action( 'rvy_init', 'rvy_publish_scheduled_revisions' );
 			
-			} elseif ( ! empty($_GET['action']) && ('process_mail' == $_GET['action']) ) {
-				define( 'DOING_CRON', true );
-				require_once('admin/revision-action_rvy.php');
-				rvy_process_mail();
-				exit( 0 ); // this was called as a secondary remote call asynchronously, with the sole purpose of sending e-mail
 			}
 		}	
 	}
@@ -138,15 +133,9 @@ function rvy_init() {
 		if ( ! strpos( $_SERVER['REQUEST_URI'], 'login.php' ) ) {
 		
 			// If a previously requested asynchronous request was ineffective, perform the actions now
-			// (this is not executed if the current URI has action=process_mail or action=publish_scheduled)
+			// (this is not executed if the current URI has action=publish_scheduled)
 			$requested_actions = get_option( 'requested_remote_actions_rvy' );
 			if ( is_array( $requested_actions) && ! empty($requested_actions) ) {
-				if ( ! empty($requested_actions['process_mail']) ) {
-					require_once('admin/revision-action_rvy.php');
-					rvy_process_mail();
-					unset( $requested_actions['process_mail'] );
-				}
-
 				if ( ! empty($requested_actions['publish_scheduled']) ) {
 					require_once('admin/revision-action_rvy.php');
 					rvy_publish_scheduled_revisions();

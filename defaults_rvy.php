@@ -8,7 +8,7 @@ if( basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME']) )
  * 
  *
  * @author 		Kevin Behrens
- * @copyright 	Copyright 2009
+ * @copyright 	Copyright 2011
  * 
  */
 
@@ -26,7 +26,6 @@ function rvy_default_options_sitewide() {
 		'publish_scheduled_notify_admin' => true,
 		'publish_scheduled_notify_author' => true,
 		'publish_scheduled_notify_revisor' => true,
-		'async_email' => true,
 		'display_hints' => true,
 		'revisor_role_add_custom_rolecaps' => true
 	);
@@ -46,7 +45,6 @@ function rvy_default_options() {
 		'publish_scheduled_notify_admin' => 1,
 		'publish_scheduled_notify_author' => 1,
 		'publish_scheduled_notify_revisor' => 1,
-		'async_email' => 1,
 		'display_hints' => 1,
 		'revisor_role_add_custom_rolecaps' => 1
 	);

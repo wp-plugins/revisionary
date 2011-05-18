@@ -82,7 +82,11 @@ class RevisionaryAdminHardway {
 				if ( strpos( $query, "eventStart.meta_value as EventStartDate" ) ) {
 					$query = str_replace( 
 					'( eventStart.meta_key = "_EventStartDate" AND eventEnd.meta_key = "_EventEndDate" )', 
-					'( ( eventStart.meta_key = "_EventStartDate" AND eventEnd.meta_key = "_EventEndDate" ) OR wp_posts.post_type = "revision" )', $query );
+					"( ( eventStart.meta_key = '_EventStartDate' AND eventEnd.meta_key = '_EventEndDate' ) OR $wpdb->posts.post_type = 'revision' )", $query );
+				
+					$query = str_replace( 
+					"( eventStart.meta_key = '_EventStartDate' AND eventEnd.meta_key = '_EventEndDate' )", 
+					"( ( eventStart.meta_key = '_EventStartDate' AND eventEnd.meta_key = '_EventEndDate' ) OR $wpdb->posts.post_type = 'revision' )", $query );
 				}
 			} // endif SELECT query
 			

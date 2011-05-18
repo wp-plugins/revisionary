@@ -54,8 +54,12 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 == Changelog ==
 
+= 1.1.5-dev =
+* Compat : Events Calendar Pro - filtering fails when WP database prefix is non-default
+* Change : Remove Asynchronous Email option
+
 = 1.1.4 - 5 Apr 2011 =
-* BugFix : Role Options, Role Defaults menu items were not available on 3.1 Multisite
+* BugFix : Role Options, Role Defaults menu items were not available on 3.1 multisite
 * BugFix : Pending / Scheduled Revisions could not be previewed by Revisors
 * BugFix : "Submit Revision" button caption changed to "Update" or "Schedule" following publish date selection
 * BugFix : PHP Warning on post creation / update
