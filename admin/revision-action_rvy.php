@@ -9,7 +9,7 @@ if( basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME']) )
  * 
  */
 function rvy_revision_diff() {
-	require_once('admin.php');	
+	require_once( ABSPATH . 'wp-admin/admin.php');	
 	$right = $_POST['right'];
 	$left = $_POST['left'];
 	do {
@@ -27,7 +27,7 @@ function rvy_revision_diff() {
 		// If we're comparing a revision to itself, redirect to the 'view' page for that revision or the edit page for that post
 		if ( $left_revision->ID == $right_revision->ID ) {
 			if ( file_exists( 'js/revisions-js.php' ) )
-				include( 'js/revisions-js.php' );	// pass on message from HAL, if it exists				
+				include( dirname(__FILE__).'/js/revisions-js.php' );	// pass on message from HAL, if it exists				
 			$redirect = "admin.php?page=rvy-revisions&revision={$left_revision->ID}&action=view";
 			wp_redirect( $redirect );
 			exit( 0 );
@@ -57,7 +57,7 @@ function rvy_revision_diff() {
 }
 // schedules publication of a revision ( or publishes if requested publish date has already passed )
 function rvy_revision_approve() {
-	require_once('admin.php');
+	require_once( ABSPATH . 'wp-admin/admin.php');
 	$revision_id = $_GET['revision'];
 	$redirect = '';
 	$blogname = wp_specialchars_decode( get_option('blogname'), ENT_QUOTES );
@@ -150,7 +150,7 @@ function rvy_revision_approve() {
 	exit;
 }
 function rvy_revision_restore() {
-	require_once('admin.php');
+	require_once( ABSPATH . 'wp-admin/admin.php');
 	$revision_id = $_GET['revision'];
 	$redirect = '';
 	do {
@@ -194,7 +194,7 @@ function rvy_do_revision_restore( $revision_id ) {
 	rvy_update_next_publish_date();
 }
 function rvy_revision_delete() {
-	require_once('admin.php');
+	require_once( ABSPATH . 'wp-admin/admin.php');
 	$revision_id = $_GET['revision'];
 	$redirect = '';
 	do {
@@ -230,7 +230,7 @@ function rvy_revision_delete() {
 
 function rvy_revision_bulk_delete() {
 	global $current_user;
-	require_once('admin.php');
+	require_once( ABSPATH . 'wp-admin/admin.php');
 	check_admin_referer( 'rvy-revisions' );
 	$redirect = '';
 	$delete_count = 0;
@@ -271,7 +271,7 @@ function rvy_revision_bulk_delete() {
 	exit;
 }
 function rvy_revision_edit() {
-	require_once('admin.php');
+	require_once( ABSPATH . 'wp-admin/admin.php');
 	$post_data = &$_POST;
 	$revision_id = $post_data['revision_ID'];
 	$redirect = '';	
@@ -357,7 +357,7 @@ function rvy_revision_edit() {
 
 
 function rvy_revision_unschedule() {
-	require_once('admin.php');
+	require_once( ABSPATH . 'wp-admin/admin.php');
 	$revision_id = $_GET['revision'];
 	$redirect = '';
 	do {

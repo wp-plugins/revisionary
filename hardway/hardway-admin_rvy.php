@@ -24,7 +24,7 @@ if ( ! is_content_administrator_rvy() ) {
 	}
 	
 	if ( ! $matched ) {
-		require_once( 'hardway-admin_non-administrator_rvy.php' );
+		require_once( dirname(__FILE__).'/hardway-admin_non-administrator_rvy.php' );
 		add_filter('query', array('RevisionaryAdminHardway_Ltd', 'flt_last_resort_query'), 12 );
 	}
 } 	

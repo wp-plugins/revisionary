@@ -64,14 +64,14 @@ jQuery(document).ready( function($) {
 		$object_type = awp_post_type_from_uri();
 		
 		if ( rvy_get_option( 'pending_revisions' ) ) {
-			require_once( 'revision-ui_rvy.php' );
+			require_once( dirname(__FILE__).'/revision-ui_rvy.php' );
 			
 			add_meta_box( 'pending_revisions', __( 'Pending Revisions', 'revisionary'), create_function( '', "rvy_metabox_revisions('pending');"), $object_type );
 			add_meta_box( 'pending_revision_notify', __( 'Publishers to Notify of Your Revision', 'revisionary'), create_function( '', "rvy_metabox_notification_list('pending_revision');"), $object_type );
 		}
 			
 		if ( rvy_get_option( 'scheduled_revisions' ) ) {
-			require_once( 'revision-ui_rvy.php' );
+			require_once( dirname(__FILE__).'/revision-ui_rvy.php' );
 
 			add_meta_box( 'future_revisions', __( 'Scheduled Revisions', 'revisionary'), create_function( '', "rvy_metabox_revisions('future');"), $object_type );
 		}

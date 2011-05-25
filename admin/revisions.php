@@ -13,7 +13,7 @@ if( basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME']) )
  * 
  */
  
-include_once( 'revision-ui_rvy.php' ); 
+include_once( dirname(__FILE__).'/revision-ui_rvy.php' ); 
 
 if ( defined( 'FV_FCK_NAME' ) && current_user_can('activate_plugins') ) {
 	echo( '<div class="error">' );

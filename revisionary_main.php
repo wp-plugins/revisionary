@@ -22,7 +22,7 @@ class Revisionary
 		
 		// NOTE: $_GET['preview'] and $_GET['post_type'] arguments are set by rvy_init() at response to ?p= request when the requested post is a revision.
 		if ( ! is_admin() && ( ! empty( $_GET['preview'] ) || ! empty( $_GET['mark_current_revision'] ) ) && empty($_GET['preview_id']) ) { // preview_id indicates a regular preview via WP core, based on autosave revision
-			require_once( 'front_rvy.php' );
+			require_once( dirname(__FILE__).'/front_rvy.php' );
 			$this->front = new RevisionaryFront();
 		}
 			
@@ -32,7 +32,7 @@ class Revisionary
 		}
 			
 		if ( is_admin() ) {
-			require_once('admin/admin_rvy.php');
+			require_once( dirname(__FILE__).'/admin/admin_rvy.php');
 			$this->admin = new RevisionaryAdmin();
 		}	
 		

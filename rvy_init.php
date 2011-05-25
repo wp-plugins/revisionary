@@ -98,7 +98,7 @@ function rvy_init() {
 		return;
 
 	if ( is_admin() ) {
-		require_once( 'admin/admin-init_rvy.php' );
+		require_once( dirname(__FILE__).'/admin/admin-init_rvy.php' );
 		rvy_load_textdomain();
 		rvy_admin_init();
 
@@ -122,7 +122,7 @@ function rvy_init() {
 		} elseif( strpos( urldecode($_SERVER['REQUEST_URI']), 'index.php') ) {
 				
 			if ( ! empty($_GET['action']) && ('publish_scheduled' == $_GET['action']) ) {
-				require_once('admin/revision-action_rvy.php');
+				require_once( dirname(__FILE__).'/admin/revision-action_rvy.php');
 				add_action( 'rvy_init', 'rvy_publish_scheduled_revisions' );
 			
 			}
@@ -137,7 +137,7 @@ function rvy_init() {
 			$requested_actions = get_option( 'requested_remote_actions_rvy' );
 			if ( is_array( $requested_actions) && ! empty($requested_actions) ) {
 				if ( ! empty($requested_actions['publish_scheduled']) ) {
-					require_once('admin/revision-action_rvy.php');
+					require_once( dirname(__FILE__).'/admin/revision-action_rvy.php');
 					rvy_publish_scheduled_revisions();
 					unset( $requested_actions['publish_scheduled'] );
 				}
@@ -157,7 +157,7 @@ function rvy_init() {
 						wp_remote_post( $url, array('timeout' => 5, 'blocking' => false, 'sslverify' => apply_filters('https_local_ssl_verify', true)) );
 					} else {
 						define( 'DOING_CRON', true );
-						require_once('admin/revision-action_rvy.php');
+						require_once( dirname(__FILE__).'/admin/revision-action_rvy.php');
 						rvy_publish_scheduled_revisions();
 					}
 				}	
@@ -165,7 +165,7 @@ function rvy_init() {
 		}
 	}
 
-	require_once('revisionary_main.php');
+	require_once( dirname(__FILE__).'/revisionary_main.php');
 
 	global $revisionary;
 	$revisionary = new Revisionary();

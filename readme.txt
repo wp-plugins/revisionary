@@ -57,6 +57,7 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 = 1.1.5-dev =
 * Compat : Events Calendar Pro - filtering fails when WP database prefix is non-default
 * Change : Remove Asynchronous Email option
+* Change : Change all require and include statements to absolute path to work around oddball servers that can't handle relative paths
 
 = 1.1.4 - 5 Apr 2011 =
 * BugFix : Role Options, Role Defaults menu items were not available on 3.1 multisite

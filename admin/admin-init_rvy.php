@@ -29,31 +29,31 @@ function rvy_admin_init() {
 		
 		if ( false !== strpos( urldecode($_SERVER['REQUEST_URI']), 'admin.php?page=rvy-revisions') ) {
 			if ( ! empty( $_POST['rvy_compare_revs'] ) ) {
-				require_once( 'revision-action_rvy.php');	
+				require_once( dirname(__FILE__).'/revision-action_rvy.php');	
 				add_action( 'wp_loaded', 'rvy_revision_diff' );
 				
 			} elseif ( ! empty($_GET['action']) && ('restore' == $_GET['action']) ) {
-				require_once('revision-action_rvy.php');	
+				require_once( dirname(__FILE__).'/revision-action_rvy.php');	
 				add_action( 'wp_loaded', 'rvy_revision_restore' );
 		
 			} elseif ( ! empty($_GET['action']) && ('delete' == $_GET['action']) ) {
-				require_once('revision-action_rvy.php');	
+				require_once( dirname(__FILE__).'/revision-action_rvy.php');	
 				add_action( 'wp_loaded', 'rvy_revision_delete' );
 				
 			} elseif ( ! empty($_GET['action']) && ('approve' == $_GET['action']) ) {
-				require_once('revision-action_rvy.php');	
+				require_once( dirname(__FILE__).'/revision-action_rvy.php');	
 				add_action( 'wp_loaded', 'rvy_revision_approve' );
 				
 			} elseif ( ! empty($_GET['action']) && ('unschedule' == $_GET['action']) ) {
-				require_once('revision-action_rvy.php');	
+				require_once( dirname(__FILE__).'/revision-action_rvy.php');	
 				add_action( 'wp_loaded', 'rvy_revision_unschedule' );
 				
 			} elseif ( ! empty( $_POST['rvy_revision_edit'] ) ) {
-				require_once('revision-action_rvy.php');	
+				require_once( dirname(__FILE__).'/revision-action_rvy.php');	
 				add_action( 'wp_loaded', 'rvy_revision_edit' );
 			
 			} elseif ( ! empty($_POST['action']) && ('bulk-delete' == $_POST['action'] ) ) {
-				require_once('revision-action_rvy.php');	
+				require_once( dirname(__FILE__).'/revision-action_rvy.php');	
 				add_action( 'wp_loaded', 'rvy_revision_bulk_delete' );
 			}
 	

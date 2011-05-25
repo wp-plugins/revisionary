@@ -48,29 +48,29 @@ define ('COLS_ALL_RVY', 0);
 define ('COL_ID_RVY', 1);
 
 if ( defined('RS_DEBUG') ) {
-	include_once('lib/debug.php');
+	include_once( dirname(__FILE__).'/lib/debug.php');
 	add_action( 'admin_footer', 'rvy_echo_usage_message' );
 } else
-	include_once('lib/debug_shell.php');
+	include_once( dirname(__FILE__).'/lib/debug_shell.php');
 
 //if ( version_compare( phpversion(), '5.2', '<' ) )	// some servers (Ubuntu) return irregular version string format
 if ( ! function_exists("array_fill_keys") )
-	require_once('lib/php4support_rs.php');
+	require_once( dirname(__FILE__).'/lib/php4support_rs.php');
 
 // === awp_is_mu() function definition and usage: must be executed in this order, and before any checks of IS_MU_RVY constant ===
-require_once('lib/agapetry_wp_core_lib.php');
+require_once( dirname(__FILE__).'/lib/agapetry_wp_core_lib.php');
 define( 'IS_MU_RVY', awp_is_mu() );
 // -------------------------------------------
 
 if ( is_admin() || defined('XMLRPC_REQUEST') ) {
-	require_once('lib/agapetry_wp_admin_lib.php');
+	require_once( dirname(__FILE__).'/lib/agapetry_wp_admin_lib.php');
 		
 	// skip WP version check and init operations when a WP plugin auto-update is in progress
 	if ( false !== strpos($_SERVER['SCRIPT_NAME'], 'update.php') )
 		return;
 }
 
-require_once('rvy_init.php');	// Contains activate, deactivate, init functions. Adds mod_rewrite_rules.
+require_once( dirname(__FILE__).'/rvy_init.php');	// Contains activate, deactivate, init functions. Adds mod_rewrite_rules.
 
 // register these functions before any early exits so normal activation/deactivation can still run with RS_DEBUG
 register_activation_hook(__FILE__, 'rvy_activate');
@@ -106,7 +106,7 @@ if ( ! awp_ver('3.0') ) {
 }
 
 if ( ! $bail ) {
-	require_once('defaults_rvy.php');
+	require_once( dirname(__FILE__).'/defaults_rvy.php');
 
 	rvy_refresh_options_sitewide();
 	

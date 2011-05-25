@@ -79,7 +79,7 @@ function rvy_metabox_notification_list( $topic ) {
 			}
 		}		
 		
-		require_once('agents_checklist_rvy.php');
+		require_once( dirname(__FILE__).'/agents_checklist_rvy.php');
 		
 		echo("<div id='rvy_cclist_$topic'>");
 		RevisionaryAgentsChecklist::agents_checklist( 'user', $post_publishers, $id_prefix, $default_ids );

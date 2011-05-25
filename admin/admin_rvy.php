@@ -13,7 +13,7 @@ if( basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME']) )
 	die();
 	
 if ( IS_MU_RS )
-	require_once( 'admin_lib-mu_rvy.php' );
+	require_once( dirname(__FILE__).'/admin_lib-mu_rvy.php' );
 	
 $wp_content = ( is_ssl() || ( is_admin() && defined('FORCE_SSL_ADMIN') && FORCE_SSL_ADMIN ) ) ? str_replace( 'http:', 'https:', WP_CONTENT_URL ) : WP_CONTENT_URL;
 define ('RVY_URLPATH', $wp_content . '/plugins/' . RVY_FOLDER);
@@ -46,7 +46,7 @@ class RevisionaryAdmin
 		add_action('admin_head', array(&$this, 'act_hide_admin_divs') );
 		
 		if ( ! defined( 'SCOPER_VERSION' ) || defined( 'USE_RVY_RIGHTNOW' ) )
-			require_once( 'admin-dashboard_rvy.php' );	
+			require_once( dirname(__FILE__).'/admin-dashboard_rvy.php' );	
 		
 		// log this action so we know when to ignore the save_post action
 		add_action('inherit_revision', array(&$this, 'act_log_revision_save') );
@@ -117,7 +117,7 @@ class RevisionaryAdmin
 
 				// only apply revisionary UI for currently published or scheduled posts
 				if ( $status_obj->public || $status_obj->private || ( 'future' == $post->post_status ) ) {
-					require_once( 'filters-admin-ui-item_rvy.php' );
+					require_once( dirname(__FILE__).'/filters-admin-ui-item_rvy.php' );
 					$GLOBALS['revisionary']->filters_admin_item_ui = new RevisionaryAdminFiltersItemUI();
 				}
 			}
@@ -209,7 +209,7 @@ class RevisionaryAdmin
 
 						$this->tinymce_readonly = $read_only;
 						
-						require_once( 'revision-ui_rvy.php' );
+						require_once( dirname(__FILE__).'/revision-ui_rvy.php' );
 						
 						add_filter( 'tiny_mce_before_init', 'rvy_log_tiny_mce_params', 1 );
 						add_filter( 'tiny_mce_before_init', 'rvy_tiny_mce_params', 998 );	// this is only applied to revisionary admin URLs, so not shy about dropping the millennial hammer
@@ -221,7 +221,7 @@ class RevisionaryAdmin
 						global $wp_super_edit;
 						
 						if ( ! empty($wp_super_edit) && ! $wp_super_edit->is_tinymce )
-							include_once( 'super-edit-helper_rvy.php' );
+							include_once( dirname(__FILE__).'/super-edit-helper_rvy.php' );
 						//
 						
 						wp_tiny_mce();
@@ -248,7 +248,7 @@ jQuery(document).ready( function($) {
 <?php	
 			} // endif read_only
 
-			require_once( 'revision-ui_rvy.php' );
+			require_once( dirname(__FILE__).'/revision-ui_rvy.php' );
 
 			rvy_revisions_js();
 		}
@@ -289,7 +289,7 @@ jQuery(document).ready( function($) {
 			//add_options_page( __('Revisions', 'revisionary'), __('Revisions', 'revisionary'), 'read', 'rvy-revisions');
 			//add_action( 'settings_page_rvy-revisions' , $func );
 			
-			$func_content = "include_once('$path' . '/admin/revisions.php');";
+			$func_content = "include_once( dirname(__FILE__).'/$path' . '/admin/revisions.php');";
 			$func = create_function( '', $func_content );
 			
 			add_submenu_page( 'none', __('Revisions', 'revisionary'), __('Revisions', 'revisionary'), 'read', 'rvy-revisions', $func );
@@ -301,7 +301,7 @@ jQuery(document).ready( function($) {
 		if ( false !== strpos( urldecode($_SERVER['REQUEST_URI']), 'admin.php?page=rvy-about' ) ) {	
 			add_options_page( __('About Revisionary', 'revisionary'), __('About Revisionary', 'revisionary'), 'read', 'rvy-about');
 			
-			$func = "include_once('$path' . '/admin/about.php');";
+			$func = "include_once( dirname(__FILE__).'/$path' . '/admin/about.php');";
 			add_action( 'settings_page_rvy-about' , create_function( '', $func ) );
 		}
 		
@@ -314,7 +314,7 @@ jQuery(document).ready( function($) {
 		if ( ! IS_MU_RVY || ( count($rvy_options_sitewide) != count($rvy_default_options) ) ) {
 			add_options_page( __('Revisionary Options', 'revisionary'), __('Revisionary', 'revisionary'), 'read', 'rvy-options');
 
-			$func = "include_once('$path' . '/admin/options.php');rvy_options( false );";
+			$func = "include_once( dirname(__FILE__).'/$path' . '/admin/options.php');rvy_options( false );";
 			add_action('settings_page_rvy-options', create_function( '', $func ) );	
 		}
 	}
@@ -734,7 +734,7 @@ jQuery(document).ready( function($) {
 				$wpdb->query("UPDATE $wpdb->posts SET post_status = 'future', post_parent = '$parent_id' WHERE ID = '$revision_id'");
 			}
 			
-			require_once('revision-action_rvy.php');
+			require_once( dirname(__FILE__).'/revision-action_rvy.php');
 			rvy_update_next_publish_date();
 
 			$manage_link = $this->get_manage_link( $object_type );
