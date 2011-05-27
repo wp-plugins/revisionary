@@ -289,7 +289,7 @@ jQuery(document).ready( function($) {
 			//add_options_page( __('Revisions', 'revisionary'), __('Revisions', 'revisionary'), 'read', 'rvy-revisions');
 			//add_action( 'settings_page_rvy-revisions' , $func );
 			
-			$func_content = "include_once( dirname(__FILE__).'/$path' . '/admin/revisions.php');";
+			$func_content = "include_once('$path/admin/revisions.php');";
 			$func = create_function( '', $func_content );
 			
 			add_submenu_page( 'none', __('Revisions', 'revisionary'), __('Revisions', 'revisionary'), 'read', 'rvy-revisions', $func );
@@ -301,7 +301,7 @@ jQuery(document).ready( function($) {
 		if ( false !== strpos( urldecode($_SERVER['REQUEST_URI']), 'admin.php?page=rvy-about' ) ) {	
 			add_options_page( __('About Revisionary', 'revisionary'), __('About Revisionary', 'revisionary'), 'read', 'rvy-about');
 			
-			$func = "include_once( dirname(__FILE__).'/$path' . '/admin/about.php');";
+			$func = "include_once('/$path/admin/about.php');";
 			add_action( 'settings_page_rvy-about' , create_function( '', $func ) );
 		}
 		
@@ -314,7 +314,7 @@ jQuery(document).ready( function($) {
 		if ( ! IS_MU_RVY || ( count($rvy_options_sitewide) != count($rvy_default_options) ) ) {
 			add_options_page( __('Revisionary Options', 'revisionary'), __('Revisionary', 'revisionary'), 'read', 'rvy-options');
 
-			$func = "include_once( dirname(__FILE__).'/$path' . '/admin/options.php');rvy_options( false );";
+			$func = "include_once( '$path/admin/options.php');rvy_options( false );";
 			add_action('settings_page_rvy-options', create_function( '', $func ) );	
 		}
 	}
