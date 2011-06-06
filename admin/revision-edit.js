@@ -3,7 +3,7 @@ function updateTextRvy() {
 $('#selected_timestamp_div').show();
 $('#selected_timestamp').html(
 	revL10n.unsavedDate + ' <b>' +
-	$( '#mm option[value=' + $('#mm').val() + ']' ).text() + ' ' +
+	$( '#mm option[value="' + $('#mm').val() + '"]' ).text() + ' ' +
 	$('#jj').val() + ', ' +
 	$('#aa').val() + ' @ ' +
 	$('#hh').val() + ':' +
