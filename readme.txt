@@ -59,6 +59,7 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 * Change : Remove Asynchronous Email option
 * Change : Change all require and include statements to absolute path to work around oddball servers that can't handle relative paths
 * Change : jQuery syntax change for forward compatibility
+* BugFix : "save as pending revision" checkbox in Publish metabox caused formatting error with IE9
 
 = 1.1.4 - 5 Apr 2011 =
 * BugFix : Role Options, Role Defaults menu items were not available on 3.1 multisite
