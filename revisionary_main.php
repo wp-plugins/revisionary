@@ -28,7 +28,7 @@ class Revisionary
 			
 		if ( ! is_content_administrator_rvy() ) {
 			add_filter( 'user_has_cap', array( &$this, 'flt_user_has_cap' ), 98, 3 );
-			add_filter( 'posts_where', array( &$this, 'flt_posts_where' ), 1 );
+			//add_filter( 'posts_where', array( &$this, 'flt_posts_where' ), 1 );
 		}
 			
 		if ( is_admin() ) {
@@ -38,7 +38,28 @@ class Revisionary
 		
 		add_action( 'wpmu_new_blog', array( &$this, 'act_new_blog'), 10, 2 );
 		
+		add_filter( 'posts_results', array( &$this, 'inherit_status_workaround' ) );
+		add_filter( 'the_posts', array( &$this, 'undo_inherit_status_workaround' ) );
+		
 		do_action( 'rvy_init' );
+	}
+	
+	// work around WP 3.2 query_posts behavior (won't allow preview on posts unless status is public, private or protected)
+	function inherit_status_workaround( $results ) {
+		if ( isset( $this->orig_inherit_protected_value ) )
+			return $results;
+		
+		$this->orig_inherit_protected_value = $GLOBALS['wp_post_statuses']['inherit']->protected;
+		
+		$GLOBALS['wp_post_statuses']['inherit']->protected = true;
+		return $results;
+	}
+	
+	function undo_inherit_status_workaround( $results ) {
+		if ( ! empty( $this->orig_inherit_protected_value ) )
+			$GLOBALS['wp_post_statuses']['inherit']->protected = $this->orig_inherit_protected_value;
+		
+		return $results;
 	}
 	
 	function act_new_blog( $blog_id, $user_id ) {
@@ -48,20 +69,24 @@ class Revisionary
 	function flt_user_has_cap($wp_blogcaps, $reqd_caps, $args)	{
 		if ( ! rvy_get_option('pending_revisions') )
 			return $wp_blogcaps;
-
+	
 		$script_name = $_SERVER['SCRIPT_NAME'];
 		
 		$object_type = awp_post_type_from_uri();
+		$post_id = rvy_detect_post_id();
 		
+		if ( 'revision' == $object_type ) {
+			if ( $post = get_post( $post_id ) ) 
+				$object_type = get_post_field( 'post_type', $post->post_parent );
+		}
+
 		$object_type_obj = get_post_type_object( $object_type );
 		$cap = $object_type_obj->cap;
 		
 		$edit_published_cap = ( isset($cap->edit_published_posts) ) ? $cap->edit_published_posts : "edit_published_{$object_type}s";
 		$edit_private_cap = ( isset($cap->edit_private_posts) ) ? $cap->edit_private_posts : "edit_private_{$object_type}s";
-		
+			
 		if ( ! $this->skip_revision_allowance ) {
-			$post_id = rvy_detect_post_id();
-
 			// Allow Contributors / Revisors to edit published post/page, with change stored as a revision pending review
 			$replace_caps = array( 'edit_published_posts', $edit_published_cap, 'edit_private_posts', $edit_private_cap );
 			
@@ -91,10 +116,12 @@ class Revisionary
 				$wp_blogcaps['edit_others_posts'] = true;
 		}
 
+
 		// TODO: possible need to redirect revision cap check to published parent post/page ( RS cap-interceptor "maybe_revision" )
 		return $wp_blogcaps;			
 	}
 	
+	/*
 	function flt_posts_where( $where ) {
 		if ( ( is_preview() || is_admin() ) && ! is_content_administrator_rvy() ) {
 			global $current_user;
@@ -105,8 +132,10 @@ class Revisionary
 					
 					if ( $type_obj = get_post_type_object( $object_type ) ) {
 						if ( current_user_can( $type_obj->cap->edit_others_posts ) ) {
-							$where = str_replace( "wp_trunk_posts.post_author = $current_user->id AND", '', $where );	// current syntax as of WP 2.8.4
-							$where = str_replace( "wp_trunk_posts.post_author = '$current_user->id' AND", '', $where );
+							global $wpdb;
+							
+							$where = str_replace( "$wpdb->posts.post_author = $current_user->id AND", '', $where );	// current syntax as of WP 2.8.4
+							$where = str_replace( "$wpdb->posts.post_author = '$current_user->id' AND", '', $where );
 						}
 					}
 				}
@@ -115,6 +144,7 @@ class Revisionary
 			
 		return $where;
 	}
+	*/
 	
 	
 } // end Revisionary class

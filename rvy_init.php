@@ -38,6 +38,8 @@ function rvy_detect_post_id() {
 		$post_id = $_POST['post_ID'];
 	elseif ( ! empty( $_GET['post_id'] ) )
 		$post_id = $_GET['post_id'];
+	elseif ( ! empty( $_GET['p'] ) )
+		$post_id = $_GET['p'];
 	elseif ( ! empty( $_GET['id'] ) )
 		$post_id = $_GET['id'];
 	else

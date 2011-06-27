@@ -60,6 +60,9 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 * Change : Change all require and include statements to absolute path to work around oddball servers that can't handle relative paths
 * Change : jQuery syntax change for forward compatibility
 * BugFix : "save as pending revision" checkbox in Publish metabox caused formatting error with IE9
+* BugFix : Revisions could not be displayed for past revisions
+* Compat : WP 3.2 - revision previews did not work
+* Compat : WP 3.2 - preview link not displayed for Pending Revisions in edit.php listing
 
 = 1.1.4 - 5 Apr 2011 =
 * BugFix : Role Options, Role Defaults menu items were not available on 3.1 multisite

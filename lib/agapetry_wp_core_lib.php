@@ -170,7 +170,9 @@ function awp_post_type_from_uri() {
 			$object_type = $_post->post_type;
 	}
 
-	if ( ! empty($object_type) )
+	if ( ! empty( $_REQUEST['post_type'] ) && ( 'revision' == $_REQUEST['post_type'] ) )
+		return 'revision';
+	elseif ( ! empty($object_type) )
 		return $object_type;
 	else {
 		global $post;

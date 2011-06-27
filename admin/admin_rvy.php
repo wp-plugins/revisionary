@@ -65,6 +65,9 @@ class RevisionaryAdmin
 				add_filter( 'get_edit_post_link', array(&$this, 'flt_edit_post_link'), 10, 3 );
 				add_filter( 'get_delete_post_link', array(&$this, 'flt_delete_post_link'), 10, 1 );  // note: WP 2.9 does not return id argument as 2nd variable
 				add_filter( 'post_link', array(&$this, 'flt_preview_post_link'), 10, 2 );
+				
+				add_filter( 'page_row_actions', array(&$this, 'add_preview_action'), 10, 2 );
+				add_filter( 'post_row_actions', array(&$this, 'add_preview_action'), 10, 2 );
 			}
 			
 			// special filtering to support Contrib editing of published posts/pages to revision
@@ -109,6 +112,16 @@ class RevisionaryAdmin
 		add_action( 'post_submitbox_start', array( &$this, 'pending_rev_checkbox' ) );
 	}
 
+	
+	function add_preview_action( $actions, $post ) {
+		if ( 'revision' == $post->post_type ) {
+			if ( current_user_can( 'edit_post', $post->ID ) )
+				$actions['view'] = $actions['view'] = '<a href="' . esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) . '&post_type=revision&preview=1' ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;' ), $title ) ) . '" rel="permalink">' . __( 'Preview' ) . '</a>';
+		}
+		
+		return $actions;
+	}
+		
 	function add_editor_ui() {
 		if ( in_array( $GLOBALS['pagenow'], array( 'post.php', 'post-new.php' ) ) ) {
 			global $post;
