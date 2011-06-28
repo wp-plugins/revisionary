@@ -3,7 +3,7 @@ Contributors: kevinB
 Donate link: http://agapetry.net/news/introducing-role-scoper/#role-scoper-download
 Tags: revision, access, permissions, cms, user, groups, members, admin, pages, posts, page, Post
 Requires at least: 3.0
-Tested up to: 3.1
+Tested up to: 3.2
 Stable Tag: 1.1.4
 
 Moderated editing of published content.  Following approval by an editor, the revision can be published immediately or scheduled.
@@ -55,6 +55,7 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 == Changelog ==
 
 = 1.1.5-dev =
+* BugFix : Markup error in Revisions Manager for Administrators / Editors, especially noticeable in WP 3.2
 * BugFix : "save as pending revision" checkbox in Publish metabox caused formatting error with IE9
 * BugFix : Previews did not display post thumbnail or other meta data
 * BugFix : Previews could not be displayed for past revisions

@@ -408,7 +408,6 @@ echo '</table>';
 ?>
 <input name="original_publish" type="hidden" id="original_publish" value="<?php esc_attr_e('Update Revision', 'revisionary') ?>" />
 <input name="rvy_revision_edit" type="submit" class="button-primary" id="rvy_revision_edit" tabindex="5" accesskey="p" value="<?php esc_attr_e('Update Revision', 'revisionary') ?>" />
-</div>
 <?php
 	}
 		
