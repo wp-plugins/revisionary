@@ -63,6 +63,8 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 * BugFix : Revisions could not be displayed for past revisions
 * Compat : WP 3.2 - revision previews did not work
 * Compat : WP 3.2 - preview link not displayed for Pending Revisions in edit.php listing
+* Compat : Builder theme - previews of pending revisions to pages could not be displayed
+* Change : Better styling for revision approval link displayed above preview
 
 = 1.1.4 - 5 Apr 2011 =
 * BugFix : Role Options, Role Defaults menu items were not available on 3.1 multisite

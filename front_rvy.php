@@ -9,6 +9,27 @@ class RevisionaryFront {
 			add_filter( 'posts_request', array( &$this, 'flt_view_revision' ) );
 			add_action( 'template_redirect', array( &$this, 'act_template_redirect' ) );
 		}
+
+		add_action( 'template_redirect', array(&$this, 'builder_revision_workaround'), -20 );
+	}
+	
+	// fixes Builder theme conflict with Revisionary (previews of pending revisions to pages could not be displayed)
+	function builder_revision_workaround() {
+		if ( ! empty($_REQUEST['preview']) && ! empty($_REQUEST['post_type']) && ( 'revision' == $_REQUEST['post_type'] ) ) {
+			global $wp_query;
+			if ( ! empty( $wp_query->query_vars['p'] ) ) {
+				if ( $_post = get_post( $wp_query->query_vars['p'] ) ) {
+					if ( $type = get_post_field( 'post_type', $_post->post_parent ) ) {
+						if ( $type_obj = get_post_type_object( $type ) ) {
+							if ( $type_obj->hierarchical ) {
+								$wp_query->is_page = true;
+								$wp_query->is_single = false;
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	function act_template_redirect() {
