@@ -55,16 +55,17 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 == Changelog ==
 
 = 1.1.5-dev =
-* Compat : Events Calendar Pro - filtering fails when WP database prefix is non-default
-* Change : Remove Asynchronous Email option
-* Change : Change all require and include statements to absolute path to work around oddball servers that can't handle relative paths
-* Change : jQuery syntax change for forward compatibility
 * BugFix : "save as pending revision" checkbox in Publish metabox caused formatting error with IE9
+* BugFix : Previews did not display post thumbnail or other meta data
 * BugFix : Previews could not be displayed for past revisions
 * Compat : WP 3.2 - revision previews did not work
 * Compat : WP 3.2 - preview link not displayed for Pending Revisions in edit.php listing
-* Compat : Builder theme - previews of pending revisions to pages could not be displayed
+* Compat : Builder theme - previews of page revisions could not be displayed
+* Compat : Events Calendar Pro - filtering fails when WP database prefix is non-default
 * Change : Better styling for revision approval link displayed above preview
+* Change : Remove Asynchronous Email option
+* Change : Change all require and include statements to absolute path to work around oddball servers that can't handle relative paths
+* Change : jQuery syntax change for forward compatibility
 
 = 1.1.4 - 5 Apr 2011 =
 * BugFix : Role Options, Role Defaults menu items were not available on 3.1 multisite
@@ -73,28 +74,23 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 * BugFix : PHP Warning on post creation / update
 * Change : Hide Preview button from Revisors when editing for pending revision submission
 
-
 = 1.1.3 - 3 Dec 2010 =
 * BugFix : Autosave error message displayed while a revisor edits a published post prior to submitting a pending revision
 * BugFix : Email notifications failed on some servers if Asynchronous option enabled
 * Compat : Role Scoper - With RS 1.3 to 1.3.12, if another plugin (Events Manager) triggers a secondary edit_posts cap check when a Revisor attempts to edit another user's unpublished post, a pending revision is generated instead of just updating the unpublished post
 
-
 = 1.1.2 - 29 Nov 2010 =
 * Compat : Role Scoper - Post-assigned Revisor role was not honored to update another users' revision with RS 1.3+
 * BugFix : While in Revisions Manager, invalid "Revisions" submenu link was displayed in Settings menu
-
 
 = 1.1.1 - 5 Nov 2010 =
 * BugFix : Fatal Error if theme displays post edit link on front end
 * BugFix : Did not observe capability definitions for custom post types (assumed capability_type = post_type)
 * Compat : Event Calendar Pro - revisions of sp_events were not included in Edit Posts listing due to postmeta clause applied by ECP
 
-
 = 1.1 - 2 Nov 2010 =
 * BugFix : Revision Approval notices were not sent if "always send" option enabled
 * Feature : "save as pending revision" option when logged user has full editing capabilities in Edit Post/Page form
-
 
 = 1.1.RC3 - 29 Oct 2010 =
 * BugFix : Revision preview link returned 404 (since 1.1.RC)
@@ -102,10 +98,8 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 * BugFix : Custom taxonomy selection UI was not hidden when submitting a revision
 * BugFix : In Quick Edit form, Published option sometimes displayed inappropriately
 
-
 = 1.1.RC.2 - 11 Oct 2010 =
 * BugFix : Listed revisions in Revision Editor were not linked for viewing / editing (since 1.1.RC)
-
 
 = 1.1.RC - 8 Oct 2010 =
 * Feature : Support Custom Post Types
@@ -114,30 +108,24 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 * BugFix : Revision Edit link from Edit Posts/Pages listing led to uneditable revision display
 * Change : Raise minimum WP version to 3.0
 
-
 = 1.0.7 - 21 June 2010 =
 * BugFix : Revisionary prevented the normal scheduling of drafts for first-time publishing
-
 
 = 1.0.6 - 18 June 2010 =
 * Compat : CForms conflict broke TinyMCE edit form in Revisions Manager 
 
-
 = 1.0.5 - 7 May 2010 =
 * Compat : WP 3.0 Multisite menu items had invalid link
-
 
 = 1.0.4 - 6 May 2010 =
 * BugFix : Pending Revision Approval email used invalid permalink if permalink structure changed since original post storage
 * BugFix : Schedule Revision Publication email used invalid permalink if permalink structure changed since original post storage
-
 
 = 1.0.3 - 6 May 2010 =
 * Compat : WP 3.0 elimination of page.php, edit-pages.php, page-new.php broke many aspects of page filtering
 * BugFix : Trash link did not work for revisions in Edit Posts/Pages listing
 * Change : Administrators and Editors now retain Quick Edit link for non-revisions in Edit Pages, Edit Posts listing
 * BugFix : "Publishers to Notify" metabox was included even if no eligible recipients are designated
-
 
 = 1.0.2 - 11 Mar 2010 =
 * BugFix : Email notification caused error if Role Scoper was not activated
@@ -148,7 +136,6 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 * BugFix : Link for viewing Scheduled Revisions was captioned as "Pending Revisions" (since 1.0.1) 
 * Compat : WMPL plugin
 
-
 = 1.0.1 - 6 Feb 2010 =
 * BugFix : 	Submitting a Pending Revision to a published Post failed with Fatal Error
 * BugFix : 	PHP short tag caused Parse Error on servers which were not configured to support it
@@ -157,12 +144,10 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 * Lang 	 : 	Fixed several string formatting issues for better translation support
 * Change : 	Use https link for Revisionary css and js files if ssl is being used / forced for the current uri
 
-
 = 1.0 - 30 Dec 2009 =
 * Feature : Use Blog Title and Admin Email as from address in revision notices, instead of "WordPress <wordpress@>"
 * BugFix : Revision Approval / Publication Notices used p=ID link instead of normal post permalink
 * Compat : Display workaround instructions for FolioPress conflict with visual revision display
-
 
 **1.0.RC1 - 12 Dec 2009**
 Initial release.  Feature Changes and Bug Fixes are vs. Pending Revisions function in Role Scoper 1.0.8
@@ -202,3 +187,7 @@ Initial release.  Feature Changes and Bug Fixes are vs. Pending Revisions functi
 * Feature : Optional email (to editors, post author, or revisor) on Scheduled Revision publication
 * Feature : If Role Scoper is active, Editors notification group can be customized via User Group
 
+== Upgrade Notice ==
+
+= 1.1.5 =
+Fixes: Revision Previews (WP 3.2, Display of Post Thumbnail and other metadata, Past Revisions, Page Revisions in Builder theme, approval link styling); IE9 formatting error in publish metabox; Events Calendar Pro conflict

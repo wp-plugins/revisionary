@@ -11,6 +11,21 @@ class RevisionaryFront {
 		}
 
 		add_action( 'template_redirect', array(&$this, 'builder_revision_workaround'), -20 );
+		
+		if ( ! empty($_REQUEST['preview']) )
+			add_filter( 'get_post_metadata', array(&$this, 'return_parent_metadata'), 10, 4 );
+	}
+	
+	function return_parent_metadata( $val, $object_id, $meta_key, $single ) {
+		if ( $_post = get_post( $object_id ) ) {
+			if ( 'revision' == $_post->post_type ) {
+				if ( $_post->post_parent ) {
+					return get_post_meta( $_post->post_parent, $meta_key, $single );
+				}
+			}
+		}
+		
+		return $val;
 	}
 	
 	// fixes Builder theme conflict with Revisionary (previews of pending revisions to pages could not be displayed)
