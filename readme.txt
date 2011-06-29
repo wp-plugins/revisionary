@@ -4,7 +4,7 @@ Donate link: http://agapetry.net/news/introducing-role-scoper/#role-scoper-downl
 Tags: revision, access, permissions, cms, user, groups, members, admin, pages, posts, page, Post
 Requires at least: 3.0
 Tested up to: 3.2
-Stable Tag: 1.1.4
+Stable Tag: 1.1.5
 
 Moderated editing of published content.  Following approval by an editor, the revision can be published immediately or scheduled.
 
@@ -54,7 +54,7 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 == Changelog ==
 
-= 1.1.5-dev =
+= 1.1.5 - 29 June 2011 =
 * BugFix : Markup error in Revisions Manager for Administrators / Editors, especially noticeable in WP 3.2
 * BugFix : "save as pending revision" checkbox in Publish metabox caused formatting error with IE9
 * BugFix : Previews did not display post thumbnail or other meta data
@@ -191,4 +191,4 @@ Initial release.  Feature Changes and Bug Fixes are vs. Pending Revisions functi
 == Upgrade Notice ==
 
 = 1.1.5 =
-Fixes: Revision Previews (WP 3.2, Display of Post Thumbnail and other metadata, Past Revisions, Page Revisions in Builder theme, approval link styling); IE9 formatting error in publish metabox; Events Calendar Pro conflict
+Fixes: Markeup Err in Revisions Manager; Revision Previews (WP 3.2, Display of Post Thumbnail & other metadata, Past Revisions, Page Revisions in Builder theme, Approval link styling); IE9 formatting err in publish metabox; Events Calendar Pro conflict
