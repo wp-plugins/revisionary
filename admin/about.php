@@ -34,8 +34,17 @@ printf(__('This WordPress plugin is part of my agap&eacute; try, a lifelong effo
 echo '</p><p>';
 printf(__('Although Role Scoper and Revisionary development was a maniacal hermit-like effort, it was only possible because of the clean and flexible %1$s WordPress code base%2$s.  My PHP programming skills grew immensely by the good examples set forth there and in plugins such as %3$s NextGen Gallery%4$s. I\'m not done learning, and look forward to some real-time cooperation with these and other developers now that my all-consuming quest has reached a stable plateau.', 'revisionary'), "<a href='http://codex.wordpress.org/Developer_Documentation' target='_blank'>", '</a>', "<a href='http://alexrabe.boelinger.com/wordpress-plugins/nextgen-gallery/' target='_blank'>", '</a>');
 echo '</p><p>';
-printf(__('Thanks to %1$sAlberto Ramicciotti%2$s for the Italian translation.  I do try to be translator-friendly, but any untranslated captions are due to my flurry of recent additions and changes, and will no doubt be updated soon.  Now there must be someone else who wants Revisionary in their language...', 'revisionary'), "<a href='http://obertfsp.com' target='_blank'>", '</a>');
-echo '</p><p>'
+printf( __('Revisionary is currently available in the following languages, thanks to volunteer translators:', 'revisionary') );
+echo '</p><ul class="rs-notes" style="margin-left: 1em">';
+echo '<li>';
+printf(__('Belorussian by %1$s', 'revisionary'), "<a href='http://pc.de/' target='_blank'>Marcis G.</a>");
+echo '</li><li>';
+printf(__('French by %s', 'revisionary'), "<a href='http://marc-olivier.ca/' target='_blank'>Marc-Olivier Ouellet</a>");
+echo '</li><li>';
+printf(__('Italian by %s', 'revisionary' ), "<a href='http://obertfsp.com' target='_blank'>Alberto Ramacciotti</a>");
+echo '</li></ul><p>';
+_e( 'I do try to be translator-friendly, but any untranslated captions are likely due to a flurry of recent additions and changes by the plugin developer.  Now there must be someone else who wants Role Scoper in their language...', 'scoper');
+echo '</p><p>';
 printf(__( 'Revisionary is open source software released under the %1$s General Public License (GPL)%2$s. Due to limitations, obligations and non-technical aspirations common to most human beings, I will probably never again pursue uncommissioned plugin development on the scale these plugins has required. However, I do plan to provide some free support, correct bugs which emerge and revise the plugin for future WordPress versions. If it adds value to your website or saves you time and money, you can express appreciation in several ways:', 'revisionary'), '<a href="http://www.opensource.org/licenses/gpl-license.php">', '</a>');
 echo '</p><ul id="agp-thanks" class="rs-notes" style="margin-left: 1em"><li>';
 printf(__('%1$s Submit technical feedback%2$s, including improvement requests.', 'revisionary'), '<a href="http://agapetry.net/forum/">', '</a>');

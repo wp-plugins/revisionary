@@ -391,7 +391,7 @@ echo '</table>';
 	echo '
 	</label><input type="text" name="post_title" size="30" tabindex="1" value="';
 	
-	echo esc_attr( htmlspecialchars( $rvy_post->post_title ) );
+	echo esc_attr( htmlspecialchars( $revision->post_title ) );
 	
 	echo '" id="title" ' . $disabled . '/></div></div>';
 

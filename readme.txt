@@ -54,6 +54,9 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 == Changelog ==
 
+= 1.1.6-dev =
+* BugFix : Revised Post Title was not displayed in Revisions Manager
+
 = 1.1.5 - 29 June 2011 =
 * BugFix : Markup error in Revisions Manager for Administrators / Editors, especially noticeable in WP 3.2
 * BugFix : "save as pending revision" checkbox in Publish metabox caused formatting error with IE9
