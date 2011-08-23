@@ -45,7 +45,7 @@ class RevisionaryAdminHardway {
 	function flt_include_pending_revisions($query) {
 		global $wpdb;
 		
-		// Require current user to be a blog-wide editor due to complexity of applying scoped roles to revisions
+		// Require current user to be a site-wide editor due to complexity of applying scoped roles to revisions
 		if ( strpos($query, "FROM $wpdb->posts") && ( strpos($query, ".post_status = 'pending'") || strpos($query, ".post_status = 'future'") || strpos($query, 'GROUP BY post_status') || strpos($query, "GROUP BY $wpdb->posts.post_status") || ( empty($_GET['post_status']) || ( 'all' == $_GET['post_status'] ) ) ) ) {
 
 			$post_types = array_diff( get_post_types(), array( 'revision', 'attachment', 'nav_menu_item' ) );

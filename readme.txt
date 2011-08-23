@@ -55,13 +55,18 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 == Changelog ==
 
 = 1.1.6-dev =
-* BugFix : Revised Post Title was not displayed in Revisions Manager
+* Fixed : Quick Edit was not disabled for Page Revisions, usage resulted in invalid revision data
+* Fixed : Revisionary Options were not available when plugin activatated per-site on a Multisite installation
+* Change : For Multisite installation, Revisionary Options Blog/Site captions changed to Site/Network
+* Fixed : Revised Post Title was not displayed in Revisions Manager
+* Fixed : Various PHP Notices
+
 
 = 1.1.5 - 29 June 2011 =
-* BugFix : Markup error in Revisions Manager for Administrators / Editors, especially noticeable in WP 3.2
-* BugFix : "save as pending revision" checkbox in Publish metabox caused formatting error with IE9
-* BugFix : Previews did not display post thumbnail or other meta data
-* BugFix : Previews could not be displayed for past revisions
+* Fixed : Markup error in Revisions Manager for Administrators / Editors, especially noticeable in WP 3.2
+* Fixed : "save as pending revision" checkbox in Publish metabox caused formatting error with IE9
+* Fixed : Previews did not display post thumbnail or other meta data
+* Fixed : Previews could not be displayed for past revisions
 * Compat : WP 3.2 - revision previews did not work
 * Compat : WP 3.2 - preview link not displayed for Pending Revisions in edit.php listing
 * Compat : Builder theme - previews of page revisions could not be displayed
@@ -72,48 +77,48 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 * Change : jQuery syntax change for forward compatibility
 
 = 1.1.4 - 5 Apr 2011 =
-* BugFix : Role Options, Role Defaults menu items were not available on 3.1 multisite
-* BugFix : Pending / Scheduled Revisions could not be previewed by Revisors
-* BugFix : "Submit Revision" button caption changed to "Update" or "Schedule" following publish date selection
-* BugFix : PHP Warning on post creation / update
+* Fixed : Role Options, Role Defaults menu items were not available on 3.1 multisite
+* Fixed : Pending / Scheduled Revisions could not be previewed by Revisors
+* Fixed : "Submit Revision" button caption changed to "Update" or "Schedule" following publish date selection
+* Fixed : PHP Warning on post creation / update
 * Change : Hide Preview button from Revisors when editing for pending revision submission
 
 = 1.1.3 - 3 Dec 2010 =
-* BugFix : Autosave error message displayed while a revisor edits a published post prior to submitting a pending revision
-* BugFix : Email notifications failed on some servers if Asynchronous option enabled
+* Fixed : Autosave error message displayed while a revisor edits a published post prior to submitting a pending revision
+* Fixed : Email notifications failed on some servers if Asynchronous option enabled
 * Compat : Role Scoper - With RS 1.3 to 1.3.12, if another plugin (Events Manager) triggers a secondary edit_posts cap check when a Revisor attempts to edit another user's unpublished post, a pending revision is generated instead of just updating the unpublished post
 
 = 1.1.2 - 29 Nov 2010 =
 * Compat : Role Scoper - Post-assigned Revisor role was not honored to update another users' revision with RS 1.3+
-* BugFix : While in Revisions Manager, invalid "Revisions" submenu link was displayed in Settings menu
+* Fixed : While in Revisions Manager, invalid "Revisions" submenu link was displayed in Settings menu
 
 = 1.1.1 - 5 Nov 2010 =
-* BugFix : Fatal Error if theme displays post edit link on front end
-* BugFix : Did not observe capability definitions for custom post types (assumed capability_type = post_type)
+* Fixed : Fatal Error if theme displays post edit link on front end
+* Fixed : Did not observe capability definitions for custom post types (assumed capability_type = post_type)
 * Compat : Event Calendar Pro - revisions of sp_events were not included in Edit Posts listing due to postmeta clause applied by ECP
 
 = 1.1 - 2 Nov 2010 =
-* BugFix : Revision Approval notices were not sent if "always send" option enabled
+* Fixed : Revision Approval notices were not sent if "always send" option enabled
 * Feature : "save as pending revision" option when logged user has full editing capabilities in Edit Post/Page form
 
 = 1.1.RC3 - 29 Oct 2010 =
-* BugFix : Revision preview link returned 404 (since 1.1.RC)
-* BugFix : Revision Approval emails were not sent reliably with "Asynchronous Email" option enabled (since 1.0)
-* BugFix : Custom taxonomy selection UI was not hidden when submitting a revision
-* BugFix : In Quick Edit form, Published option sometimes displayed inappropriately
+* Fixed : Revision preview link returned 404 (since 1.1.RC)
+* Fixed : Revision Approval emails were not sent reliably with "Asynchronous Email" option enabled (since 1.0)
+* Fixed : Custom taxonomy selection UI was not hidden when submitting a revision
+* Fixed : In Quick Edit form, Published option sometimes displayed inappropriately
 
 = 1.1.RC.2 - 11 Oct 2010 =
-* BugFix : Listed revisions in Revision Editor were not linked for viewing / editing (since 1.1.RC)
+* Fixed : Listed revisions in Revision Editor were not linked for viewing / editing (since 1.1.RC)
 
 = 1.1.RC - 8 Oct 2010 =
 * Feature : Support Custom Post Types
 * Change : Better internal support for custom statuses
-* BugFix : On Options page, links to "Pending Revision Monitors" and "Scheduled Revision Monitors" were reversed
-* BugFix : Revision Edit link from Edit Posts/Pages listing led to uneditable revision display
+* Fixed : On Options page, links to "Pending Revision Monitors" and "Scheduled Revision Monitors" were reversed
+* Fixed : Revision Edit link from Edit Posts/Pages listing led to uneditable revision display
 * Change : Raise minimum WP version to 3.0
 
 = 1.0.7 - 21 June 2010 =
-* BugFix : Revisionary prevented the normal scheduling of drafts for first-time publishing
+* Fixed : Revisionary prevented the normal scheduling of drafts for first-time publishing
 
 = 1.0.6 - 18 June 2010 =
 * Compat : CForms conflict broke TinyMCE edit form in Revisions Manager 
@@ -122,27 +127,27 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 * Compat : WP 3.0 Multisite menu items had invalid link
 
 = 1.0.4 - 6 May 2010 =
-* BugFix : Pending Revision Approval email used invalid permalink if permalink structure changed since original post storage
-* BugFix : Schedule Revision Publication email used invalid permalink if permalink structure changed since original post storage
+* Fixed : Pending Revision Approval email used invalid permalink if permalink structure changed since original post storage
+* Fixed : Schedule Revision Publication email used invalid permalink if permalink structure changed since original post storage
 
 = 1.0.3 - 6 May 2010 =
 * Compat : WP 3.0 elimination of page.php, edit-pages.php, page-new.php broke many aspects of page filtering
-* BugFix : Trash link did not work for revisions in Edit Posts/Pages listing
+* Fixed : Trash link did not work for revisions in Edit Posts/Pages listing
 * Change : Administrators and Editors now retain Quick Edit link for non-revisions in Edit Pages, Edit Posts listing
-* BugFix : "Publishers to Notify" metabox was included even if no eligible recipients are designated
+* Fixed : "Publishers to Notify" metabox was included even if no eligible recipients are designated
 
 = 1.0.2 - 11 Mar 2010 =
-* BugFix : Email notification caused error if Role Scoper was not activated
-* BugFix : Database error message (nuisance) in non-MU installations (SELECT meta_key, meta_value FROM WHERE site_id...)
-* BugFix : Publish Now link on Scheduled Revision preview did not work
-* BugFix : With WP > 2.9, newly published revisions also remained listed as a Pending or Scheduled revision
-* BugFix : With WP > 2.9, revision date selection UI showed "undefined" caption next to new date selection
-* BugFix : Link for viewing Scheduled Revisions was captioned as "Pending Revisions" (since 1.0.1) 
+* Fixed : Email notification caused error if Role Scoper was not activated
+* Fixed : Database error message (nuisance) in non-MU installations (SELECT meta_key, meta_value FROM WHERE site_id...)
+* Fixed : Publish Now link on Scheduled Revision preview did not work
+* Fixed : With WP > 2.9, newly published revisions also remained listed as a Pending or Scheduled revision
+* Fixed : With WP > 2.9, revision date selection UI showed "undefined" caption next to new date selection
+* Fixed : Link for viewing Scheduled Revisions was captioned as "Pending Revisions" (since 1.0.1) 
 * Compat : WMPL plugin
 
 = 1.0.1 - 6 Feb 2010 =
-* BugFix : 	Submitting a Pending Revision to a published Post failed with Fatal Error
-* BugFix : 	PHP short tag caused Parse Error on servers which were not configured to support it
+* Fixed : 	Submitting a Pending Revision to a published Post failed with Fatal Error
+* Fixed : 	PHP short tag caused Parse Error on servers which were not configured to support it
 * Compat :  Support TinyMCE Advanced and WP Super Edit for custom editor buttons on Revision Management form
 * Feature : Revision preview bar can be styled via CSS file
 * Lang 	 : 	Fixed several string formatting issues for better translation support
@@ -150,7 +155,7 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 = 1.0 - 30 Dec 2009 =
 * Feature : Use Blog Title and Admin Email as from address in revision notices, instead of "WordPress <wordpress@>"
-* BugFix : Revision Approval / Publication Notices used p=ID link instead of normal post permalink
+* Fixed : Revision Approval / Publication Notices used p=ID link instead of normal post permalink
 * Compat : Display workaround instructions for FolioPress conflict with visual revision display
 
 **1.0.RC1 - 12 Dec 2009**
@@ -178,12 +183,12 @@ Initial release.  Feature Changes and Bug Fixes are vs. Pending Revisions functi
 * Feature : Delete, View links on revisions in Edit Posts / Pages list redirect to RS Revisions Manager
 * Feature : Add pending posts and pages total to Dashboard Right Now list (includes both new post submissions and Pending Revisions)
 * Feature : Metaboxes in Edit Post/Page form for Pending / Scheduled Revisions
-* BugFix : Multiple Pending Revions created by autosave
-* BugFix : Users cannot preview their changes before submitting a Pending Revision on a published post/page
-* BugFix : Pending Post Revisions were not visible to Administrator in Edit Posts list
-* BugFix : Both Pending Page Revisions and Pending Post Revisions were visible to Administator in Edit Pages list
-* BugFix : Pending Revisions were not included in list for restoration
-* BugFix : Bulk Deletion attempt failed when pending / scheduled revisions were included in selection 
+* Fixed : Multiple Pending Revions created by autosave
+* Fixed : Users cannot preview their changes before submitting a Pending Revision on a published post/page
+* Fixed : Pending Post Revisions were not visible to Administrator in Edit Posts list
+* Fixed : Both Pending Page Revisions and Pending Post Revisions were visible to Administator in Edit Pages list
+* Fixed : Pending Revisions were not included in list for restoration
+* Fixed : Bulk Deletion attempt failed when pending / scheduled revisions were included in selection 
 
 = Notification: =
 * Feature : Optional email (to editors or post author) on Pending Revision submission

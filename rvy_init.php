@@ -214,7 +214,7 @@ function rvy_apply_custom_default_options() {
 			$option_basename = str_replace( 'rvy_default_', '', $row->meta_key );
 
 			if ( ! empty( $rvy_options_sitewide[$option_basename] ) )
-				continue;	// custom defaults are only for blog-specific options
+				continue;	// custom defaults are only for site-specific options
 
 			if( isset( $rvy_default_options[$option_basename] ) )
 				$rvy_default_options[$option_basename] = maybe_unserialize( $row->meta_value );

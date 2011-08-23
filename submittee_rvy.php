@@ -14,7 +14,7 @@ class Revisionary_Submittee {
 			 wp_die(__awp('Cheatin&#8217; uh?'));
 
 		if ( $customize_defaults )
-			$sitewide = true;		// default customization is only for per-blog options, but is sitewide in terms of DB storage in sitemeta table
+			$sitewide = true;		// default customization is only for per-site options, but is network-wide in terms of DB storage in sitemeta table
 		
 		if ( false === strpos( $_GET["page"], 'rvy-' ) )
 			return;

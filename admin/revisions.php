@@ -48,7 +48,7 @@ else
 if ( ! empty($_GET['restored_post'] ) )
 	$revision_id = $_GET['restored_post'];
 
-if ( ! $revision_id && ! $left && ! $right ) {
+if ( empty($revision_id) && ! $left && ! $right ) {
 	echo( '<div><br />' );
 	_e( 'No revision specified.', 'revisionary');
 	echo( '</div>' );
@@ -243,26 +243,28 @@ if ( ! $revision_status )
 <?php
 global $current_user;
 
-if ( ! $can_fully_edit_post = agp_user_can( $edit_cap, $rvy_post->ID, '', array( 'skip_revision_allowance' => true ) ) ) {
-	// post-assigned Revisor role is sufficient to edit others' revisions, but post-assigned Contributor role is not
-	if ( isset( $GLOBALS['cap_interceptor'] ) )
-		$GLOBALS['cap_interceptor']->require_full_object_role = true;
-	
-	$_can_edit_others = agp_user_can( $edit_others_cap, $rvy_post->ID );
+if ( 'diff' != $action ) {
+	if ( ! $can_fully_edit_post = agp_user_can( $edit_cap, $rvy_post->ID, '', array( 'skip_revision_allowance' => true ) ) ) {
+		// post-assigned Revisor role is sufficient to edit others' revisions, but post-assigned Contributor role is not
+		if ( isset( $GLOBALS['cap_interceptor'] ) )
+			$GLOBALS['cap_interceptor']->require_full_object_role = true;
+		
+		$_can_edit_others = agp_user_can( $edit_others_cap, $rvy_post->ID );
 
-	if ( isset( $GLOBALS['cap_interceptor'] ) )
-		$GLOBALS['cap_interceptor']->require_full_object_role = false;
-}
+		if ( isset( $GLOBALS['cap_interceptor'] ) )
+			$GLOBALS['cap_interceptor']->require_full_object_role = false;
+	}
 
-$can_edit = ( 'revision' == $revision->post_type ) && (
-    $can_fully_edit_post || 
-	( ( $revision->post_author == $current_user->ID || $_can_edit_others ) && ( 'pending' == $revision->post_status ) ) 
-	 );
+	$can_edit = ( 'revision' == $revision->post_type ) && (
+		$can_fully_edit_post || 
+		( ( $revision->post_author == $current_user->ID || $_can_edit_others ) && ( 'pending' == $revision->post_status ) ) 
+		 );
 
-if ( $can_edit ) {
-	wp_nonce_field('update-revision_' .  $revision->ID);
+	if ( $can_edit ) {
+		wp_nonce_field('update-revision_' .  $revision->ID);
 
-	echo "<input type='hidden' id='revision_ID' name='revision_ID' value='" . esc_attr($revision->ID) . "' />";
+		echo "<input type='hidden' id='revision_ID' name='revision_ID' value='" . esc_attr($revision->ID) . "' />";
+	}
 }
 ?>
 
@@ -435,8 +437,6 @@ $title_left = sprintf( __('Older: modified %s', 'scoper'), RevisionaryAdmin::con
 
 $title_right = sprintf( __('Newer: modified %s', 'scoper'), RevisionaryAdmin::convert_link( rvy_post_revision_title( $right_revision, true, 'post_modified' ), 'revision', 'manage' ) );
 
-endif;
-
 
 $identical = true;
 foreach ( _wp_post_revision_fields() as $field => $field_title ) :
@@ -483,6 +483,12 @@ foreach ( _wp_post_revision_fields() as $field => $field_title ) :
 	$title_right = '';
 	
 endforeach;
+
+// we temporarily removed this above
+//add_filter( "_wp_post_revision_field_$field", 'htmlspecialchars' );
+
+endif;  // 'diff' == $action
+
 
 if ( 'diff' == $action && $identical ) :
 	?>
@@ -538,11 +544,9 @@ foreach ( array_keys($revision_status_captions) as $_revision_status ) {
 $status_links .= '</ul>';
 
 echo $status_links;
-
-// we temporarily removed this above
-add_filter( "_wp_post_revision_field_$field", 'htmlspecialchars' );
 	
-$args = array( 'format' => 'form-table', 'parent' => true, 'right' => $right, 'left' => $left, 'current_id' => $revision_id );
+$current_id = ( isset($revision_id) ) ? $revision_id : 0;
+$args = array( 'format' => 'form-table', 'parent' => true, 'right' => $right, 'left' => $left, 'current_id' => $current_id );
 
 $count = rvy_list_post_revisions( $rvy_post, $revision_status, $args );
 if ( $count < 2 ) {

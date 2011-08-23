@@ -11,12 +11,12 @@
 
 if( basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME']) )
 	die();
-	
-if ( IS_MU_RS )
-	require_once( dirname(__FILE__).'/admin_lib-mu_rvy.php' );
-	
+
 $wp_content = ( is_ssl() || ( is_admin() && defined('FORCE_SSL_ADMIN') && FORCE_SSL_ADMIN ) ) ? str_replace( 'http:', 'https:', WP_CONTENT_URL ) : WP_CONTENT_URL;
 define ('RVY_URLPATH', $wp_content . '/plugins/' . RVY_FOLDER);
+
+include_once( ABSPATH . '/wp-admin/includes/plugin.php' );
+define( 'RVY_NETWORK', awp_is_mu() && is_plugin_active_for_network( RVY_BASENAME ) );
 
 class RevisionaryAdmin
 {
@@ -30,9 +30,11 @@ class RevisionaryAdmin
 		
 		if ( ! defined('XMLRPC_REQUEST') && ! strpos($_SERVER['SCRIPT_NAME'], 'p-admin/async-upload.php' ) ) {
 			// New Network menu with WP 3.1
-			if ( defined( 'IS_MU_RVY' ) )
+			if ( RVY_NETWORK ) {
+				require_once( dirname(__FILE__).'/admin_lib-mu_rvy.php' );
 				add_action('network_admin_menu', 'rvy_mu_site_menu' );
-
+			}
+				
 			add_action('admin_menu', array(&$this,'build_menu'));
 			
 			if ( strpos($_SERVER['SCRIPT_NAME'], 'p-admin/plugins.php') )
@@ -112,11 +114,10 @@ class RevisionaryAdmin
 		add_action( 'post_submitbox_start', array( &$this, 'pending_rev_checkbox' ) );
 	}
 
-	
 	function add_preview_action( $actions, $post ) {
 		if ( 'revision' == $post->post_type ) {
 			if ( current_user_can( 'edit_post', $post->ID ) )
-				$actions['view'] = $actions['view'] = '<a href="' . esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) . '&post_type=revision&preview=1' ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;' ), $title ) ) . '" rel="permalink">' . __( 'Preview' ) . '</a>';
+				$actions['view'] = $actions['view'] = '<a href="' . esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) . '&post_type=revision&preview=1' ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;' ), $post->post_title ) ) . '" rel="permalink">' . __( 'Preview' ) . '</a>';
 		}
 		
 		return $actions;
@@ -172,7 +173,7 @@ class RevisionaryAdmin
 		if ( $file == RVY_BASENAME ) {
 			$links[] = "<a href='http://agapetry.net/forum/'>" . __awp('Support Forum') . "</a>";
 			
-			$page = ( IS_MU_RVY ) ? 'rvy-site_options' : 'rvy-options';
+			$page = ( RVY_NETWORK ) ? 'rvy-site_options' : 'rvy-options';
 			$links[] = "<a href='admin.php?page=$page'>" . __awp('Options') . "</a>";
 		}
 			
@@ -319,14 +320,14 @@ jQuery(document).ready( function($) {
 			$func = "include_once('/$path/admin/about.php');";
 			add_action( 'settings_page_rvy-about' , create_function( '', $func ) );
 		}
-		
+
 		global $rvy_default_options, $rvy_options_sitewide;
 		
 		if ( empty($rvy_default_options) )
 			rvy_refresh_default_options();
-		
-		// omit Blog-Specific Options menu item if all options are controlled sitewide
-		if ( ! IS_MU_RVY || ( count($rvy_options_sitewide) != count($rvy_default_options) ) ) {
+
+		// omit site-Specific Options menu item if all options are controlled network-wide
+		if ( ! RVY_NETWORK || ( count($rvy_options_sitewide) != count($rvy_default_options) ) ) {
 			add_options_page( __('Revisionary Options', 'revisionary'), __('Revisionary', 'revisionary'), 'read', 'rvy-options');
 
 			$func = "include_once( '$path/admin/options.php');rvy_options( false );";
@@ -342,13 +343,12 @@ jQuery(document).ready( function($) {
 
 		$post_type = awp_post_type_from_uri();
 		$type_obj = get_post_type_object($post_type);
-		$prefix = ( $type_obj->hierarchical ) ? 'page' : 'post';
 		?>
 		<script type="text/javascript">
 		/* <![CDATA[ */
 		jQuery(document).ready( function($) {
 		<?php foreach( $rvy_any_listed_revisions as $id ): ?>
-			$( '#<?php echo($prefix . '-' . $id);?> span.inline' ).hide();
+			$( '#<?php echo( 'post-' . $id );?> span.inline' ).hide();
 		<?php endforeach; ?>
 		});
 		/* ]]> */

@@ -64,7 +64,7 @@ if ( ! current_user_can( 'manage_options' ) || ( $sitewide && ! is_super_admin()
 	wp_die(__awp('Cheatin&#8217; uh?'));
 
 if ( $sitewide )
-	$customize_defaults = false;	// this is intended only for storing custom default values for blog-specific options
+	$customize_defaults = false;	// this is intended only for storing custom default values for site-specific options
 
 $ui = new RvyOptionUI( $sitewide, $customize_defaults );
 	
@@ -115,7 +115,7 @@ $ui->form_options = array(
 );
 
 
-if ( IS_MU_RVY ) {
+if ( RVY_NETWORK ) {
 	if ( $sitewide )
 		$available_form_options = $ui->form_options;
 	
@@ -151,11 +151,11 @@ if ( $customize_defaults )
 <td width = "90%">
 <h2><?php 
 if ( $sitewide )
-	_e('Revisionary Site Options', 'revisionary');
+	_e('Revisionary Network Options', 'revisionary');
 elseif ( $customize_defaults )
-	_e('Revisionary Default Blog Options', 'revisionary');
-elseif ( IS_MU_RVY )
-	_e('Revisionary Blog Options', 'revisionary');
+	_e('Revisionary Default Site Options', 'revisionary');
+elseif ( RVY_NETWORK )
+	_e('Revisionary Site Options', 'revisionary');
 else
 	_e('Revisionary Options', 'revisionary');
 ?>
@@ -171,13 +171,13 @@ else
 if ( $sitewide ) {
 	$color_class = 'rs-backgreen';
 	echo '<p style="margin-top:0">';
-	_e( 'These settings will be applied to all blogs.', 'revisionary' );
+	_e( 'These settings will be applied to all sites.', 'revisionary' );
 	echo '</p>';
 	
 } elseif ( $customize_defaults ) {
 	$color_class = 'rs-backgray';
 	echo '<p style="margin-top:0">';
-	_e( 'These are the <strong>default</strong> settings for options which can be adjusted per-blog.', 'revisionary' );
+	_e( 'These are the <strong>default</strong> settings for options which can be adjusted per-site.', 'revisionary' );
 	echo '</p>';
 	
 } else
@@ -211,21 +211,21 @@ if ( rvy_get_option('display_hints', $sitewide, $customize_defaults) ) {
 	echo '<div class="rs-optionhint">';
 	_e('This page enables <strong>optional</strong> adjustment of Revisionary\'s features. For most installations, the default settings are fine.', 'revisionary');
 	
-	if ( IS_MU_RVY && is_super_admin() ) {
+	if ( RVY_NETWORK && is_super_admin() ) {
 		if ( $sitewide ) {
 			if ( ! $customize_defaults ) {
 				$link_open = "<a href='admin.php?page=rvy-options'>";
 				$link_close = '</a>';
 		
 				echo  ' ';
-				printf( __('Note that %1$s blog-specific options%2$s may also be available.', 'revisionary'), $link_open, $link_close );
+				printf( __('Note that %1$s site-specific options%2$s may also be available.', 'revisionary'), $link_open, $link_close );
 			}
 		} else {
 			$link_open = "<a href='admin.php?page=rvy-site_options'>";
 			$link_close = '</a>';
 	
 			echo ' ';
-			printf( __('Note that %1$s site-wide options%2$s may also be available.', 'revisionary'), $link_open, $link_close );
+			printf( __('Note that %1$s network-wide options%2$s may also be available.', 'revisionary'), $link_open, $link_close );
 		}
 	}
 	
@@ -254,10 +254,10 @@ $table_class = 'form-table rs-form-table';
 	<?php endif; // any options accessable in this section
 
 
-$pending_revisions_available = ! IS_MU_RVY || $sitewide || empty( $rvy_options_sitewide['pending_revisions'] ) || rvy_get_option( 'pending_revisions', true );
-$scheduled_revisions_available = ! IS_MU_RVY || $sitewide || empty( $rvy_options_sitewide['scheduled_revisions'] ) || rvy_get_option( 'scheduled_revisions', true );
+$pending_revisions_available = ! RVY_NETWORK || $sitewide || empty( $rvy_options_sitewide['pending_revisions'] ) || rvy_get_option( 'pending_revisions', true );
+$scheduled_revisions_available = ! RVY_NETWORK || $sitewide || empty( $rvy_options_sitewide['scheduled_revisions'] ) || rvy_get_option( 'scheduled_revisions', true );
 
-if ( 	// To avoid confusion, don't display any revision options in mu Blog Options if pending revisions / scheduled revisions are unavailable
+if ( 	// To avoid confusion, don't display any revision options in MS Site Options if pending revisions / scheduled revisions are unavailable
 $pending_revisions_available || $scheduled_revisions_available ) :
 
 	$section = 'revisions';			// --- REVISIONS SECTION ---
@@ -397,9 +397,9 @@ if ( $sitewide ) : ?>
 <?php
 echo "<div id='rs-optscope' style='clear:both;margin:0' class='rs-options agp_js_hide $color_class'>";
 
-if ( $display_hints ) {
+if ( $ui->display_hints ) {
 	echo '<div class="rs-optionhint">';
-	_e("Specify which Revisionary Options should be applied site-wide.", 'revisionary');
+	_e("Specify which Revisionary Options should be applied network-wide.", 'revisionary');
 	echo '</div><br />';
 }
 
@@ -411,16 +411,16 @@ $option_scope_stamp = __( 'sitewide control of "%s"', 'revisionary' );
 foreach ( $available_form_options as $tab_name => $sections ) {
 	echo '<li>';
 	
-	$explanatory_caption = __( 'Selected options will be controlled site-wide via <strong>Site Admin > Role Options</strong>; unselected options can be set per-blog via <strong>Roles > Options</strong>', 'revisionary' );
+	$explanatory_caption = __( 'Selected options will be controlled network-wide via <strong>Sites > Revisionary Options</strong>; unselected options can be set per-site via <strong>Settings > Revisionary</strong>', 'revisionary' );
 	
-	if ( isset( $tab_captions[$tab_name] ) )
-		$tab_caption = $tab_captions[$tab_name];
+	if ( isset( $ui->tab_captions[$tab_name] ) )
+		$tab_caption = $ui->tab_captions[$tab_name];
 	else
 		$tab_caption = $tab_name;
 
 	echo '<div style="margin:1em 0 1em 0">';
-	if ( $display_hints )
-		printf( _x( '<span class="rs-h3text rs-blue">%1$s</span> (%2$s)', 'option_tabname (explanatory note)', 'revisionary' ), $tab_caption, $explanatory_caption );
+	if ( $ui->display_hints )
+		printf( _x( '<span class="rs-h3text">%1$s</span> (%2$s)', 'option_tabname (explanatory note)', 'revisionary' ), $tab_caption, $explanatory_caption );
 	else
 		echo $tab_caption;
 	echo '</div>';
