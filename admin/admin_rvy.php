@@ -114,6 +114,7 @@ class RevisionaryAdmin
 		add_action( 'post_submitbox_start', array( &$this, 'pending_rev_checkbox' ) );
 	}
 
+	
 	function add_preview_action( $actions, $post ) {
 		if ( 'revision' == $post->post_type ) {
 			if ( current_user_can( 'edit_post', $post->ID ) )

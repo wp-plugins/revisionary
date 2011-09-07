@@ -484,9 +484,6 @@ foreach ( _wp_post_revision_fields() as $field => $field_title ) :
 	
 endforeach;
 
-// we temporarily removed this above
-//add_filter( "_wp_post_revision_field_$field", 'htmlspecialchars' );
-
 endif;  // 'diff' == $action
 
 

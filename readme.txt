@@ -4,7 +4,7 @@ Donate link: http://agapetry.net/news/introducing-role-scoper/#role-scoper-downl
 Tags: revision, access, permissions, cms, user, groups, members, admin, pages, posts, page, Post
 Requires at least: 3.0
 Tested up to: 3.2
-Stable Tag: 1.1.5
+Stable Tag: 1.1.6
 
 Moderated editing of published content.  Following approval by an editor, the revision can be published immediately or scheduled.
 
@@ -54,13 +54,13 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 == Changelog ==
 
-= 1.1.6-dev =
+= 1.1.6 - 7 Sep 2011 =
 * Fixed : Quick Edit was not disabled for Page Revisions, usage resulted in invalid revision data
 * Fixed : Revisionary Options were not available when plugin activatated per-site on a Multisite installation
+* Fixed : For Multisite installation, Revisionary Options on Sites menu caused a fatal error
 * Change : For Multisite installation, Revisionary Options Blog/Site captions changed to Site/Network
 * Fixed : Revised Post Title was not displayed in Revisions Manager
 * Fixed : Various PHP Notices
-
 
 = 1.1.5 - 29 June 2011 =
 * Fixed : Markup error in Revisions Manager for Administrators / Editors, especially noticeable in WP 3.2

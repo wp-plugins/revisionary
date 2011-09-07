@@ -5,14 +5,14 @@ function rvy_mu_site_menu() {
 		return;
 
 	$path = RVY_ABSPATH;
-
+	
 	$name = ( awp_ver( '3.1' ) ) ? 'sites' : 'ms-admin';
 	
 	// WP MU site options
 	if ( awp_is_mu() ) {
 		// RS Site Options
 		add_submenu_page("{$name}.php", __('Revisionary Options', 'revisionary'), __('Revisionary Options', 'revisionary'), 'read', 'rvy-site_options');
-		
+
 		$func = "include_once( '$path' . '/admin/options.php');rvy_options( true );";
 		add_action("{$name}_page_rvy-site_options", create_function( '', $func ) );	
 		
