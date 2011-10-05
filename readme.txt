@@ -54,6 +54,9 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 == Changelog ==
 
+= 1.1.7-dev =
+* Fixed : If Visual Editor is disabled, html entities not displayed or updated correctly in Revisions Manager
+
 = 1.1.6 - 7 Sep 2011 =
 * Fixed : Quick Edit was not disabled for Page Revisions, usage resulted in invalid revision data
 * Fixed : Revisionary Options were not available when plugin activatated per-site on a Multisite installation

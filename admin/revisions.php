@@ -402,7 +402,10 @@ echo '</table>';
 	$id = ( user_can_richedit() ) ? 'postdivrich' : 'postdiv';
 	echo "<div id='$id' class='postarea rvy-postarea'>";
 	$content = apply_filters( "_wp_post_revision_field_post_content", $revision->post_content, 'post_content' );
-		
+	
+	if ( ! user_can_richedit() )
+		$content = htmlentities($content);
+
 	the_editor($content, 'content', 'title', false);
 	echo '</div>';
 	
