@@ -3,8 +3,8 @@ Contributors: kevinB
 Donate link: http://agapetry.net/news/introducing-role-scoper/#role-scoper-download
 Tags: revision, access, permissions, cms, user, groups, members, admin, pages, posts, page, Post
 Requires at least: 3.0
-Tested up to: 3.2
-Stable Tag: 1.1.6
+Tested up to: 3.3
+Stable Tag: 1.1.7
 
 Moderated editing of published content.  Following approval by an editor, the revision can be published immediately or scheduled.
 
@@ -24,7 +24,7 @@ For WP 2.7 to 2.9, use <a href="http://agapetry.net/downloads/revisionary_legacy
 * Enchanced Revision Management Form
 * Front-end preview display of Pending / Scheduled Revisions with "Publish Now" link
 * New WordPress role, "Revisor" is a moderated Editor
-* Works with blog-wide WordPress Roles, or in conjunction with <a href="http://wordpress.org/extend/plugins/role-scoper/">Role Scoper</a>
+* Works with blog-wide WordPress Roles, or in conjunction with <a href="http://presspermit.com">Press Permit</a> or <a href="http://wordpress.org/extend/plugins/role-scoper/">Role Scoper</a>
 
 = Support =
 * Most Bug Reports and Plugin Compatibility issues addressed promptly following your <a href="http://agapetry.net/forum/">support forum</a> submission.
@@ -54,8 +54,14 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 == Changelog ==
 
-= 1.1.7-dev =
+= 1.1.7 - 11 Nov 2011 =
+* Compat : WP 3.3 - Revision Editor displayed redundantly, didn't work
+* Compat : Press Permit integration
+* Feature : By default, Revisor role does not enable editing other users' revisions (option to re-enable)
 * Fixed : If Visual Editor is disabled, html entities not displayed or updated correctly in Revisions Manager
+* Fixed : About Revisionary screen (linked from help menu) failed to display
+* Fixed : Revision previews used wrong template under some configurations
+* Fixed : Various PHP Notices
 
 = 1.1.6 - 7 Sep 2011 =
 * Fixed : Quick Edit was not disabled for Page Revisions, usage resulted in invalid revision data

@@ -84,7 +84,6 @@ function agp_date_i18n( $datef, $timestamp ) {
 //
 // set object_id to 'blog' to suppress any_object_check and any_term_check
 
-// Role Scoper < 1.1 was missing function_exists check for awp_user_can
 if ( ! function_exists('agp_user_can') ) {
 function agp_user_can($reqd_caps, $object_id = 0, $user_id = 0, $args = array() ) {
 	if ( function_exists('is_super_admin') && is_super_admin() ) 
@@ -102,55 +101,57 @@ function agp_user_can($reqd_caps, $object_id = 0, $user_id = 0, $args = array() 
 	}
 
 	if ( ! empty( $args['skip_revision_allowance'] ) ) {
-		global $revisionary;
-		$revisionary->skip_revision_allowance = true;	// this will affect the behavior of Role Scoper's user_has_cap filter
+		$GLOBALS['revisionary']->skip_revision_allowance = true;	// this will affect the behavior of Press Permit / Role Scoper's user_has_cap filter
 	}
 	
-	$reqd_caps = (array) $reqd_caps;
-	$check_caps = $reqd_caps;
-	foreach ( $check_caps as $cap_name ) {
-		if ( $meta_caps = map_meta_cap($cap_name, $user->ID, $object_id) ) {
-			$reqd_caps = array_diff( $reqd_caps, array($cap_name) );
-			$reqd_caps = array_unique( array_merge( $reqd_caps, $meta_caps ) );
+	if ( ( $user->ID != $GLOBALS['current_user']->ID ) || ! defined( 'PP_VERSION' ) ) { // TODO: also with Role Scoper?
+		$reqd_caps = (array) $reqd_caps;
+		$check_caps = $reqd_caps;
+		foreach ( $check_caps as $cap_name ) {
+			if ( $meta_caps = map_meta_cap($cap_name, $user->ID, $object_id) ) {
+				$reqd_caps = array_diff( $reqd_caps, array($cap_name) );
+				$reqd_caps = array_unique( array_merge( $reqd_caps, $meta_caps ) );
+			}
 		}
 	}
-	
-	if ( defined('SCOPER_VERSION') && ( 'blog' == $object_id ) ) {
-		global $scoper;
-		
-		// if this is being called with Scoper loaded, any_object_check won't be called anyway
-		$scoper->cap_interceptor->skip_any_object_check = true;
-		$scoper->cap_interceptor->skip_any_term_check = true;
-		$scoper->cap_interceptor->skip_id_generation = true;
-	}
-	
-	$_args = ( 'blog' == $object_id ) ? array( $reqd_caps, $user->ID, 0 ) : array( $reqd_caps, $user->ID, $object_id );
-	
-	$capabilities = apply_filters('user_has_cap', $user->allcaps, $reqd_caps, $_args);
-	
-	if ( defined('SCOPER_VERSION') && ('blog' == $object_id) ) {
-		$scoper->cap_interceptor->skip_any_object_check = false;
-		$scoper->cap_interceptor->skip_any_term_check = false;
-		$scoper->cap_interceptor->skip_id_generation = false;
-	}
-	
-	if ( ! empty( $args['skip_revision_allowance'] ) ) {
-		$revisionary->skip_revision_allowance = false;
-	}
 
-	foreach ($reqd_caps as $cap_name) {
-		if( empty($capabilities[$cap_name]) || ! $capabilities[$cap_name] ) {
-			// if we're about to fail due to a missing create_child_pages cap, honor edit_pages cap as equivalent
-			// TODO: abstract this with cap_defs property
-			if ( 0 === strpos( $cap_name, 'create_child_' ) ) {
-				$alternate_cap_name = str_replace( 'create_child_', 'edit_', $cap_name );
-				$_args = array( array($alternate_cap_name), $user->ID, $object_id );
-				$capabilities = apply_filters('user_has_cap', $user->allcaps, array($alternate_cap_name), $_args);
-				
-				if( empty($capabilities[$alternate_cap_name]) || ! $capabilities[$alternate_cap_name] )
+	if ( defined('RVY_CONTENT_ROLES') && ( 'blog' == $object_id ) ) {
+		// if this is being called with Press Permit / Role Scoper loaded, any_object_check won't be called anyway
+		$flags = array_fill_keys( array( 'skip_any_object_check', 'skip_any_term_check', 'skip_id_generation' ), true );
+		$GLOBALS['revisionary']->content_roles->set_hascap_flags( $flags );
+	}
+	
+	if ( ( $user->ID == $GLOBALS['current_user']->ID ) && defined( 'PP_VERSION' ) ) {  // temp workaround
+		return current_user_can( $reqd_caps, $object_id );
+		
+	} else {
+		$_args = ( 'blog' == $object_id ) ? array( $reqd_caps, $user->ID, 0 ) : array( $reqd_caps, $user->ID, $object_id );
+		
+		$capabilities = apply_filters('user_has_cap', $user->allcaps, $reqd_caps, $_args);
+		
+		if ( defined('RVY_CONTENT_ROLES') && ('blog' == $object_id) ) {
+			$flags = array_fill_keys( array( 'skip_any_object_check', 'skip_any_term_check', 'skip_id_generation' ), false );
+			$GLOBALS['revisionary']->content_roles->set_hascap_flags( $flags );
+		}
+		
+		if ( ! empty( $args['skip_revision_allowance'] ) ) {
+			$GLOBALS['revisionary']->skip_revision_allowance = false;
+		}
+
+		foreach ($reqd_caps as $cap_name) {
+			if( empty($capabilities[$cap_name]) || ! $capabilities[$cap_name] ) {
+				// if we're about to fail due to a missing create_child_pages cap, honor edit_pages cap as equivalent
+				// TODO: abstract this with cap_defs property
+				if ( 0 === strpos( $cap_name, 'create_child_' ) ) {
+					$alternate_cap_name = str_replace( 'create_child_', 'edit_', $cap_name );
+					$_args = array( array($alternate_cap_name), $user->ID, $object_id );
+					$capabilities = apply_filters('user_has_cap', $user->allcaps, array($alternate_cap_name), $_args);
+					
+					if( empty($capabilities[$alternate_cap_name]) || ! $capabilities[$alternate_cap_name] )
+						return false;
+				} else
 					return false;
-			} else
-				return false;
+			}
 		}
 	}
 

@@ -179,7 +179,7 @@ function do_dump(&$var, $display_objects = true, $var_name = NULL, $indent = NUL
 function rvy_usage_message( $translate = true ) {
 	if ( function_exists('memory_get_usage') ) {
 		if ( $translate )
-			return sprintf( __('%1$s queries in %2$s seconds. %3$s MB used.', 'scoper'), get_num_queries(), round(timer_stop(0), 1), round( memory_get_usage() / (1024 * 1024), 3), 'revisionary' ) . ' ';
+			return sprintf( __('%1$s queries in %2$s seconds. %3$s MB used.', 'revisionary'), get_num_queries(), round(timer_stop(0), 1), round( memory_get_usage() / (1024 * 1024), 3) ) . ' ';
 		else
 			return get_num_queries() . ' queries in ' . round(timer_stop(0), 1) . ' seconds. ' . round( memory_get_usage() / (1024 * 1024), 3) . ' MB used. ';
 	}

@@ -3,7 +3,7 @@
 Plugin Name: Revisionary
 Plugin URI: http://agapetry.net/
 Description: Enables qualified users to submit changes to currently published posts or pages.  These changes, if approved by an Editor, can be published immediately or scheduled for future publication.
-Version: 1.1.7-dev
+Version: 1.1.7
 Author: Kevin Behrens
 Author URI: http://agapetry.net/
 Min WP Version: 3.0
@@ -11,7 +11,7 @@ License: GPL version 2 - http://www.opensource.org/licenses/gpl-license.php
 */
 
 /*
-Copyright (c) 2011, Kevin Behrens.
+Copyright (c) 2009-2011, Kevin Behrens.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -42,7 +42,7 @@ if ( defined( 'RVY_VERSION' ) ) {
 	return;
 }
 
-define ('RVY_VERSION', '1.1.7-dev');
+define ('RVY_VERSION', '1.1.7');
 
 define ('COLS_ALL_RVY', 0);
 define ('COL_ID_RVY', 1);
@@ -85,7 +85,7 @@ define ('RVY_FOLDER', dirname( plugin_basename(__FILE__) ) );
 
 if ( ! defined('WP_CONTENT_URL') )
 	define( 'WP_CONTENT_URL', site_url( 'wp-content', $scheme ) );
-	
+
 if ( ! defined('WP_CONTENT_DIR') )
 	define( 'WP_CONTENT_DIR', str_replace('\\', '/', ABSPATH) . 'wp-content' );
 

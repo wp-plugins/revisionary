@@ -96,8 +96,7 @@ jQuery(document).ready( function($) {
 		
 		if ( empty($wp_meta_boxes[$object_type]) )
 			return;
-		
-		//$object_id = $this->scoper->data_sources->detect('id', $src_name, '', $object_type);
+
 		$object_id = rvy_detect_post_id();
 		
 		// This block will be moved to separate class

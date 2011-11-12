@@ -32,12 +32,10 @@ if ( ! is_content_administrator_rvy() ) {
 
 /**
  * RevisionaryAdminHardway PHP class for the WordPress plugin Revisionary
- * hardway-admin_rv.php
+ * hardway-admin_rvy.php
  * 
  * @author 		Kevin Behrens
- * @copyright 	Copyright 2009
- * 
- * Used by Role Role Scoper Plugin as a container for statically-called functions
+ * @copyright 	Copyright 2009-2011
  *
  */
 class RevisionaryAdminHardway {

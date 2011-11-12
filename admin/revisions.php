@@ -9,7 +9,7 @@ if( basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME']) )
  * Revisions Manager for Revisionary plugin, derived and heavily expanded from WP 2.8.4 core
  *
  * @author 		Kevin Behrens
- * @copyright 	Copyright 2009
+ * @copyright 	Copyright 2009-2011
  * 
  */
  
@@ -73,7 +73,8 @@ case 'diff' :
 	else
 		$revision_status = $right_revision->post_status;
 		
-	if ( !current_user_can( 'read_post', $left_revision->ID ) || !current_user_can( 'read_post', $right_revision->ID ) )
+	// TODO: review revision read_post implementation with Press Permit
+	if ( ( ! current_user_can( 'read_post', $left_revision->ID ) && ! current_user_can( 'edit_post', $left_revision->ID ) ) || ( ! current_user_can( 'read_post', $right_revision->ID ) && ! current_user_can( 'edit_post', $right_revision->ID ) ) )
 		break;
 
 	if ( $left_revision->ID == $right_revision->post_parent ) // right is a revision of left
@@ -134,8 +135,12 @@ default :
 		// actual status of compared objects overrides any revision_Status arg passed in
 		$revision_status = $revision->post_status;	
 		
-		if ( !current_user_can( 'read_post', $revision->ID ) || !current_user_can( 'read_post', $rvy_post->ID ) )
+		// TODO: review revision read_post implementation with Press Permit
+
+		//if ( !current_user_can( 'read_post', $revision->ID ) || !current_user_can( 'read_post', $rvy_post->ID ) ) {  // TODO: review PP has_cap filtering for revisions
+		if ( ! current_user_can( 'read_post', $rvy_post->ID ) ) {
 			break;
+		}
 	}
 
 	if ( $type_obj = get_post_type_object( $rvy_post->post_type ) ) {
@@ -271,6 +276,7 @@ if ( 'diff' != $action ) {
 <table class="rvy-editor-table">
 <tr><td class="rvy-editor-table-top">
 <h2><?php 
+
 echo $h2; 
 if ( ! empty($restore_link) )
 	echo "<span class='rs-revision_top_action rvy-restore-link'> $restore_link</span>";	
@@ -436,9 +442,9 @@ if ( strtotime($left_revision->post_modified) > strtotime($right_revision->post_
 	$right_revision = $temp;
 }
 
-$title_left = sprintf( __('Older: modified %s', 'scoper'), RevisionaryAdmin::convert_link( rvy_post_revision_title( $left_revision, true, 'post_modified' ), 'revision', 'manage' ) );
+$title_left = sprintf( __('Older: modified %s', 'revisionary'), RevisionaryAdmin::convert_link( rvy_post_revision_title( $left_revision, true, 'post_modified' ), 'revision', 'manage' ) );
 
-$title_right = sprintf( __('Newer: modified %s', 'scoper'), RevisionaryAdmin::convert_link( rvy_post_revision_title( $right_revision, true, 'post_modified' ), 'revision', 'manage' ) );
+$title_right = sprintf( __('Newer: modified %s', 'revisionary'), RevisionaryAdmin::convert_link( rvy_post_revision_title( $right_revision, true, 'post_modified' ), 'revision', 'manage' ) );
 
 
 $identical = true;

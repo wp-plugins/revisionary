@@ -3,9 +3,7 @@
 class RevisionaryFront {
 
 	function RevisionaryFront() {
-		global $scoper;  // these filters do not require Role Scoper, but honor its direct_file_access flag
-		
-		if ( empty($scoper) || ! $scoper->direct_file_access ) {
+		if ( ! defined('RVY_CONTENT_ROLES') || ! $GLOBALS['revisionary']->content_roles->is_direct_file_access() ) {
 			add_filter( 'posts_request', array( &$this, 'flt_view_revision' ) );
 			add_action( 'template_redirect', array( &$this, 'act_template_redirect' ) );
 		}
@@ -50,7 +48,7 @@ class RevisionaryFront {
 	function act_template_redirect() {
 		if ( $revision = get_post( $_GET['p'] ) )
 			if ( $parent = get_post( $revision->post_parent ) )
-				if ( 'page' == $parent->post_type ) {
+				if ( ( 'page' == $parent->post_type ) && ( $parent->post_name == $revision->post_name ) ) {
 					global $wp_query;
 					$wp_query->is_page = true;
 					$wp_query->is_single = false;
@@ -145,7 +143,7 @@ class RevisionaryFront {
 					$cap_name = $type_obj->cap->edit_post;	
 
 				if ( agp_user_can( $cap_name, $revision->post_parent, '', array( 'skip_revision_allowance' => true ) ) ) {
-					load_plugin_textdomain('revisionary', '', RVY_FOLDER . '/languages');
+					load_plugin_textdomain('revisionary', false, RVY_FOLDER . '/languages');
 					
 					switch ( $revision->post_status ) {
 					case 'publish' :
@@ -198,7 +196,7 @@ class RevisionaryFront {
 		} elseif( ! empty( $_GET['mark_current_revision'] ) ) {
 			global $wp_query;
 			if ( ! empty($wp_query->queried_object_id) ) {
-				load_plugin_textdomain('revisionary', '', RVY_FOLDER . '/languages');
+				load_plugin_textdomain('revisionary', false, RVY_FOLDER . '/languages');
 				
 				$link_caption = __( 'Current Revision', 'revisionary' );
 			

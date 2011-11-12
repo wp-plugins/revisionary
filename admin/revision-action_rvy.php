@@ -163,7 +163,7 @@ function rvy_revision_restore() {
 				break;
 		}
 
-		check_admin_referer( "restore-post_$post->ID|$revision->ID" );
+		check_admin_referer( "restore-post_{$post->ID}|$revision->ID" );
 		wp_restore_post_revision( $revision_id );
 		// also set the revision status to 'inherit' so it is listed as a past revision if the current revision is further changed (As of WP 2.9, wp_restore_post_revision no longer does this automatically)
 		$revision->post_status = 'inherit';
@@ -171,7 +171,7 @@ function rvy_revision_restore() {
 		wp_update_post( $revision );
 		// possible TODO: support redirect back to WP post/page edit
 		//$query_args = array( 'message' => 5, 'revision' => $revision->ID, 'action' => 'view', 'revision_status' => '' );
-		if ( 'inherit' == $revision->post_status )
+		if ( 'inherit' == $revision['post_status'] )
 			$last_arg = "&restored_post=$post->ID";
 		else
 			$last_arg = "&published_post=$post->ID";			
@@ -443,25 +443,8 @@ function rvy_publish_scheduled_revisions() {
 					$object_type = ( isset($post) && isset($post->post_type) ) ? $post->post_type : 'post';
 					// if it was not stored, or cleared, use default recipients
 					$to_addresses = array();
-					if ( defined('SCOPER_VERSION') && ! defined('SCOPER_DEFAULT_MONITOR_GROUPS') ) { // e-mail to Scheduled Revision Montiors metagroup if Role Scoper is activated
-						global $scoper;
-						if ( ! isset($scoper) || is_null($scoper) ) {	
-							require_once( SCOPER_ABSPATH . '/role-scoper_main.php');
-							$scoper = new Scoper();
-							scoper_init();
-						}
-						if ( empty($scoper->data_sources) )
-							$scoper->load_config();
-						require_once( SCOPER_ABSPATH . '/admin/admin_lib_rs.php');
-						if ( $group = ScoperAdminLib::get_group_by_name( '[Scheduled Revision Monitors]' ) ) {
-							$default_ids = ScoperAdminLib::get_group_members( $group->ID, COL_ID_RS, true );
-							if ( $type_obj = get_post_type_object( $object_type ) ) {
-								$post_publishers = $scoper->users_who_can( $type_obj->cap->edit_post, COLS_ALL_RVY, 'post', $object_id );
-								foreach ( $post_publishers as $user )
-									if ( in_array( $user->ID, $default_ids ) )
-										$to_addresses []= $user->user_email;
-							}
-						}
+					if ( defined('RVY_CONTENT_ROLES') && ! defined('SCOPER_DEFAULT_MONITOR_GROUPS') ) { // e-mail to Scheduled Revision Montiors metagroup if Role Scoper is activated
+						global $revisionary;												$revisionary->content_roles->ensure_init();						if ( $default_ids = $revisionary->content_roles->get_metagroup_members( 'Scheduled Revision Monitors' ) ) {							if ( $type_obj = get_post_type_object( $object_type ) ) {								$GLOBALS['revisionary']->skip_revision_allowance = true;								$post_publishers = $revisionary->content_roles->users_who_can( $type_obj->cap->edit_post, $object_id, array( 'cols' => 'all' ) );								$GLOBALS['revisionary']->skip_revision_allowance = false;																foreach ( $post_publishers as $user )									if ( in_array( $user->ID, $default_ids ) )										$to_addresses []= $user->user_email;							}						}
 					} else {
 						$use_wp_roles = ( defined( 'SCOPER_MONITOR_ROLES' ) ) ? SCOPER_MONITOR_ROLES : 'administrator,editor';
 						$use_wp_roles = str_replace( ' ', '', $use_wp_roles );

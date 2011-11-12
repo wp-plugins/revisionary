@@ -87,6 +87,7 @@ $ui->section_captions = array(
 $ui->option_captions = array(
 	'pending_revisions' => __('Pending Revisions', 'revisionary'),
 	'scheduled_revisions' => __('Scheduled Revisions', 'revisionary'),
+	'revisor_lock_others_revisions' => __("Prevent Revisors from editing others&apos; revisions", 'revisionary'),
 	'diff_display_strip_tags' => __('Strip html tags out of difference display', 'revisionary'),
 	'async_scheduled_publish' => __('Asynchronous Publishing', 'revisionary'),
 	'pending_rev_notify_author' => __('Email original Author when a Pending Revision is submitted', 'revisionary'),
@@ -97,7 +98,7 @@ $ui->option_captions = array(
 	'revisor_role_add_custom_rolecaps' => __('Include capabilities for all custom post types in the WordPress Revisor role', 'revisionary' ) 
 );
 
-if ( defined('SCOPER_VERSION') ) {
+if ( defined('RVY_CONTENT_ROLES') ) {
 	$ui->option_captions['pending_rev_notify_admin'] = __('Email designated Publishers when a Pending Revision is submitted', 'revisionary');
 	$ui->option_captions['publish_scheduled_notify_admin'] = __('Email designated Publishers when a Scheduled Revision is published', 'revisionary');
 } else {
@@ -109,7 +110,7 @@ if ( defined('SCOPER_VERSION') ) {
 $ui->form_options = array( 
 'features' => array(
 	'role_definition' => 	array( 'revisor_role_add_custom_rolecaps' ),
-	'revisions'		=>		array( 'scheduled_revisions', 'pending_revisions', 'diff_display_strip_tags', 'async_scheduled_publish' ),
+	'revisions'		=>		array( 'scheduled_revisions', 'pending_revisions', 'revisor_lock_others_revisions', 'diff_display_strip_tags', 'async_scheduled_publish' ),
 	'notification'	=>		array( 'pending_rev_notify_admin', 'pending_rev_notify_author', 'rev_approval_notify_author', 'rev_approval_notify_revisor', 'publish_scheduled_notify_admin', 'publish_scheduled_notify_author', 'publish_scheduled_notify_revisor' )
 )
 );
@@ -279,6 +280,9 @@ $pending_revisions_available || $scheduled_revisions_available ) :
 		$hint = __( 'Enable some users to submit a revision for an existing published post or page which they cannot otherwise edit.  Contributors can submit revisions to their own published content, and users who have the edit_others_ capability (but not edit_published_) can submit revisions to other user\'s content.<br /><br />These Pending Revisions are listed alongside regular pending content, but link to a Revisions management form.  There the pending revision can be viewed, compared to other revisions, and approved or deleted by qualified editors.  If the submitter set a future publish date, approval schedules delayed publication of the revised content.', 'revisionary' );
 		$ui->option_checkbox( 'pending_revisions', $tab, $section, $hint, '<br />' );
 		
+		$hint = __( "Note: Sitewide Revisors will still be able to edit other user&apos;s normal pending pages, but you can avoid that by using Press Permit or Role Scoper to assign the Revisor role for specific pages.", 'revisionary' );
+		$ui->option_checkbox( 'revisor_lock_others_revisions', $tab, $section, $hint, '<br />' );
+		
 		$hint = '';
 		$ui->option_checkbox( 'diff_display_strip_tags', $tab, $section, $hint, '' );
 		?>
@@ -295,8 +299,8 @@ $pending_revisions_available || $scheduled_revisions_available ) :
 		
 		<?php 
 		if( $pending_revisions_available ) {
-			$subcaption = ( defined('SCOPER_VERSION') && $group = ScoperAdminLib::get_group_by_name( '[Pending Revision Monitors]' ) ) ?
-				sprintf( " &bull;&nbsp;<a href='%s'>" . __('select recipients', 'revisionary') . "</a>", "admin.php?page=rs-groups&mode=edit&id=$group->ID" ) : '';
+			$subcaption = ( defined('RVY_CONTENT_ROLES') && $group_link = $GLOBALS['revisionary']->content_roles->get_metagroup_edit_link( 'Pending Revision Monitors' ) ) ?
+				sprintf( " &bull;&nbsp;<a href='%s'>" . __('select recipients', 'revisionary') . "</a>", $group_link ) : '';
 			
 			// TODO: $ui->option_dropdown() method
 			$id = 'pending_rev_notify_admin';
@@ -349,8 +353,8 @@ $pending_revisions_available || $scheduled_revisions_available ) :
 		if( $scheduled_revisions_available ) {
 			echo '<br />';
 					
-			$subcaption = ( defined('SCOPER_VERSION') && $group = ScoperAdminLib::get_group_by_name( '[Scheduled Revision Monitors]' ) ) ?
-				sprintf( " &bull;&nbsp;<a href='%s'>" . __('select recipients', 'revisionary') . "</a>", "admin.php?page=rs-groups&mode=edit&id=$group->ID" ) : '';
+			$subcaption = ( defined('RVY_CONTENT_ROLES') && $group_link = $GLOBALS['revisionary']->content_roles->get_metagroup_edit_link( 'Scheduled Revision Monitors' ) ) ?
+				sprintf( " &bull;&nbsp;<a href='%s'>" . __('select recipients', 'revisionary') . "</a>", $group_link ) : '';
 
 			$hint = '';
 			$ui->option_checkbox( 'publish_scheduled_notify_admin', $tab, $section, $hint, '', array( 'subcaption' => $subcaption ) );
@@ -367,10 +371,10 @@ $pending_revisions_available || $scheduled_revisions_available ) :
 				echo '<br />';
 				if ( $ui->display_hints ) {
 					echo '<span class="rs-subtext">';
-					if ( defined('SCOPER_VERSION') )
+					if ( defined('RVY_CONTENT_ROLES') )
 						_e('Note: "by default" means Pending Revision creators can customize email notification recipients before submitting.  Eligibile "Publisher" email recipients are members of the Pending Revision Monitors group who <strong>also</strong> have the ability to publish the revision.', 'revisionary');
 					else
-						printf( __('Note: "by default" means Pending Revision creators can customize email notification recipients before submitting.  For more flexibility in moderation and notification, install the %1$s Role Scoper%2$s plugin.', 'revisionary'), "<a href='" . awp_plugin_info_url("role-scoper") . "'>", '</a>' );
+						printf( __('Note: "by default" means Pending Revision creators can customize email notification recipients before submitting.  For more flexibility in moderation and notification, install the %1$s Press Permit%2$s %3$s Role Scoper%4$s plugin.', 'revisionary'), "<a href='http://presspermit.com'>", '</a>', "<a href='" . awp_plugin_info_url("role-scoper") . "'>", '</a>' );
 					echo '</span>';
 				}
 			}

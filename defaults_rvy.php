@@ -27,7 +27,8 @@ function rvy_default_options_sitewide() {
 		'publish_scheduled_notify_author' => true,
 		'publish_scheduled_notify_revisor' => true,
 		'display_hints' => true,
-		'revisor_role_add_custom_rolecaps' => true
+		'revisor_role_add_custom_rolecaps' => true,
+		'revisor_lock_others_revisions' => true,
 	);
 	return $def;	
 }
@@ -46,7 +47,8 @@ function rvy_default_options() {
 		'publish_scheduled_notify_author' => 1,
 		'publish_scheduled_notify_revisor' => 1,
 		'display_hints' => 1,
-		'revisor_role_add_custom_rolecaps' => 1
+		'revisor_role_add_custom_rolecaps' => 1,
+		'revisor_lock_others_revisions' => 1,
 	);
 
 	return $def;

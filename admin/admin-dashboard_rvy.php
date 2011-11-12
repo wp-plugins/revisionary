@@ -2,6 +2,9 @@
 add_action ( 'right_now_table_end', 'rvy_right_now_pending' );
 
 function rvy_right_now_pending() {
+	if ( defined( 'RVY_CONTENT_ROLES' ) && ! defined( 'USE_RVY_RIGHTNOW' ) )
+		return;
+
 	$post_types = array_diff_key( get_post_types( array( 'public' => true ), 'object' ), array( 'attachment' => true ) );
 	
 	foreach ( $post_types as $post_type => $post_type_obj ) {
@@ -12,9 +15,9 @@ function rvy_right_now_pending() {
 				$num = number_format_i18n( $num_posts->pending );
 
 				if ( intval($num_posts->pending) <= 1 )
-					$text = sprintf( __('Pending %1$s', 'scoper'),$post_type_obj->labels->singular_name);
+					$text = sprintf( __('Pending %1$s', 'revisionary'),$post_type_obj->labels->singular_name);
 				else
-					$text = sprintf( __('Pending %1$s', 'scoper'), $post_type_obj->labels->name);
+					$text = sprintf( __('Pending %1$s', 'revisionary'), $post_type_obj->labels->name);
 					
 				$type_clause = ( 'post' == $post_type ) ? '' : "&post_type=$post_type";
 					

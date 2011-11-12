@@ -5,7 +5,7 @@
  * UI library for Revisions Manager, heavily expanded from WP 2.8.4 core
  *
  * @author 		Kevin Behrens
- * @copyright 	Copyright 2009
+ * @copyright 	Copyright 2009-2011
  * 
  */
 
@@ -35,25 +35,24 @@ function rvy_metabox_notification_list( $topic ) {
 		$post_publishers = array();
 		$default_ids = array();
 
-		if ( defined('SCOPER_VERSION') && ! defined('SCOPER_DEFAULT_MONITOR_GROUPS') ) {
-			global $scoper;
-
-			if ( $group = ScoperAdminLib::get_group_by_name( '[Pending Revision Monitors]' ) ) {
-
-				$default_ids = ScoperAdminLib::get_group_members( $group->ID, COL_ID_RS, true );
-
-				$post_publishers = $scoper->users_who_can( "edit_{$object_type}", COLS_ALL_RVY, 'post', $object_id, array( 'force_refresh' => true ) );
-
-				$can_publish_post = array();
-				foreach ( $post_publishers as $key => $user ) {
-					$can_publish_post []= $user->ID;
+		if ( defined('RVY_CONTENT_ROLES') && ! defined('SCOPER_DEFAULT_MONITOR_GROUPS') ) {
+			if ( $default_ids = $GLOBALS['revisionary']->content_roles->get_metagroup_members( 'Pending Revision Monitors' ) ) {
+				if ( $type_obj = get_post_type_object( $object_type ) ) {
+					$GLOBALS['revisionary']->skip_revision_allowance = true;
+					$post_publishers = $GLOBALS['revisionary']->content_roles->users_who_can( $type_obj->cap->edit_post, $object_id, array( 'cols' => 'all', 'force_refresh' => true ) );
+					$GLOBALS['revisionary']->skip_revision_allowance = false;
 					
-					if ( ! in_array( $user->ID, $default_ids ) )
-						unset(  $post_publishers[$key] );
+					$can_publish_post = array();
+					foreach ( $post_publishers as $key => $user ) {
+						$can_publish_post []= $user->ID;
+						
+						if ( ! in_array( $user->ID, $default_ids ) )
+							unset(  $post_publishers[$key] );
+					}
+					
+					$default_ids = array_intersect( $default_ids, $can_publish_post );
+					$default_ids = array_fill_keys( $default_ids, true );
 				}
-				
-				$default_ids = array_intersect( $default_ids, $can_publish_post );
-				$default_ids = array_fill_keys( $default_ids, true );
 			}
 		
 		} else {
@@ -65,17 +64,25 @@ function rvy_metabox_notification_list( $topic ) {
 			$use_wp_roles = str_replace( ' ', '', $use_wp_roles );
 			$use_wp_roles = explode( ',', $use_wp_roles );
 			
-			$recipient_ids = array();
-
+			$recipients = array();
+			
 			foreach ( $use_wp_roles as $role_name ) {
-				$search = new WP_User_Search( '', 0, $role_name );
-				$recipient_ids = array_merge( $recipient_ids, $search->results );
+				if ( awp_ver( '3.1-beta' ) ) {
+					$search = new WP_User_Query( "search=&role=$role_name" );
+					$recipients = array_merge( $recipients, $search->results );
+				} else {
+					$search = new WP_User_Search( '', 0, $role_name );
+					$found_ids = $search->results;
+					
+					foreach ( $found_ids as $userid ) {
+						$recipients []= new WP_User($userid);
+					}
+				}
 			}
 
-			foreach ( $recipient_ids as $userid ) {
-				$user = new WP_User($userid);
-				$post_publishers []= $user;
-				$default_ids [$user->ID] = true;
+			foreach ( $recipients as $_user ) {
+				$post_publishers []= $_user;
+				$default_ids [$_user->ID] = true;
 			}
 		}		
 		
@@ -317,11 +324,10 @@ function rvy_list_post_revisions( $post_id = 0, $status = '', $args = null ) {
 	$delete_msg = __( "The revision will be deleted. Are you sure?", 'revisionary' );
 	$js_delete_call = "javascript:if (confirm('$delete_msg')) {return true;} else {return false;}";
 	
-	// buffer listed revision IDs for capability checks
-	if ( defined('SCOPER_VERSION') ) {
-		global $scoper;
-		foreach( $revisions as $revision )
-			$scoper->listed_ids['post'][$revision->post_parent] = true;
+	// TODO: should this buffer listed revision IDs instead of post ID ?
+	if ( defined('RVY_CONTENT_ROLES') ) {
+		//foreach( $revisions as $revision )
+			$GLOBALS['revisionary']->content_roles->add_listed_ids( 'post', $post->post_type, $post->ID );
 	}
 	
 	foreach ( $revisions as $revision ) {

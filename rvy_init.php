@@ -379,36 +379,50 @@ function rvy_get_post_revisions($post_id, $status = 'inherit', $args = '' ) {
 
 
 function rvy_check_rs_version() {
-	if ( ! defined( 'SCOPER_VERSION' ) )
-		return true;
-		
-	$min_scoper_version = '1.1-RC1';
+	if ( defined( 'PP_VERSION' ) ) {
+		$min_pp_version = '0.9-beta2';
 
-	// Give a heads-up and download link if Role Scoper version is not compatible
-	if ( version_compare( SCOPER_VERSION, $min_scoper_version, '<' ) ) {
-		$active_scoper_file = false;
-		$plugins = get_option('active_plugins');
-		foreach ( $plugins as $plugin_file )
-			if ( false !== strpos($plugin_file, 'role-scoper') ) {
-				$active_scoper_file = $plugin_file;
-				break;	
-			}
-		
-		$err_msg = sprintf(__('Revisionary is not compatible with Role Scoper versions prior to %1$s.  Please upgrade or deactivate %2$s Role Scoper%3$s.', 'revisionary'), $min_scoper_version, "<a href='__rs-update__'>", '</a>');
-
-		$func_body .= '$msg = str_replace( "__rs-update__", awp_plugin_update_url("' . $active_scoper_file . '"), "' . $err_msg . '");';
-		$func_body .= "echo '" 
-		. '<div id="message" class="error fade" style="color: black"><p><strong>' 
-		. "'" 
-		. ' . $msg . ' 
-		. "'</strong></p></div>';";
+		// Give a heads-up and download link if Role Scoper version is not compatible
+		if ( version_compare( PP_VERSION, $min_pp_version, '<' ) ) {
+			$err_msg = sprintf(__('Revisionary is not compatible with Press Permit versions prior to %1$s.  Please upgrade or deactivate.', 'revisionary'), $min_pp_version );
+		}
 	
-		if ( is_admin() )
-			add_action('admin_notices', create_function('', $func_body) );
+	} elseif ( defined( 'SCOPER_VERSION' ) ) {
+		$min_scoper_version = '1.3.47';
 
-		return false;
+		// Give a heads-up and download link if Role Scoper version is not compatible
+		if ( version_compare( SCOPER_VERSION, $min_scoper_version, '<' ) ) {
+			$active_scoper_file = false;
+			$plugins = get_option('active_plugins');
+			foreach ( $plugins as $plugin_file )
+				if ( false !== strpos($plugin_file, 'role-scoper') ) {
+					$active_scoper_file = $plugin_file;
+					break;	
+				}
+
+			$err_msg = sprintf(__('Revisionary is not compatible with Role Scoper versions prior to %1$s.  Please upgrade or deactivate %2$s Role Scoper%3$s.', 'revisionary'), $min_scoper_version, "<a href='__rs-update__'>", '</a>');
+		}
 	}
 	
+	if ( ! empty($err_msg) ) {
+		if ( is_admin() ) {
+			if ( ! empty($active_scoper_file) )
+				$func_body = '$msg = str_replace( "__rs-update__", awp_plugin_update_url("' . $active_scoper_file . '"), "' . $err_msg . '");';
+			else
+				$func_body = '$msg = "' . $err_msg . '");';
+
+			$func_body .= "echo '" 
+			. '<div id="message" class="error fade" style="color: black"><p><strong>' 
+			. "'" 
+			. ' . $msg . ' 
+			. "'</strong></p></div>';";
+			
+			add_action('admin_notices', create_function('', $func_body) );
+		}
+		
+		return false;
+	}
+
 	return true;
 }
 

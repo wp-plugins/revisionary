@@ -47,8 +47,7 @@ class RevisionaryAdmin
 		add_action('admin_head', array(&$this, 'add_editor_ui') );
 		add_action('admin_head', array(&$this, 'act_hide_admin_divs') );
 		
-		if ( ! defined( 'SCOPER_VERSION' ) || defined( 'USE_RVY_RIGHTNOW' ) )
-			require_once( dirname(__FILE__).'/admin-dashboard_rvy.php' );	
+		require_once( dirname(__FILE__).'/admin-dashboard_rvy.php' );	
 		
 		// log this action so we know when to ignore the save_post action
 		add_action('inherit_revision', array(&$this, 'act_log_revision_save') );
@@ -241,7 +240,8 @@ class RevisionaryAdmin
 							include_once( dirname(__FILE__).'/super-edit-helper_rvy.php' );
 						//
 						
-						wp_tiny_mce();
+						if ( ! awp_ver( '3.3-dev' ) )
+							wp_tiny_mce();
 					}
 				}
 			}
@@ -300,7 +300,7 @@ jQuery(document).ready( function($) {
 			return;
 	
 		$path = RVY_ABSPATH;
-	
+
 		// For Revisions Manager access, satisfy WordPress' demand that all admin links be properly defined in menu
 		if ( false !== strpos( urldecode($_SERVER['REQUEST_URI']), 'admin.php?page=rvy-revisions' ) ) {
 			//add_options_page( __('Revisions', 'revisionary'), __('Revisions', 'revisionary'), 'read', 'rvy-revisions');
@@ -318,7 +318,7 @@ jQuery(document).ready( function($) {
 		if ( false !== strpos( urldecode($_SERVER['REQUEST_URI']), 'admin.php?page=rvy-about' ) ) {	
 			add_options_page( __('About Revisionary', 'revisionary'), __('About Revisionary', 'revisionary'), 'read', 'rvy-about');
 			
-			$func = "include_once('/$path/admin/about.php');";
+			$func = "include_once('$path/admin/about.php');";
 			add_action( 'settings_page_rvy-about' , create_function( '', $func ) );
 		}
 
@@ -370,8 +370,6 @@ jQuery(document).ready( function($) {
 			else
 				$object_type = awp_post_type_from_uri();
 
-			//global $scoper;
-			//$object_id = $scoper->data_sources->detect( 'id', $context->source );
 			$object_id = rvy_detect_post_id();
 
 			if ( $object_id ) {
@@ -572,10 +570,9 @@ jQuery(document).ready( function($) {
 			$post_arr['ID'] = 0;
 			$post_arr['guid'] = '';
 			
-			if ( defined('SCOPER_VERSION') ) {
+			if ( defined('RVY_CONTENT_ROLES') ) {
 				if ( isset($post_arr['post_category']) ) {	// todo: also filter other post taxonomies
-					global $scoper;
-					$post_arr['post_category'] = $scoper->filters_admin->flt_pre_object_terms($post_arr['post_category'], 'category');
+					$post_arr['post_category'] = $GLOBALS['revisionary']->content_roles->filter_object_terms( $post_arr['post_category'], 'category' );
 				}
 			}
 					
@@ -635,20 +632,15 @@ jQuery(document).ready( function($) {
 					
 				// establish the publisher recipients
 				if ( $admin_notify && ! empty($post_arr['prev_cc_user']) ) {
-					if ( defined( 'SCOPER_VERSION' ) && ! defined( 'SCOPER_DEFAULT_MONITOR_GROUPS' ) ) {
-						global $scoper;
-						
-						require_once( SCOPER_ABSPATH . '/admin/admin_lib_rs.php');
-						
-						if ( $group = ScoperAdminLib::get_group_by_name( '[Pending Revision Monitors]' ) ) {
-							$monitor_ids = ScoperAdminLib::get_group_members( $group->ID, COL_ID_RS, true );
-							
+					if ( defined( 'RVY_CONTENT_ROLES' ) && ! defined( 'SCOPER_DEFAULT_MONITOR_GROUPS' ) ) {
+						if ( $monitor_ids = $GLOBALS['revisionary']->content_roles->get_metagroup_members( 'Pending Revision Monitors' ) ) {
 							if ( $type_obj = get_post_type_object( $object_type ) ) {
-								$post_publisher_ids = $scoper->users_who_can( $type_obj->cap->edit_post, COL_ID_RVY, 'post', $this->impose_pending_rev );
+								$GLOBALS['revisionary']->skip_revision_allowance = true;
+								$post_publisher_ids = $GLOBALS['revisionary']->content_roles->users_who_can( $type_obj->cap->edit_post, $this->impose_pending_rev, array( 'cols' => 'id' ) );
+								$GLOBALS['revisionary']->skip_revision_allowance = false;
 								$monitor_ids = array_intersect( $monitor_ids, $post_publisher_ids );
 							}
-						} else
-							$monitor_ids = array();
+						}
 					} else {
 						require_once(ABSPATH . 'wp-admin/includes/user.php');
 						
@@ -735,11 +727,10 @@ jQuery(document).ready( function($) {
 			$post_arr['ID'] = 0;
 			$post_arr['guid'] = '';
 	
-			if ( defined('SCOPER_VERSION') ) {
-				global $scoper;
-				
-				if ( isset($post_arr['post_category']) )	// todo: also filter other post taxonomies
-					$post_arr['post_category'] = $scoper->filters_admin->flt_pre_object_terms($post_arr['post_category'], 'category');
+			if ( defined('RVY_CONTENT_ROLES') ) {
+				if ( isset($post_arr['post_category']) ) {	// todo: also filter other post taxonomies
+					$post_arr['post_category'] = $GLOBALS['revisionary']->content_roles->filter_object_terms( $post_arr['post_category'], 'category' );
+				}
 			}
 					
 			global $current_user;
