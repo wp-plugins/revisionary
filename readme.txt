@@ -54,6 +54,13 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 == Changelog ==
 
+= 1.1.8-dev =
+* API : new filter - rvy_hidden_meta_boxes
+* API : new action: - rvy-revisions_sidebar
+* API : new action - rvy-revisions_meta_boxes
+* API : new action - revision_approved
+* API : new action - post_revision_update
+
 = 1.1.7 - 11 Nov 2011 =
 * Compat : WP 3.3 - Revision Editor displayed redundantly, didn't work
 * Compat : Press Permit integration

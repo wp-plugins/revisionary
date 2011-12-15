@@ -383,6 +383,8 @@ jQuery(document).ready( function($) {
 
 					foreach( get_taxonomies( array(), 'object' ) as $taxonomy => $tx_obj )
 						$unrevisable_css_ids []= ( $tx_obj->hierarchical ) ? "{$taxonomy}div" : "tagsdiv-$taxonomy";
+
+					$unrevisable_css_ids = apply_filters( 'rvy_hidden_meta_boxes', $unrevisable_css_ids );
 						
 					echo( "\n<style type='text/css'>\n<!--\n" );
 						

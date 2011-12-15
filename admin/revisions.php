@@ -415,6 +415,8 @@ echo '</table>';
 	the_editor($content, 'content', 'title', false);
 	echo '</div>';
 	
+    do_action( 'rvy-revisions_sidebar' );
+
 	if ( $can_edit ) {
 ?>
 <input name="original_publish" type="hidden" id="original_publish" value="<?php esc_attr_e('Update Revision', 'revisionary') ?>" />
@@ -430,6 +432,8 @@ echo '</table>';
 } else 
 	echo '</tr></table>';
 ?>
+
+<?php do_action( 'rvy-revisions_meta_boxes' ); ?>
 
 </form>
 
