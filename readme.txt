@@ -4,7 +4,7 @@ Donate link: http://agapetry.net/news/introducing-role-scoper/#role-scoper-downl
 Tags: revision, access, permissions, cms, user, groups, members, admin, pages, posts, page, Post
 Requires at least: 3.0
 Tested up to: 3.3
-Stable Tag: 1.1.7
+Stable Tag: 1.1.8
 
 Moderated editing of published content.  Following approval by an editor, the revision can be published immediately or scheduled.
 
@@ -54,7 +54,8 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 == Changelog ==
 
-= 1.1.8-dev =
+= 1.1.8 - 20 Dec 2011 =
+* Compat : Role Scoper - duplicate Pending counts in Dashboard Right Now
 * API : new filter - rvy_hidden_meta_boxes
 * API : new action: - rvy-revisions_sidebar
 * API : new action - rvy-revisions_meta_boxes
