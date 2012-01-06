@@ -145,7 +145,7 @@ function rvy_revision_approve() {
 			$redirect = "edit.php?post_type={$post->post_type}";
 		} else
 			$redirect = 'edit.php';
-	}
+	}	do_action( 'revision_approved', $revision->post_parent, $revision->ID );	
 	wp_redirect( $redirect );
 	exit;
 }
@@ -342,7 +342,7 @@ function rvy_revision_edit() {
 		$where = array( 'ID' => $revision_id );
 		//do_action( 'pre_post_update', $post_ID );
 		$db_success = $wpdb->update( $wpdb->posts, $data, $where );
-		$redirect = "admin.php?page=rvy-revisions&revision=$revision_id&action=view&rvy_updated=$db_success";		
+		$redirect = "admin.php?page=rvy-revisions&revision=$revision_id&action=view&rvy_updated=$db_success";				do_action( 'post_revision_update', $revision_id );		
 		//die($redirect);
 	} while (0);
 	if ( ! $redirect ) {
