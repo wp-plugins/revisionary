@@ -631,7 +631,7 @@ jQuery(document).ready( function($) {
 				if ( $revision_id )
 					$message .= __( 'Review it here: ', 'revisionary' ) . admin_url("admin.php?page=rvy-revisions&action=view&revision={$revision_id}") . "\r\n";
 				
-					
+				
 				// establish the publisher recipients
 				if ( $admin_notify && ! empty($post_arr['prev_cc_user']) ) {
 					if ( defined( 'RVY_CONTENT_ROLES' ) && ! defined( 'SCOPER_DEFAULT_MONITOR_GROUPS' ) ) {

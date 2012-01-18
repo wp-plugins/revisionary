@@ -44,8 +44,6 @@ class Revisionary
 		add_filter( 'the_posts', array( &$this, 'undo_inherit_status_workaround' ) );
 	
 		add_action( 'wp_loaded', array( &$this, 'set_revision_capdefs' ) );
-	
-		require_once( dirname(__FILE__).'/content-roles_rvy.php');
 
 		do_action( 'rvy_init' );
 	}
@@ -91,16 +89,20 @@ class Revisionary
 	function flt_user_has_cap($wp_blogcaps, $reqd_caps, $args)	{
 		if ( ! rvy_get_option('pending_revisions') )
 			return $wp_blogcaps;
-	
-		if ( ! in_array( $args[0], array( 'edit_post', 'edit_page', 'delete_post', 'delete_page' ) ) )
+
+		$script_name = $_SERVER['SCRIPT_NAME'];
+			
+		if ( defined( 'PP_VERSION' ) && strpos( $script_name, 'p-admin/post.php' ) ) {
+			$support_publish_cap = empty( $_REQUEST['publish'] ) && ! is_array($args[0]) && ( false !== strpos( $args[0], 'publish_' ) );  // TODO: support custom publish cap prefix without perf hit?
+		}
+		
+		if ( ! in_array( $args[0], array( 'edit_post', 'edit_page', 'delete_post', 'delete_page' ) ) && empty($support_publish_cap) )
 			return $wp_blogcaps;
 
 		// integer value indicates internally triggered on previous execution of this filter
 		if ( 1 === $this->skip_revision_allowance ) {
 			$this->skip_revision_allowance = false;
 		}
-
-		$script_name = $_SERVER['SCRIPT_NAME'];
 		
 		$object_type = awp_post_type_from_uri();
 		
@@ -141,7 +143,7 @@ class Revisionary
 			
 			if ( ! strpos( $script_name, 'p-admin/edit.php' ) )
 				$replace_caps = array_merge( $replace_caps, array( $cap->publish_posts, 'publish_posts' ) );
-			
+
 			if ( array_intersect( $reqd_caps, $replace_caps) ) {	// don't need to fudge the capreq for post.php unless existing post has public/private status
 				if ( is_preview() || strpos($script_name, 'p-admin/edit.php') || strpos($script_name, 'p-admin/widgets.php') || ( in_array( get_post_field('post_status', $post_id ), array('publish', 'private') ) ) ) {
 					if ( $type_obj = get_post_type_object( $object_type ) ) {

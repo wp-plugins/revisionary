@@ -4,7 +4,7 @@ Donate link: http://agapetry.net/news/introducing-role-scoper/#role-scoper-downl
 Tags: revision, access, permissions, cms, user, groups, members, admin, pages, posts, page, Post
 Requires at least: 3.0
 Tested up to: 3.3
-Stable Tag: 1.1.8
+Stable Tag: 1.1.9
 
 Moderated editing of published content.  Following approval by an editor, the revision can be published immediately or scheduled.
 
@@ -53,6 +53,11 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 
 == Changelog ==
+
+= 1.1.9 - 18 Jan 2012 =
+* Compat : Press Permit - PP roles were not applied under some configurations
+* Compat : Role Scoper - RS roles were not applied under some configurations (related fixes in RS 1.3.52)
+* Fixed: PHP Warning for mysql_get_server_info()
 
 = 1.1.8 - 20 Dec 2011 =
 * Compat : Role Scoper - duplicate Pending counts in Dashboard Right Now
