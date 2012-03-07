@@ -18,7 +18,9 @@ function rvy_clear_mce_plugins( $mce_plugins ) {
 		
 	return $mce_plugins;
 }
-add_filter( 'mce_external_plugins', 'rvy_clear_mce_plugins', 99 );
+if( false !== strpos( urldecode($_SERVER['REQUEST_URI']), 'admin.php?page=rvy-revisions' ) ) {	// todo: move tinymce function to separate file
+	add_filter( 'mce_external_plugins', 'rvy_clear_mce_plugins', 99 );
+}
  
  
 function rvy_metabox_notification_list( $topic ) {

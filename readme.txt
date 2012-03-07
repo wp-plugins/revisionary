@@ -54,6 +54,9 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 == Changelog ==
 
+= 1.1.10-dev =
+* Compat : CForms (and possibly other plugins) - tinyMCE buttons were suppressed
+
 = 1.1.9 - 18 Jan 2012 =
 * Compat : Press Permit - PP roles were not applied under some configurations
 * Compat : Role Scoper - RS roles were not applied under some configurations (related fixes in RS 1.3.52)
