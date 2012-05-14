@@ -29,6 +29,7 @@ function rvy_default_options_sitewide() {
 		'display_hints' => true,
 		'revisor_role_add_custom_rolecaps' => true,
 		'revisor_lock_others_revisions' => true,
+		'require_edit_others_drafts' => true,
 	);
 	return $def;	
 }
@@ -49,6 +50,7 @@ function rvy_default_options() {
 		'display_hints' => 1,
 		'revisor_role_add_custom_rolecaps' => 1,
 		'revisor_lock_others_revisions' => 1,
+		'require_edit_others_drafts' => 0,
 	);
 
 	return $def;

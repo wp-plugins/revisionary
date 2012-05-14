@@ -30,6 +30,8 @@ class Revisionary
 		if ( ! is_content_administrator_rvy() ) {
 			add_filter( 'user_has_cap', array( &$this, 'flt_user_has_cap' ), 98, 3 );
 
+			add_filter( 'map_meta_cap', array( &$this, 'flt_limit_others_drafts' ), 10, 4 );
+			
 			//add_filter( 'posts_where', array( &$this, 'flt_posts_where' ), 1 );
 		}
 
@@ -46,6 +48,47 @@ class Revisionary
 		add_action( 'wp_loaded', array( &$this, 'set_revision_capdefs' ) );
 
 		do_action( 'rvy_init' );
+	}
+	
+	// prevent revisors from editing other users' regular drafts and pending posts
+	function flt_limit_others_drafts( $caps, $meta_cap, $user_id, $args ) {
+		if ( ! in_array( $meta_cap, array( 'edit_post', 'edit_page' ) ) )
+			return $caps;
+		
+		$object_id = ( is_array($args) && ! empty($args[0]) ) ? $args[0] : $args;
+		
+		if ( ! $object_id )
+			return $caps;
+		
+		if ( ! rvy_get_option( 'require_edit_others_drafts' ) )
+			return $caps;
+		
+		if ( $post = get_post( $object_id ) ) {
+			global $current_user;
+			
+			if ( $current_user->ID != $post->post_author ) {
+				$post_type_obj = get_post_type_object( $post->post_type );
+				if ( current_user_can( $post_type_obj->cap->edit_published_posts ) ) {	// don't require any additional caps for sitewide Editors
+					return $caps;
+				}
+			
+				static $stati;
+				static $private_stati;
+			
+				if ( ! isset($public_stati) ) {
+					$stati = get_post_stati( array( 'internal' => false, 'protected' => true ) );
+					$stati = array_diff( $stati, array( 'future' ) );
+				}
+				
+				if ( in_array( $post->post_status, $stati ) ) {
+					//if ( $post_type_obj = get_post_type_object( $post->post_type ) ) {
+						$caps[]= "edit_others_drafts";
+					//}
+				}
+			}
+		}
+		
+		return $caps;
 	}
 	
 	function set_content_roles( $content_roles_obj ) {

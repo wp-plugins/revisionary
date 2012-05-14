@@ -55,6 +55,7 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 == Changelog ==
 
 = 1.1.10-dev =
+* Feature : Option to prevent Revisors from viewing other user's drafts and regular pending posts (imposes edit_others_drafts cap requirement)
 * Compat : CForms (and possibly other plugins) - tinyMCE buttons were suppressed
 
 = 1.1.9 - 18 Jan 2012 =

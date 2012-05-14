@@ -95,7 +95,8 @@ $ui->option_captions = array(
 	'rev_approval_notify_revisor' => __('Email the Revisor when a Pending Revision is approved', 'revisionary'),
 	'publish_scheduled_notify_author' => __('Email the original Author when a Scheduled Revision is published', 'revisionary'),
 	'publish_scheduled_notify_revisor' => __('Email the Revisor when a Scheduled Revision is published', 'revisionary'),
-	'revisor_role_add_custom_rolecaps' => __('Include capabilities for all custom post types in the WordPress Revisor role', 'revisionary' ) 
+	'revisor_role_add_custom_rolecaps' => __('Include capabilities for all custom post types in the WordPress Revisor role', 'revisionary' ),
+	'require_edit_others_drafts' => __('Prevent Revisors from editing other user&apos;s drafts', 'revisionary' ),
 );
 
 if ( defined('RVY_CONTENT_ROLES') ) {
@@ -109,7 +110,7 @@ if ( defined('RVY_CONTENT_ROLES') ) {
 
 $ui->form_options = array( 
 'features' => array(
-	'role_definition' => 	array( 'revisor_role_add_custom_rolecaps' ),
+	'role_definition' => 	array( 'revisor_role_add_custom_rolecaps', 'require_edit_others_drafts' ),
 	'revisions'		=>		array( 'scheduled_revisions', 'pending_revisions', 'revisor_lock_others_revisions', 'diff_display_strip_tags', 'async_scheduled_publish' ),
 	'notification'	=>		array( 'pending_rev_notify_admin', 'pending_rev_notify_author', 'rev_approval_notify_author', 'rev_approval_notify_revisor', 'publish_scheduled_notify_admin', 'publish_scheduled_notify_author', 'publish_scheduled_notify_revisor' )
 )
@@ -251,6 +252,12 @@ $table_class = 'form-table rs-form-table';
 		<?php 
 		$ui->option_checkbox( 'revisor_role_add_custom_rolecaps', $tab, $section, '', '' );
 		?>
+		
+		<?php
+		$hint = __( 'If checked, the edit_others_drafts capability will be required', 'revisionary' );
+		$ui->option_checkbox( 'require_edit_others_drafts', $tab, $section, $hint, '' );
+		?>
+		
 		</td></tr>
 	<?php endif; // any options accessable in this section
 

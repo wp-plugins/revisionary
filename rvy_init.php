@@ -409,7 +409,7 @@ function rvy_check_rs_version() {
 			if ( ! empty($active_scoper_file) )
 				$func_body = '$msg = str_replace( "__rs-update__", awp_plugin_update_url("' . $active_scoper_file . '"), "' . $err_msg . '");';
 			else
-				$func_body = '$msg = "' . $err_msg . '");';
+				$func_body = '$msg = ' . "'" . $err_msg . "';";
 
 			$func_body .= "echo '" 
 			. '<div id="message" class="error fade" style="color: black"><p><strong>' 
@@ -417,7 +417,8 @@ function rvy_check_rs_version() {
 			. ' . $msg . ' 
 			. "'</strong></p></div>';";
 			
-			add_action('admin_notices', create_function('', $func_body) );
+			$action = ( is_network_admin() ) ? 'network_admin_notices' : 'admin_notices';
+			add_action( $action, create_function('', $func_body) );
 		}
 		
 		return false;
