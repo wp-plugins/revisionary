@@ -633,7 +633,7 @@ jQuery(document).ready( function($) {
 				
 				
 				// establish the publisher recipients
-				if ( $admin_notify && ! empty($post_arr['prev_cc_user']) ) {
+				if ( $admin_notify ) {
 					if ( defined( 'RVY_CONTENT_ROLES' ) && ! defined( 'SCOPER_DEFAULT_MONITOR_GROUPS' ) ) {
 						if ( $monitor_ids = $GLOBALS['revisionary']->content_roles->get_metagroup_members( 'Pending Revision Monitors' ) ) {
 							if ( $type_obj = get_post_type_object( $object_type ) ) {
@@ -661,8 +661,9 @@ jQuery(document).ready( function($) {
 					}
 					
 					if ( 'always' != $admin_notify ) {
-						// intersect default recipients with selected recipients						
-						$monitor_ids = array_intersect( $post_arr['prev_cc_user'], $monitor_ids );
+						// intersect default recipients with selected recipients
+						$selected_recipients = ( ! empty($post_arr['prev_cc_user']) ) ? $post_arr['prev_cc_user'] : array();
+						$monitor_ids = array_intersect( $selected_recipients, $monitor_ids );
 					}
 				} else
 					$monitor_ids = array();
