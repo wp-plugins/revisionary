@@ -412,7 +412,11 @@ echo '</table>';
 	if ( ! user_can_richedit() )
 		$content = htmlentities($content);
 
-	the_editor($content, 'content', 'title', false);
+	if ( awp_ver( '3.3' ) )
+		wp_editor( $content, 'content', array( 'media_buttons' => false ) );
+	else
+		the_editor($content, 'content', 'title', false);
+
 	echo '</div>';
 	
     do_action( 'rvy-revisions_sidebar' );

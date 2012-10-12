@@ -29,7 +29,8 @@ class Revisionary
 			
 		if ( ! is_content_administrator_rvy() ) {
 			add_filter( 'user_has_cap', array( &$this, 'flt_user_has_cap' ), 98, 3 );
-
+			add_filter( 'pp_has_cap_bypass', array( &$this, 'flt_has_cap_bypass' ), 10, 4 ); 
+				
 			add_filter( 'map_meta_cap', array( &$this, 'flt_limit_others_drafts' ), 10, 4 );
 			
 			//add_filter( 'posts_where', array( &$this, 'flt_posts_where' ), 1 );
@@ -127,6 +128,16 @@ class Revisionary
 	
 	function act_new_blog( $blog_id, $user_id ) {
 		rvy_add_revisor_role( $blog_id );
+	}
+	
+	function flt_has_cap_bypass( $bypass, $wp_sitecaps, $pp_reqd_caps, $args ) {
+		if ( ! $GLOBALS['pp_attributes']->is_metacap( $args[0] ) && ( ! array_intersect( $pp_reqd_caps, array_keys($GLOBALS['pp_attributes']->condition_cap_map) )
+		|| ( is_admin() && strpos( $_SERVER['SCRIPT_NAME'], 'p-admin/post.php' ) && ! is_array($args[0]) && ( false !== strpos( $args[0], 'publish_' ) && empty( $_REQUEST['publish'] ) ) ) )
+		) {						// TODO: simplify (Press Permit filter for publish_posts cap check which determines date selector visibility)
+			return $wp_sitecaps;
+		}
+
+		return $bypass;
 	}
 	
 	function flt_user_has_cap($wp_blogcaps, $reqd_caps, $args)	{

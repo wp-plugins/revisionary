@@ -41,7 +41,7 @@ function rvy_metabox_notification_list( $topic ) {
 			if ( $default_ids = $GLOBALS['revisionary']->content_roles->get_metagroup_members( 'Pending Revision Monitors' ) ) {
 				if ( $type_obj = get_post_type_object( $object_type ) ) {
 					$GLOBALS['revisionary']->skip_revision_allowance = true;
-					$post_publishers = $GLOBALS['revisionary']->content_roles->users_who_can( $type_obj->cap->edit_post, $object_id, array( 'cols' => 'all', 'force_refresh' => true ) );
+					$post_publishers = $GLOBALS['revisionary']->content_roles->users_who_can( $type_obj->cap->edit_post, $object_id, array( 'cols' => '*', 'force_refresh' => true ) );
 					$GLOBALS['revisionary']->skip_revision_allowance = false;
 					
 					$can_publish_post = array();
