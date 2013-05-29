@@ -44,7 +44,8 @@ class RevisionaryAdminFiltersItemUI {
 		}
 		
 		wp_deregister_script( 'autosave' );
-			
+		wp_dequeue_script( 'autosave' );
+
 ?>
 <script type="text/javascript">
 /* <![CDATA[ */

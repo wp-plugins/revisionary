@@ -46,6 +46,9 @@ class RevisionaryFront {
 	}
 
 	function act_template_redirect() {
+		if ( ! isset($_GET['p']) )
+			return;
+	
 		if ( $revision = get_post( $_GET['p'] ) )
 			if ( $parent = get_post( $revision->post_parent ) )
 				if ( ( 'page' == $parent->post_type ) && ( $parent->post_name == $revision->post_name ) ) {
@@ -142,6 +145,9 @@ class RevisionaryFront {
 				if ( $type_obj = get_post_type_object( $parent->post_type ) )
 					$cap_name = $type_obj->cap->edit_post;	
 
+				$orig_skip = ! empty( $GLOBALS['revisionary']->skip_revision_allowance );
+				$GLOBALS['revisionary']->skip_revision_allowance = true;
+				
 				if ( agp_user_can( $cap_name, $revision->post_parent, '', array( 'skip_revision_allowance' => true ) ) ) {
 					load_plugin_textdomain('revisionary', false, RVY_FOLDER . '/languages');
 					
@@ -191,6 +197,8 @@ class RevisionaryFront {
 	
 					add_action( 'wp_head', create_function( '', "echo('". $html . "');" ), 99 );	// this should be inserted at the top of <body> instead, but currently no way to do it 
 				}
+				
+				$GLOBALS['revisionary']->skip_revision_allowance = $orig_skip;
 			}	
 				
 		} elseif( ! empty( $_GET['mark_current_revision'] ) ) {
@@ -221,13 +229,15 @@ class RevisionaryFront {
 			return $request;
 
 		
-		if ( $pub_post = get_post($published_post_id) ) {
-			if ( $type_obj = get_post_type_object( $pub_post->post_type ) ) {
-				$test_id = ( ! empty($revision_id) ) ? $revision_id : $published_post_id;
+		if ( isset($published_post_id) ) {
+			if ( $pub_post = get_post($published_post_id) ) {
+				if ( $type_obj = get_post_type_object( $pub_post->post_type ) ) {
+					$test_id = ( ! empty($revision_id) ) ? $revision_id : $published_post_id;
 
-				if ( current_user_can( $type_obj->cap->edit_post, $test_id ) ) {
-					$request = str_replace( "post_type = 'post'", "post_type = 'revision'", $request );
-					$request = str_replace( "post_type = '{$pub_post->post_type}'", "post_type = 'revision'", $request );
+					if ( current_user_can( $type_obj->cap->edit_post, $test_id ) ) {
+						$request = str_replace( "post_type = 'post'", "post_type = 'revision'", $request );
+						$request = str_replace( "post_type = '{$pub_post->post_type}'", "post_type = 'revision'", $request );
+					}
 				}
 			}
 		}

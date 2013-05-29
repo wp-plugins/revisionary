@@ -142,12 +142,13 @@ define ('ELIGIBLE_ITEMS_RVY', 'eligible');
 		} elseif ( $agent_count[$agents_subset] ) {
 			echo "<ul class='rs-list_horiz rs-agents_filter'><li>";
 
-			$caption = ( CURRENT_ITEMS_RVY == $agents_subset ) ? __('current users (%d):', 'revisionary') : __('eligible users (%d):', 'revisionary');
-
+			//$caption = ( CURRENT_ITEMS_RVY == $agents_subset ) ? __('current users (%d):', 'revisionary') : __('eligible users (%d):', 'revisionary');
+			$caption = '';
+			
 			printf ("<div class='rs-agents_caption'><strong>$caption</strong></div>", $agent_count[$agents_subset]);
 			echo '</li></ul>';
 		}
-			
+		
 		$title = '';
 		
 		if ( $any_display_filtering || $agent_count[$agents_subset] > $emsize_threshold ) {

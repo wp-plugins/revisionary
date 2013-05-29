@@ -589,8 +589,13 @@ function rvy_publish_scheduled_revisions() {
 						$recipient_ids = array();
 
 						foreach ( $use_wp_roles as $role_name ) {
-							$search = new WP_User_Search( '', 0, $role_name );
-							$recipient_ids = array_merge( $recipient_ids, $search->results );
+							if ( awp_ver( '3.1-beta' ) ) {
+								$search = new WP_User_Query( "search=&fields=id&role=$role_name" );
+								$monitor_ids = array_merge( $monitor_ids, $search->results );
+							} else {
+								$search = new WP_User_Search( '', 0, $role_name );
+								$monitor_ids = array_merge( $monitor_ids, $search->results );
+							}
 						}
 						
 						foreach ( $recipient_ids as $userid ) {

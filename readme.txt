@@ -3,8 +3,8 @@ Contributors: kevinB
 Donate link: http://agapetry.net/news/introducing-role-scoper/#role-scoper-download
 Tags: revision, access, permissions, cms, user, groups, members, admin, pages, posts, page, Post
 Requires at least: 3.0
-Tested up to: 3.3
-Stable Tag: 1.1.9
+Tested up to: 3.5.1
+Stable Tag: 1.1.10
 
 Moderated editing of published content.  Following approval by an editor, the revision can be published immediately or scheduled.
 
@@ -54,10 +54,21 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 == Changelog ==
 
-= 1.1.10-dev =
+= 1.1.10 - 29 May 2013 =
+* SECURITY FIX : Revisions could be viewed by any registered user
 * Feature : Option to prevent Revisors from viewing other user's drafts and regular pending posts (imposes edit_others_drafts cap requirement)
-* Fixed : Notification metabox not displayed under some configurations
+* Fixed : Other users' revisions were viewable in Revisions Manager even if option to prevent is enabled
+* Fixed : "Publishers to Notify" metabox not displayed under some configurations
+* Fixed : "Publishers to Notify" metabox was displayed with checkboxes even if Revisionary settings are for both editors and author to always receive notification
 * Fixed : Email Notification for Pending Revision was not sent under some configurations
+* Fixed : Monitor Groups (with Press Permit or Role Scoper activated) did not regulate email notifications
+* Fixed : Users who cannot approve a revision received email notification under some configurations
+* Fixed : PHP warnings for deprecated WP function calls
+* Fixed : PHP warnings when "previewing" current revision
+* Fixed : Invalid notifications were sent on revision submission error
+* Fixed : JS warning on Edit Post form
+* Compat : Press Permit Core
+* Compat : Press Permit - revision previews could not be viewed by revisor (also requires PP Collaborative Editing 2.0.14-beta)
 * Compat : CForms (and possibly other plugins) - tinyMCE buttons were suppressed
 
 = 1.1.9 - 18 Jan 2012 =
@@ -225,6 +236,9 @@ Initial release.  Feature Changes and Bug Fixes are vs. Pending Revisions functi
 * Feature : If Role Scoper is active, Editors notification group can be customized via User Group
 
 == Upgrade Notice ==
+
+= 1.1.10 =
+<strong>SECURITY FIX:</strong> Revisions could be viewed by any registered user
 
 = 1.1.5 =
 Fixes: Markeup Err in Revisions Manager; Revision Previews (WP 3.2, Display of Post Thumbnail & other metadata, Past Revisions, Page Revisions in Builder theme, Approval link styling); IE9 formatting err in publish metabox; Events Calendar Pro conflict

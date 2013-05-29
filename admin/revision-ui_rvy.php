@@ -5,7 +5,7 @@
  * UI library for Revisions Manager, heavily expanded from WP 2.8.4 core
  *
  * @author 		Kevin Behrens
- * @copyright 	Copyright 2009-2011
+ * @copyright 	Copyright 2009-2013
  * 
  */
 
@@ -18,15 +18,20 @@ function rvy_clear_mce_plugins( $mce_plugins ) {
 		
 	return $mce_plugins;
 }
+
 if( false !== strpos( urldecode($_SERVER['REQUEST_URI']), 'admin.php?page=rvy-revisions' ) ) {	// todo: move tinymce function to separate file
 	add_filter( 'mce_external_plugins', 'rvy_clear_mce_plugins', 99 );
 }
  
  
 function rvy_metabox_notification_list( $topic ) {
-
 	if ( 'pending_revision' == $topic ) {	
-		if ( ! rvy_get_option('pending_rev_notify_admin') )
+		global $revisionary;
+		
+		$notify_editors = (string) rvy_get_option('pending_rev_notify_admin');
+		$notify_author = (string) rvy_get_option('pending_rev_notify_author');
+	
+		if ( ( '1' !== $notify_editors ) && ( '1' !== (string) $notify_author ) )
 			return;
 		
 		$object_type = awp_post_type_from_uri();
@@ -35,28 +40,30 @@ function rvy_metabox_notification_list( $topic ) {
 		$id_prefix = 'prev_cc';
 
 		$post_publishers = array();
+		$publisher_ids = array();
 		$default_ids = array();
-
+		
+		$type_obj = get_post_type_object( $object_type );
+		
 		if ( defined('RVY_CONTENT_ROLES') && ! defined('SCOPER_DEFAULT_MONITOR_GROUPS') ) {
-			if ( $default_ids = $GLOBALS['revisionary']->content_roles->get_metagroup_members( 'Pending Revision Monitors' ) ) {
-				if ( $type_obj = get_post_type_object( $object_type ) ) {
-					$GLOBALS['revisionary']->skip_revision_allowance = true;
-					$post_publishers = $GLOBALS['revisionary']->content_roles->users_who_can( $type_obj->cap->edit_post, $object_id, array( 'cols' => '*', 'force_refresh' => true ) );
-					$GLOBALS['revisionary']->skip_revision_allowance = false;
+			if ( $publisher_ids = $revisionary->content_roles->get_metagroup_members( 'Pending Revision Monitors' ) ) {
+				if ( $type_obj ) {
+					$revisionary->skip_revision_allowance = true;
+					$post_publishers = $revisionary->content_roles->users_who_can( $type_obj->cap->edit_post, $object_id, array( 'cols' => '*', 'force_refresh' => true, 'user_ids' => $publisher_ids ) );
+					$revisionary->skip_revision_allowance = false;
 					
 					$can_publish_post = array();
 					foreach ( $post_publishers as $key => $user ) {
 						$can_publish_post []= $user->ID;
 						
-						if ( ! in_array( $user->ID, $default_ids ) )
+						if ( ! in_array( $user->ID, $publisher_ids ) )
 							unset(  $post_publishers[$key] );
 					}
 					
-					$default_ids = array_intersect( $default_ids, $can_publish_post );
-					$default_ids = array_fill_keys( $default_ids, true );
+					$publisher_ids = array_intersect( $publisher_ids, $can_publish_post );
+					$publisher_ids = array_fill_keys( $publisher_ids, true );
 				}
 			}
-		
 		} else {
 			// If RS is not active, default to sending to all Administrators and Editors
 			require_once(ABSPATH . 'wp-admin/includes/user.php');
@@ -81,17 +88,57 @@ function rvy_metabox_notification_list( $topic ) {
 					}
 				}
 			}
+			
+			foreach ( $recipients as $_user ) {	
+				$reqd_caps = map_meta_cap( $type_obj->cap->edit_post, $_user->ID, $object_id );
 
-			foreach ( $recipients as $_user ) {
-				$post_publishers []= $_user;
-				$default_ids [$_user->ID] = true;
+				if ( ! array_diff( $reqd_caps, array_keys( array_intersect( $_user->allcaps, array( true, 1, '1' ) ) ) ) ) {
+					$post_publishers []= $_user;
+					$publisher_ids [$_user->ID] = true;
+				}
 			}
-		}		
+		}
+
+		if ( '1' === $notify_editors ) {
+			$default_ids = $publisher_ids;
+		}
 		
-		require_once( dirname(__FILE__).'/agents_checklist_rvy.php');
+		if ( '1' === $notify_author ) {
+			global $post;
+	
+			if ( empty( $default_ids[$post->post_author] ) ) {
+				if ( defined('RVY_CONTENT_ROLES') ) {
+					$revisionary->skip_revision_allowance = true;
+					$author_notify = (bool) $revisionary->content_roles->users_who_can( 'edit_post', $object_id, array( 'cols' => '*', 'force_refresh' => true, 'user_ids' => (array) $post->post_author ) );
+					$revisionary->skip_revision_allowance = false;
+				} else {
+					$_user = new WP_User($post->post_author);
+					$reqd_caps = map_meta_cap( $type_obj->cap->edit_post, $_user->ID, $object_id );
+					$author_notify = ! array_diff( $reqd_caps, array_keys( array_intersect( $_user->allcaps, array( true, 1, '1' ) ) ) );
+				}
+
+				if ( $author_notify ) {
+					$default_ids[$post->post_author] = true;
+	
+					$user = new WP_User( $post->post_author );
+					$post_publishers[] = $user;
+				}
+			}
+		}
 		
-		echo("<div id='rvy_cclist_$topic'>");
-		RevisionaryAgentsChecklist::agents_checklist( 'user', $post_publishers, $id_prefix, $default_ids );
+		require_once('agents_checklist_rvy.php');
+		
+		echo("<div id='rvy_cclist_$topic'><br />");
+		
+		if ( $default_ids )
+			RevisionaryAgentsChecklist::agents_checklist( 'user', $post_publishers, $id_prefix, $default_ids );
+		else {
+			if ( ( 'always' === $notify_editors ) && $publisher_ids )
+				_e( 'Publishers will be notified (but cannot be selected here).', 'revisionary' );
+			else
+				_e( 'No email notifications will be sent.', 'revisionary' );
+		}
+		
 		echo('</div>');
 	}
 }
@@ -316,8 +363,11 @@ function rvy_list_post_revisions( $post_id = 0, $status = '', $args = null ) {
 	$class = false;
 	
 	$type_obj = get_post_type_object( $post->post_type );
+	
 	$can_edit_post = agp_user_can( $type_obj->cap->edit_post, $post->ID, '', array( 'skip_revision_allowance' => true ) );
-
+	
+	$hide_others_revisions = ! $can_edit_post && empty( $current_user->allcaps['edit_others_drafts'] ) && rvy_get_option( 'revisor_lock_others_revisions' );
+	
 	$count = 0;
 	$left_checked_done = false;
 	$right_checked_done = false;
@@ -338,6 +388,9 @@ function rvy_list_post_revisions( $post_id = 0, $status = '', $args = null ) {
 				continue;
 					
 		if ( 'revision' === $type && wp_is_post_autosave( $revision ) )
+			continue;
+			
+		if ( $hide_others_revisions && ( 'revision' == $revision->post_type ) && ( $revision->post_author != $current_user->ID ) )
 			continue;
 
 		// todo: set up buffering to restore this in case we (or some other plugin) impose revision-specific read capability

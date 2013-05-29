@@ -254,7 +254,7 @@ $table_class = 'form-table rs-form-table';
 		?>
 		
 		<?php
-		$hint = __( 'If checked, the edit_others_drafts capability will be required', 'revisionary' );
+		$hint = __( 'If checked, users lacking site-wide publishing capabilities will also be checked for the edit_others_drafts capability', 'revisionary' );
 		$ui->option_checkbox( 'require_edit_others_drafts', $tab, $section, $hint, '' );
 		?>
 		
@@ -287,8 +287,8 @@ $pending_revisions_available || $scheduled_revisions_available ) :
 		$hint = __( 'Enable some users to submit a revision for an existing published post or page which they cannot otherwise edit.  Contributors can submit revisions to their own published content, and users who have the edit_others_ capability (but not edit_published_) can submit revisions to other user\'s content.<br /><br />These Pending Revisions are listed alongside regular pending content, but link to a Revisions management form.  There the pending revision can be viewed, compared to other revisions, and approved or deleted by qualified editors.  If the submitter set a future publish date, approval schedules delayed publication of the revised content.', 'revisionary' );
 		$ui->option_checkbox( 'pending_revisions', $tab, $section, $hint, '<br />' );
 		
-		$hint = __( "Note: Sitewide Revisors will still be able to edit other user&apos;s normal pending pages, but you can avoid that by using Press Permit or Role Scoper to assign the Revisor role for specific pages.", 'revisionary' );
-		$ui->option_checkbox( 'revisor_lock_others_revisions', $tab, $section, $hint, '<br />' );
+		$hint = '';
+		$ui->option_checkbox( 'revisor_lock_others_revisions', $tab, $section, $hint, '' );
 		
 		$hint = '';
 		$ui->option_checkbox( 'diff_display_strip_tags', $tab, $section, $hint, '' );

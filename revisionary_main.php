@@ -7,7 +7,7 @@ if( basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME']) )
  * revisionary_main.php
  * 
  * @author 		Kevin Behrens
- * @copyright 	Copyright 2009-2011
+ * @copyright 	Copyright 2009-2013
  * 
  */
 class Revisionary
@@ -29,10 +29,9 @@ class Revisionary
 			
 		if ( ! is_content_administrator_rvy() ) {
 			add_filter( 'user_has_cap', array( &$this, 'flt_user_has_cap' ), 98, 3 );
-			add_filter( 'pp_has_cap_bypass', array( &$this, 'flt_has_cap_bypass' ), 10, 4 ); 
-				
-			add_filter( 'map_meta_cap', array( &$this, 'flt_limit_others_drafts' ), 10, 4 );
+			add_filter( 'pp_has_cap_bypass', array( &$this, 'flt_has_cap_bypass' ), 10, 4 );
 			
+			add_filter( 'map_meta_cap', array( &$this, 'flt_limit_others_drafts' ), 10, 4 );
 			//add_filter( 'posts_where', array( &$this, 'flt_posts_where' ), 1 );
 		}
 
@@ -58,33 +57,37 @@ class Revisionary
 		
 		$object_id = ( is_array($args) && ! empty($args[0]) ) ? $args[0] : $args;
 		
-		if ( ! $object_id )
+		if ( ! $object_id || ! is_scalar($object_id) || ( $object_id < 0 ) )
 			return $caps;
 		
 		if ( ! rvy_get_option( 'require_edit_others_drafts' ) )
 			return $caps;
 		
 		if ( $post = get_post( $object_id ) ) {
-			global $current_user;
+			if ( 'revision' != $post->ID ) {
+				global $current_user;
 			
-			if ( $current_user->ID != $post->post_author ) {
-				$post_type_obj = get_post_type_object( $post->post_type );
-				if ( current_user_can( $post_type_obj->cap->edit_published_posts ) ) {	// don't require any additional caps for sitewide Editors
-					return $caps;
-				}
+				$status_obj = get_post_status_object( $post->post_status );
 			
-				static $stati;
-				static $private_stati;
-			
-				if ( ! isset($public_stati) ) {
-					$stati = get_post_stati( array( 'internal' => false, 'protected' => true ) );
-					$stati = array_diff( $stati, array( 'future' ) );
-				}
+				if ( ( $current_user->ID != $post->post_author ) && $status_obj && ! $status_obj->public && ! $status_obj->private ) {
+					$post_type_obj = get_post_type_object( $post->post_type );
+					if ( current_user_can( $post_type_obj->cap->edit_published_posts ) ) {	// don't require any additional caps for sitewide Editors
+						return $caps;
+					}
 				
-				if ( in_array( $post->post_status, $stati ) ) {
-					//if ( $post_type_obj = get_post_type_object( $post->post_type ) ) {
-						$caps[]= "edit_others_drafts";
-					//}
+					static $stati;
+					static $private_stati;
+				
+					if ( ! isset($public_stati) ) {
+						$stati = get_post_stati( array( 'internal' => false, 'protected' => true ) );
+						$stati = array_diff( $stati, array( 'future' ) );
+					}
+					
+					if ( in_array( $post->post_status, $stati ) ) {
+						//if ( $post_type_obj = get_post_type_object( $post->post_type ) ) {
+							$caps[]= "edit_others_drafts";
+						//}
+					}
 				}
 			}
 		}
@@ -158,15 +161,18 @@ class Revisionary
 			$this->skip_revision_allowance = false;
 		}
 		
-		$object_type = awp_post_type_from_uri();
-		
 		if ( ! empty($args[2]) )
 			$post_id = $args[2];
 		else
 			$post_id = rvy_detect_post_id();
 
+		if ( $post = get_post( $post_id ) )
+			$object_type = $post->post_type;
+		else
+			$object_type = awp_post_type_from_uri();
+			
 		if ( rvy_get_option( 'revisor_lock_others_revisions' ) ) {
-			if ( $post = get_post( $post_id ) ) {
+			if ( $post ) {
 				// Revisors are enabled to edit other users' posts for revision, but cannot edit other users' revisions unless cap is explicitly set sitewide
 				if ( ( 'revision' == $post->post_type ) && ! $this->skip_revision_allowance ) {
 					if ( $post->post_author != $GLOBALS['current_user']->ID ) {
@@ -181,11 +187,15 @@ class Revisionary
 				}
 			}
 		} elseif ( 'revision' == $object_type ) {
-			if ( $post = get_post( $post_id ) )
+			if ( $post )
 				$object_type = get_post_field( 'post_type', $post->post_parent );
 		}
 
 		$object_type_obj = get_post_type_object( $object_type );
+		
+		if ( empty( $object_type_obj->cap ) )
+			return $wp_blogcaps;
+		
 		$cap = $object_type_obj->cap;
 		
 		$edit_published_cap = ( isset($cap->edit_published_posts) ) ? $cap->edit_published_posts : "edit_published_{$object_type}s";

@@ -50,7 +50,7 @@ function rvy_default_options() {
 		'display_hints' => 1,
 		'revisor_role_add_custom_rolecaps' => 1,
 		'revisor_lock_others_revisions' => 1,
-		'require_edit_others_drafts' => 0,
+		'require_edit_others_drafts' => 1,
 	);
 
 	return $def;

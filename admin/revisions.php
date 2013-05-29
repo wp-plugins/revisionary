@@ -2,7 +2,7 @@
 
 if( basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME']) )
 	die( 'This page cannot be called directly.' );
-
+	
 /**
  * revisions.php
  * 
@@ -12,6 +12,8 @@ if( basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME']) )
  * @copyright 	Copyright 2009-2011
  * 
  */
+
+global $current_user; 
  
 include_once( dirname(__FILE__).'/revision-ui_rvy.php' ); 
 
@@ -95,6 +97,37 @@ case 'diff' :
 	)
 		break;
 
+	if ( $type_obj = get_post_type_object( $rvy_post->post_type ) ) {
+		$edit_cap = $type_obj->cap->edit_post;
+		$edit_others_cap = $type_obj->cap->edit_others_posts;
+	}
+		
+	if ( ! $can_fully_edit_post = agp_user_can( $edit_cap, $rvy_post->ID, '', array( 'skip_revision_allowance' => true ) ) ) {
+		// post-assigned Revisor role is sufficient to edit others' revisions, but post-assigned Contributor role is not
+		if ( isset( $GLOBALS['cap_interceptor'] ) )
+			$GLOBALS['cap_interceptor']->require_full_object_role = true;
+		
+		$_can_edit_others = agp_user_can( $edit_others_cap, $rvy_post->ID );
+
+		if ( isset( $GLOBALS['cap_interceptor'] ) )
+			$GLOBALS['cap_interceptor']->require_full_object_role = false;
+	}
+
+	foreach( array( $left_revision, $right_revision ) as $_revision ) {
+		if ( $_revision->ID == $rvy_post->ID ) {
+			$can_view = current_user_can( $edit_cap, $rvy_post->ID );
+		} else {
+			$can_view = ( ( 'revision' == $_revision->post_type ) ) && (
+				$can_fully_edit_post || 
+				( ( $_revision->post_author == $current_user->ID || $_can_edit_others ) && ( 'pending' == $_revision->post_status ) ) 
+				 );	
+		}
+				 
+		if ( ! $can_view && ( $_revision->post_author != $current_user->ID ) ) {
+			wp_die();
+		}
+	}
+	
 	$post_title = "<a href='post.php?action=edit&post=$rvy_post->ID'>$rvy_post->post_title</a>";
 
 	$h2 = sprintf( __( '%1$s Revisions for &#8220;%2$s&#8221;', 'revisionary' ), $revision_status_captions[$revision_status], $post_title );
@@ -105,6 +138,8 @@ case 'diff' :
 	break;
 case 'view' :
 default :
+	global $revisionary;
+	
 	$left = 0;
 	$right = 0;
 	$h2 = '';
@@ -124,23 +159,12 @@ default :
 		// revision_id is for a published post.  List all its revisions - either for type specified or default to past
 		if ( ! $revision_status )
 			$revision_status = 'inherit';
-			
-		if ( !current_user_can( 'read_post', $rvy_post->ID ) )
-			break;
-			
 	} else {
 		if ( !$rvy_post = get_post( $revision->post_parent ) )
 			break;
 
 		// actual status of compared objects overrides any revision_Status arg passed in
-		$revision_status = $revision->post_status;	
-		
-		// TODO: review revision read_post implementation with Press Permit
-
-		//if ( !current_user_can( 'read_post', $revision->ID ) || !current_user_can( 'read_post', $rvy_post->ID ) ) {  // TODO: review PP has_cap filtering for revisions
-		if ( ! current_user_can( 'read_post', $rvy_post->ID ) ) {
-			break;
-		}
+		$revision_status = $revision->post_status;
 	}
 
 	if ( $type_obj = get_post_type_object( $rvy_post->post_type ) ) {
@@ -153,7 +177,6 @@ default :
 	$right = $rvy_post->ID;
 
 	// temporarily remove filter so we don't change it into a revisions.php link
-	global $revisionary;
 	remove_filter( 'get_edit_post_link', array($revisionary->admin, 'flt_edit_post_link'), 10, 3 );
 		
 	if ( $revision ) {
@@ -254,7 +277,7 @@ if ( 'diff' != $action ) {
 		if ( isset( $GLOBALS['cap_interceptor'] ) )
 			$GLOBALS['cap_interceptor']->require_full_object_role = true;
 		
-		$_can_edit_others = agp_user_can( $edit_others_cap, $rvy_post->ID );
+		$_can_edit_others = ! rvy_get_option( 'revisor_lock_others_revisions' ) && agp_user_can( $edit_others_cap, $rvy_post->ID );
 
 		if ( isset( $GLOBALS['cap_interceptor'] ) )
 			$GLOBALS['cap_interceptor']->require_full_object_role = false;
@@ -269,6 +292,13 @@ if ( 'diff' != $action ) {
 		wp_nonce_field('update-revision_' .  $revision->ID);
 
 		echo "<input type='hidden' id='revision_ID' name='revision_ID' value='" . esc_attr($revision->ID) . "' />";
+	} elseif ( ( $revision->post_author != $current_user->ID ) ) {
+		if ( $revision->ID == $rvy_post->ID ) {
+			if ( ! current_user_can( $edit_cap, $rvy_post->ID ) )
+				wp_die();
+		} else {
+			wp_die();
+		}
 	}
 }
 ?>
@@ -416,13 +446,14 @@ echo '</table>';
 		wp_editor( $content, 'content', array( 'media_buttons' => false ) );
 	else
 		the_editor($content, 'content', 'title', false);
-
+	
 	echo '</div>';
 	
     do_action( 'rvy-revisions_sidebar' );
 
 	if ( $can_edit ) {
 ?>
+<br />
 <input name="original_publish" type="hidden" id="original_publish" value="<?php esc_attr_e('Update Revision', 'revisionary') ?>" />
 <input name="rvy_revision_edit" type="submit" class="button-primary" id="rvy_revision_edit" tabindex="5" accesskey="p" value="<?php esc_attr_e('Update Revision', 'revisionary') ?>" />
 <?php

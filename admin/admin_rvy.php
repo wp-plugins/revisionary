@@ -3,7 +3,7 @@
  * admin_rvy.php
  * 
  * @author 		Kevin Behrens
- * @copyright 	Copyright 2011
+ * @copyright 	Copyright 2011-2013
  * 
  */
 
@@ -154,7 +154,7 @@ class RevisionaryAdmin
 		$caption = __( 'save as pending revision', 'revisionary' );
 		
 		$float = ( $GLOBALS['is_IE'] ) ? '' : 'float:right; ';
-		echo "<div style='{$float}margin: 0.5em'><label for='rvy_save_as_pending_rev'><input type='checkbox' style='width: 1em; min-width: 1em; text-align: right;' name='rvy_save_as_pending_rev' value='1' id='rvy_save_as_pending_rev' /> $caption</label></div>";
+		echo "<div style='{$float}margin: 0.5em'><label for='rvy_save_as_pending_rev'><input type='checkbox' style='width: 1em; min-width: 1em; text-align: right;' name='rvy_save_as_pending_rev' value='1' id='rvy_save_as_pending_rev' />$caption</label></div>";
 	}
 	
 	function act_log_revision_save() {
@@ -554,6 +554,7 @@ jQuery(document).ready( function($) {
 			return;
 
 		if ( ! empty($this->impose_pending_rev) ) {
+			global $revisionary;
 			
 			// todo: can we just return instead?
 			if ( isset($_POST['action']) && ( 'autosave' == $_POST['action'] ) )
@@ -571,6 +572,8 @@ jQuery(document).ready( function($) {
 			$post_arr['post_ID'] = 0;
 			$post_arr['ID'] = 0;
 			$post_arr['guid'] = '';
+			
+			$published_post = get_post( $object_id );
 			
 			if ( defined('RVY_CONTENT_ROLES') ) {
 				if ( isset($post_arr['post_category']) ) {	// todo: also filter other post taxonomies
@@ -613,13 +616,13 @@ jQuery(document).ready( function($) {
 				$msg = __('Sorry, an error occurred while attempting to save your modification for editorial review!', 'revisionary') . ' ';	
 			}
 			
-			
 			$admin_notify = rvy_get_option( 'pending_rev_notify_admin' );
 			$author_notify = rvy_get_option( 'pending_rev_notify_author' );
-			if ( $admin_notify || $author_notify ) {
+			if ( ( $admin_notify || $author_notify ) && $revision_id ) {
 				$type_obj = get_post_type_object( $object_type );
 				$type_caption = $type_obj->labels->singular_name;
-
+				$post_arr['post_type'] = $published_post->post_type;
+				
 				$blogname = wp_specialchars_decode( get_option('blogname'), ENT_QUOTES );
 				$title = sprintf( __('[%s] Pending Revision Notification', 'revisionary'), $blogname );
 				
@@ -634,11 +637,11 @@ jQuery(document).ready( function($) {
 				
 				// establish the publisher recipients
 				if ( $admin_notify ) {
-					if ( defined( 'RVY_CONTENT_ROLES' ) && ! defined( 'SCOPER_DEFAULT_MONITOR_GROUPS' ) ) {
+					if ( defined( 'RVY_CONTENT_ROLES' ) && ! defined( 'SCOPER_DEFAULT_MONITOR_GROUPS' ) && ! defined( 'PP_DEFAULT_MONITOR_GROUPS' ) ) {
 						if ( $monitor_ids = $GLOBALS['revisionary']->content_roles->get_metagroup_members( 'Pending Revision Monitors' ) ) {
-							if ( $type_obj = get_post_type_object( $object_type ) ) {
+							if ( $type_obj ) {
 								$GLOBALS['revisionary']->skip_revision_allowance = true;
-								$post_publisher_ids = $GLOBALS['revisionary']->content_roles->users_who_can( $type_obj->cap->edit_post, $this->impose_pending_rev, array( 'cols' => 'id' ) );
+								$post_publisher_ids = $GLOBALS['revisionary']->content_roles->users_who_can( $type_obj->cap->edit_post, $this->impose_pending_rev, array( 'cols' => 'id', 'user_ids' => $monitor_ids ) );
 								$GLOBALS['revisionary']->skip_revision_allowance = false;
 								$monitor_ids = array_intersect( $monitor_ids, $post_publisher_ids );
 							}
@@ -646,7 +649,10 @@ jQuery(document).ready( function($) {
 					} else {
 						require_once(ABSPATH . 'wp-admin/includes/user.php');
 						
-						$use_wp_roles = ( defined( 'SCOPER_MONITOR_ROLES' ) ) ? SCOPER_MONITOR_ROLES : 'administrator,editor';
+						if ( defined( 'SCOPER_MONITOR_ROLES' ) )
+							$use_wp_roles = SCOPER_MONITOR_ROLES;
+						else
+							$use_wp_roles = ( defined( 'RVY_MONITOR_ROLES' ) ) ? RVY_MONITOR_ROLES : 'administrator,editor';
 						
 						$use_wp_roles = str_replace( ' ', '', $use_wp_roles );
 						$use_wp_roles = explode( ',', $use_wp_roles );
@@ -654,14 +660,29 @@ jQuery(document).ready( function($) {
 						$monitor_ids = array();
 
 						foreach ( $use_wp_roles as $role_name ) {
-							$search = new WP_User_Search( '', 0, $role_name );
-							
-							$monitor_ids = array_merge( $monitor_ids, $search->results );
+							if ( awp_ver( '3.1-beta' ) ) {
+								$search = new WP_User_Query( "search=&fields=id&role=$role_name" );
+								$monitor_ids = array_merge( $monitor_ids, $search->results );
+							} else {
+								$search = new WP_User_Search( '', 0, $role_name );
+								$monitor_ids = array_merge( $monitor_ids, $search->results );
+							}
+						}
+						
+						if ( $monitor_ids && $type_obj ) {
+							foreach( $monitor_ids as $key => $user_id ) {
+								$_user = new WP_User($user_id);
+								$reqd_caps = map_meta_cap( $type_obj->cap->edit_post, $user_id, $published_post->ID );
+								
+								if ( array_diff( $reqd_caps, array_keys( array_intersect( $_user->allcaps, array( true, 1, '1' ) ) ) ) ) {
+									unset( $monitor_ids[$key] );
+								}
+							}
 						}
 					}
 					
 					if ( 'always' != $admin_notify ) {
-						// intersect default recipients with selected recipients
+						// intersect default recipients with selected recipients						
 						$selected_recipients = ( ! empty($post_arr['prev_cc_user']) ) ? $post_arr['prev_cc_user'] : array();
 						$monitor_ids = array_intersect( $selected_recipients, $monitor_ids );
 					}
@@ -735,7 +756,7 @@ jQuery(document).ready( function($) {
 					$post_arr['post_category'] = $GLOBALS['revisionary']->content_roles->filter_object_terms( $post_arr['post_category'], 'category' );
 				}
 			}
-					
+
 			global $current_user;
 			$post_arr['post_author'] = $current_user->ID;		// store current user as revision author (but will retain current post_author on restoration)
 
