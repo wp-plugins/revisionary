@@ -186,7 +186,10 @@ function rvy_usage_message( $translate = true ) {
 }
 
 function rvy_echo_usage_message( $translate = true ) {
-	echo rvy_usage_message( $translate );
+	if ( ! defined( 'AGP_USAGE_MESSAGE_DONE' )  && ! defined( 'AGP_NO_USAGE_MSG' ) ) {  // Revisionary outputs its own message
+		echo rvy_usage_message( $translate );
+		define( 'AGP_USAGE_MESSAGE_DONE', true );
+	}
 }
 
 ?>

@@ -213,7 +213,8 @@ define ('ELIGIBLE_ITEMS_RVY', 'eligible');
 				. "<ul class='$ul_class' id='list_{$agents_subset}_{$id_prefix}'>";	
 		} else {
 			$ul_class = "rs-agents_list_auto";
-			echo "\r\n<ul class='$ul_class' id='list_{$agents_subset}_{$id_prefix}'>";		
+			echo "\r\n<ul class='$ul_class' id='list_{$agents_subset}_{$id_prefix}'>";
+			$rtl = false;
 		}
 		//-------- end list item width determination --------------
 	

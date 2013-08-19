@@ -141,7 +141,7 @@ function agp_user_can($reqd_caps, $object_id = 0, $user_id = 0, $args = array() 
 			}
 			
 			if ( ! empty($GLOBALS['revisionary']->skip_revision_allowance) ) {
-				$pp->memcache = array();
+				//$cap_interceptor->memcache = array();
 				$cap_interceptor->flags['memcache_disabled'] = true;
 			}
 		}
@@ -174,7 +174,7 @@ function agp_user_can($reqd_caps, $object_id = 0, $user_id = 0, $args = array() 
 					$_args = array( array($alternate_cap_name), $user->ID, $object_id );
 					
 					if ( defined( 'PPC_VERSION' ) && ! empty($GLOBALS['revisionary']->skip_revision_allowance) ) {
-						$pp->memcache = array();
+						//$cap_interceptor->memcache = array();
 						$cap_interceptor->flags['memcache_disabled'] = true;
 					}
 					

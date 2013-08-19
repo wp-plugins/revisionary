@@ -378,3 +378,17 @@ width: 99%;
 .rvy-editor-table-top {
 vertical-align: top;
 }
+
+body.admin_page_rvy-revisions table.diff td, table.diff th {
+max-width: 400px;
+} 
+
+body.admin_page_rvy-revisions #title {
+    font-size: 1.7em;
+    height: 1.7em;
+    line-height: 100%;
+    margin: 1px 0;
+    outline: medium none;
+    padding: 3px 8px;
+    width: 100%;
+}

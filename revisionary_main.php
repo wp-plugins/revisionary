@@ -203,12 +203,20 @@ class Revisionary
 
 		if ( ! $this->skip_revision_allowance ) {
 			// Allow Contributors / Revisors to edit published post/page, with change stored as a revision pending review
+			//$replace_caps = apply_filters( 'rvy_replace_post_edit_caps', array( 'edit_published_posts', 'edit_private_posts', $edit_published_cap, $edit_private_cap ), $object_type, $post_id );
 			$replace_caps = array( 'edit_published_posts', $edit_published_cap, 'edit_private_posts', $edit_private_cap );
 			
 			if ( ! strpos( $script_name, 'p-admin/edit.php' ) )
 				$replace_caps = array_merge( $replace_caps, array( $cap->publish_posts, 'publish_posts' ) );
 
 			if ( array_intersect( $reqd_caps, $replace_caps) ) {	// don't need to fudge the capreq for post.php unless existing post has public/private status
+				/*
+				$post_status = get_post_field('post_status', $post_id );
+				$post_status_obj = get_post_status_object( $post_status );
+				
+				if ( is_preview() || strpos($script_name, 'p-admin/edit.php') || strpos($script_name, 'p-admin/widgets.php') || ( $post_status_obj && ( $post_status_obj->public || $post_status_obj->private ) ) ) {
+				*/				
+
 				if ( is_preview() || strpos($script_name, 'p-admin/edit.php') || strpos($script_name, 'p-admin/widgets.php') || ( in_array( get_post_field('post_status', $post_id ), array('publish', 'private') ) ) ) {
 					if ( $type_obj = get_post_type_object( $object_type ) ) {
 						if ( ! empty( $wp_blogcaps[ $type_obj->cap->edit_posts ] ) )

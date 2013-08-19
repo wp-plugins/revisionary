@@ -379,7 +379,7 @@ $pending_revisions_available || $scheduled_revisions_available ) :
 				if ( $ui->display_hints ) {
 					echo '<span class="rs-subtext">';
 					if ( defined('RVY_CONTENT_ROLES') )
-						_e('Note: "by default" means Pending Revision creators can customize email notification recipients before submitting.  Eligibile "Publisher" email recipients are members of the Pending Revision Monitors group who <strong>also</strong> have the ability to publish the revision.', 'revisionary');
+						_e('Note: "by default" means Pending Revision creators can customize email notification recipients before submitting.  Eligibile "Publisher" email recipients are members of the Pending Revision Monitors group who <strong>also</strong> have the ability to publish the revision.  If not explicitly defined, the Monitors group is all users with a primary WP role of Administrator or Editor.', 'revisionary');
 					else
 						printf( __('Note: "by default" means Pending Revision creators can customize email notification recipients before submitting.  For more flexibility in moderation and notification, install the %1$s Press Permit%2$s %3$s Role Scoper%4$s plugin.', 'revisionary'), "<a href='http://presspermit.com'>", '</a>', "<a href='" . awp_plugin_info_url("role-scoper") . "'>", '</a>' );
 					echo '</span>';

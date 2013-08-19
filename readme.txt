@@ -3,8 +3,8 @@ Contributors: kevinB
 Donate link: http://agapetry.net/news/introducing-role-scoper/#role-scoper-download
 Tags: revision, access, permissions, cms, user, groups, members, admin, pages, posts, page, Post
 Requires at least: 3.0
-Tested up to: 3.5.1
-Stable Tag: 1.1.10
+Tested up to: 3.6
+Stable Tag: 1.1.11
 
 Moderated editing of published content.  Following approval by an editor, the revision can be published immediately or scheduled.
 
@@ -15,8 +15,6 @@ Have you ever wanted to allow certain users to submit changes to published conte
 Doesn't it seem like setting a published post/page to a future date should schedule your changes to be published on that date, instead of unpublishing it until that date?
 
 Revisionary enables qualified users to submit changes to currently published posts or pages.  Contributors also gain the ability to submit revisions to their own published content.  These changes, if approved by an Editor, can be published immediately or scheduled for future publication.
-
-For WP 2.7 to 2.9, use <a href="http://agapetry.net/downloads/revisionary_legacy">Revisionary 1.0.x</a>
 
 = Partial Feature List =
 * Pending Revisions allow designated users to suggest changes to a currently published post/page
@@ -53,6 +51,26 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 
 == Changelog ==
+
+**1.1.11 - 18 Aug 2013**
+
+= WP 3.6 Compatibility =
+* WP 3.6 - Revisors could not submit revisions
+* WP 3.6 - Don't modify native WP revision links
+* WP 3.6 - In Publish metabox, re-caption Revisions as "Publication History" to distinguish from Pending Revisions
+* WP 3.6 - Post Title metabox was unformatted on Revisions Manager screen
+
+= Email Notification =
+* Fixed : Revisors could not select desired publish date on Edit Post screen, even if Scheduled Revisions enabled
+* Fixed : Publishers to Notify metabox was displayed even if no selections available (when notification for both Publishers and Author is set to Always or Never)
+* Change : If Press Permit or Role Scoper are active but Monitors group does not contain any users who can publish the post, notifications go to all WP Administrators and Editors who have sufficient site-wide capabilities
+
+= General =
+* Fixed : "save as pending" checkbox caused poor layout of adjacent UI in Publish metabox
+* Fixed : PHP warning in Publishers to Notify metabox when a user has a very long name 
+* Perf : Eliminate some redundant queries on back-end for non-Administrators (especially with Press Permit or Role Scoper active)
+* Change : On Revisionary Settings screen, expand caption to clarify email notification behavior
+* Compat : Edit Flow - don't offer to revise EF Metadata
 
 = 1.1.10 - 29 May 2013 =
 * SECURITY FIX : Revisions could be viewed by any registered user

@@ -569,6 +569,7 @@ function rvy_publish_scheduled_revisions() {
 					if ( defined('RVY_CONTENT_ROLES') && ! defined('SCOPER_DEFAULT_MONITOR_GROUPS') ) { // e-mail to Scheduled Revision Montiors metagroup if Role Scoper is activated
 						global $revisionary;
 						
+						$monitor_groups_enabled = true;
 						$revisionary->content_roles->ensure_init();
 
 						if ( $default_ids = $revisionary->content_roles->get_metagroup_members( 'Scheduled Revision Monitors' ) ) {
@@ -582,7 +583,9 @@ function rvy_publish_scheduled_revisions() {
 										$to_addresses []= $user->user_email;
 							}
 						}
-					} else {
+					} 
+					
+					if ( ! $to_addresses && ( empty($monitor_groups_enabled) || ! defined('RVY_FORCE_MONITOR_GROUPS') ) ) {  // if RS/PP are not active, monitor groups have been disabled or no monitor group members can publish this post...
 						$use_wp_roles = ( defined( 'SCOPER_MONITOR_ROLES' ) ) ? SCOPER_MONITOR_ROLES : 'administrator,editor';
 						$use_wp_roles = str_replace( ' ', '', $use_wp_roles );
 						$use_wp_roles = explode( ',', $use_wp_roles );

@@ -111,8 +111,8 @@ class RevisionaryAdmin
 			add_filter( 'get_post_time', array(&$this, 'flt_get_post_time'), 10, 3 );
 
 		add_action( 'post_submitbox_start', array( &$this, 'pending_rev_checkbox' ) );
+		add_action( 'post_submitbox_misc_actions', array( &$this, 'publish_metabox_time_display' ) );
 	}
-
 	
 	function add_preview_action( $actions, $post ) {
 		if ( 'revision' == $post->post_type ) {
@@ -138,6 +138,46 @@ class RevisionaryAdmin
 		}	
 	}
 	
+	function publish_metabox_time_display() {
+		global $post, $action;
+	
+		if ( ! rvy_get_option( 'scheduled_revisions' ) )
+			return;
+	
+		$stati = get_post_stati( array( 'public' => true, 'private' => true ), 'names', 'or' );
+	
+		if ( empty($post) || ! $type_obj = get_post_type_object($post->post_type) )
+			return;
+	
+		if ( ! empty($post) && in_array( $post->post_status, $stati ) && ! current_user_can( $type_obj->cap->publish_posts ) ) :
+			$datef = __( 'M j, Y @ G:i' );
+			if ( 0 != $post->ID ) {
+				if ( 'future' == $post->post_status ) { // scheduled for publishing at a future date
+					$stamp = __('Scheduled for: <b>%1$s</b>');
+				} else if ( 'publish' == $post->post_status || 'private' == $post->post_status ) { // already published
+					$stamp = __('Published on: <b>%1$s</b>');
+				} else if ( '0000-00-00 00:00:00' == $post->post_date_gmt ) { // draft, 1 or more saves, no date specified
+					$stamp = __('Publish <b>immediately</b>');
+				} else if ( time() < strtotime( $post->post_date_gmt . ' +0000' ) ) { // draft, 1 or more saves, future date specified
+					$stamp = __('Schedule for: <b>%1$s</b>');
+				} else { // draft, 1 or more saves, date specified
+					$stamp = __('Publish on: <b>%1$s</b>');
+				}
+				$date = date_i18n( $datef, strtotime( $post->post_date ) );
+			} else { // draft (no saves, and thus no date specified)
+				$stamp = __('Publish <b>immediately</b>');
+				$date = date_i18n( $datef, strtotime( current_time('mysql') ) );
+			}
+			?>
+			<div class="misc-pub-section curtime">
+				<span id="timestamp">
+				<?php printf($stamp, $date); ?></span>
+				<a href="#edit_timestamp" class="edit-timestamp hide-if-no-js"><?php _e('Edit') ?></a>
+				<div id="timestampdiv" class="hide-if-js"><?php touch_time(($action == 'edit'), 1); ?></div>
+			</div><?php // /misc-pub-section ?>
+		<?php endif;
+	}
+	
 	function pending_rev_checkbox() {
 		global $post;
 
@@ -153,8 +193,8 @@ class RevisionaryAdmin
 
 		$caption = __( 'save as pending revision', 'revisionary' );
 		
-		$float = ( $GLOBALS['is_IE'] ) ? '' : 'float:right; ';
-		echo "<div style='{$float}margin: 0.5em'><label for='rvy_save_as_pending_rev'><input type='checkbox' style='width: 1em; min-width: 1em; text-align: right;' name='rvy_save_as_pending_rev' value='1' id='rvy_save_as_pending_rev' />$caption</label></div>";
+		$float = ( awp_ver('3.5') || $GLOBALS['is_IE'] ) ? '' : 'float:right; ';
+		echo "<div style='{$float}margin: 0.5em'><label for='rvy_save_as_pending_rev'><input type='checkbox' style='width: 1em; min-width: 1em; text-align: right;' name='rvy_save_as_pending_rev' value='1' id='rvy_save_as_pending_rev' /> $caption</label></div>";
 	}
 	
 	function act_log_revision_save() {
@@ -180,6 +220,26 @@ class RevisionaryAdmin
 		return $links;
 	}
 	
+	// if a revision id or post object is passed in, returns parent post object
+	function get_published_post( $_post ) {
+		if ( is_object( $_post ) ) {
+			if ( ! in_array( $_post->post_type, array( 'revision', '_revision' ) ) && ( 'inherit' != $_post->post_status ) )
+				return $_post;
+			else
+				$_post = $_post->ID;
+		}
+
+		global $wpdb;
+		
+		$__post = $wpdb->get_row( "SELECT * FROM $wpdb->posts WHERE ID = '$_post'" ); // direct query so we don't fool ourself with subverted cache entry
+
+		if ( in_array( $__post->post_type, array( 'revision', '_revision' ) ) || ( 'inherit' == $__post->post_status ) ) {
+			$__post = get_post( $__post->post_parent );
+		}
+
+		return $__post;
+	}
+	
 	function admin_head() {
 		echo '<link rel="stylesheet" href="' . RVY_URLPATH . '/admin/revisionary.css" type="text/css" />'."\n";
 
@@ -188,6 +248,11 @@ class RevisionaryAdmin
 
 		add_filter( 'contextual_help_list', array(&$this, 'flt_contextual_help_list'), 10, 2 );
 			
+		global $pagenow;
+
+		if ( in_array( $pagenow, array( 'post.php', 'post-new.php' ) ) && ! defined('RVY_PREVENT_PUBHIST_CAPTION') )
+			wp_enqueue_script( 'rvy_post', RVY_URLPATH . "/admin/post-edit.js", array('jquery'), RVY_VERSION, true );
+
 		if( false !== strpos( urldecode($_SERVER['REQUEST_URI']), 'admin.php?page=rvy-revisions' ) ) {
 			
 			// add Ajax goodies we need for fancy publish date editing in Revisions Manager and role duration/content date limit editing Bulk Role Admin
@@ -201,10 +266,8 @@ class RevisionaryAdmin
 			});
 			/* ]]> */
 			</script>
-			<?php	
-			
-			//wp_print_scripts( array( 'post' ) );	 // WP 2.9 broke this for Revisionary usage; manually insert pertinent scripts below instead
-			echo "\n" . "<script type='text/javascript' src='" . RVY_URLPATH . "/admin/revision-edit.js'></script>";
+			<?php
+			wp_enqueue_script( 'rvy_edit', RVY_URLPATH . "/admin/revision-edit.js", array('jquery'), RVY_VERSION, true );
 			
 			if ( ( empty( $_GET['action'] ) || in_array( $_GET['action'], array( 'view', 'edit' ) ) ) && ! empty( $_GET['revision'] ) ) {
 				if ( $revision =& get_post( $_GET['revision'] ) ) {
@@ -273,7 +336,7 @@ jQuery(document).ready( function($) {
 		// all required JS functions are present in Role Scoper JS; TODO: review this for future version changes as necessary
 		// TODO: replace some of this JS with equivalent JQuery
 		if ( ! defined('SCOPER_VERSION') )
-			echo "\n" . "<script type='text/javascript' src='" . RVY_URLPATH . "/admin/revisionary.js'></script>";
+			wp_enqueue_script( 'rvy', RVY_URLPATH . "/admin/revisionary.js", array('jquery'), RVY_VERSION, true );
 	}
 	
 	function flt_contextual_help_list ($help, $screen) {
@@ -379,7 +442,7 @@ jQuery(document).ready( function($) {
 					//if ( 'page' == $object_type )
 						$unrevisable_css_ids = array( 'pageparentdiv', 'pageauthordiv', 'pagecustomdiv', 'pageslugdiv', 'pagecommentstatusdiv' );
 				 	//else
-						$unrevisable_css_ids = array_merge( $unrevisable_css_ids, array( 'categorydiv', 'authordiv', 'postcustom', 'customdiv', 'slugdiv', 'commentstatusdiv', 'password-span', 'trackbacksdiv',  'tagsdiv-post_tag', 'visibility', 'edit-slug-box', 'postimagediv' ) );
+						$unrevisable_css_ids = array_merge( $unrevisable_css_ids, array( 'categorydiv', 'authordiv', 'postcustom', 'customdiv', 'slugdiv', 'commentstatusdiv', 'password-span', 'trackbacksdiv',  'tagsdiv-post_tag', 'visibility', 'edit-slug-box', 'postimagediv', 'ef_editorial_meta' ) );
 
 					foreach( get_taxonomies( array(), 'object' ) as $taxonomy => $tx_obj )
 						$unrevisable_css_ids []= ( $tx_obj->hierarchical ) ? "{$taxonomy}div" : "tagsdiv-$taxonomy";
@@ -413,6 +476,11 @@ jQuery(document).ready( function($) {
 		$args = array_merge( $defaults, (array) $args );
 		extract($args);
 
+		global $pagenow;
+		
+		if ( awp_ver( '3.6-dev' ) && in_array( $pagenow, apply_filters( 'rvy_default_revision_link_pages', array( 'post.php' ), $link, $args ) ) )
+			return $link;
+		
 		if ( 'revision' == $topic ) {
 			if ( 'manage' == $operation ) {
 				if ( strpos( $link, 'revision.php' ) ) {
@@ -637,7 +705,10 @@ jQuery(document).ready( function($) {
 				
 				// establish the publisher recipients
 				if ( $admin_notify ) {
+					$monitor_ids = array();
+					
 					if ( defined( 'RVY_CONTENT_ROLES' ) && ! defined( 'SCOPER_DEFAULT_MONITOR_GROUPS' ) && ! defined( 'PP_DEFAULT_MONITOR_GROUPS' ) ) {
+						$monitor_groups_enabled = true;
 						if ( $monitor_ids = $GLOBALS['revisionary']->content_roles->get_metagroup_members( 'Pending Revision Monitors' ) ) {
 							if ( $type_obj ) {
 								$GLOBALS['revisionary']->skip_revision_allowance = true;
@@ -646,7 +717,9 @@ jQuery(document).ready( function($) {
 								$monitor_ids = array_intersect( $monitor_ids, $post_publisher_ids );
 							}
 						}
-					} else {
+					} 
+					
+					if ( ! $monitor_ids && ( empty($monitor_groups_enabled) || ! defined('RVY_FORCE_MONITOR_GROUPS') ) ) {  // if RS/PP are not active, monitor groups have been disabled or no monitor group members can publish this post...
 						require_once(ABSPATH . 'wp-admin/includes/user.php');
 						
 						if ( defined( 'SCOPER_MONITOR_ROLES' ) )
@@ -656,8 +729,6 @@ jQuery(document).ready( function($) {
 						
 						$use_wp_roles = str_replace( ' ', '', $use_wp_roles );
 						$use_wp_roles = explode( ',', $use_wp_roles );
-						
-						$monitor_ids = array();
 
 						foreach ( $use_wp_roles as $role_name ) {
 							if ( awp_ver( '3.1-beta' ) ) {
@@ -733,8 +804,17 @@ jQuery(document).ready( function($) {
 
 		$post_arr = $_POST;
 		
+		if ( ! empty( $_POST['post_ID'] ) )
+			$published_post = $this->get_published_post( $_POST['post_ID'] );
+		
 		if ( ! empty($post_arr['post_date_gmt']) && ( strtotime($post_arr['post_date_gmt'] ) > agp_time_gmt() ) ) {
 			$parent_id = $post_arr['ID'];
+			
+			if ( $type_obj = get_post_type_object( $published_post->post_type ) ) {
+				global $current_user;
+				if ( ! agp_user_can( $type_obj->cap->edit_post, $published_post->ID, $current_user->ID, array( 'skip_revision_allowance' => true ) ) )
+					return;
+			}
 			
 			// a future publish date was selected
 			$date_clause = ", post_modified = '" . current_time( 'mysql' ) . "', post_modified_gmt = '" . current_time( 'mysql', 1 ) . "'";  // If WP forces modified time up to post time, force it back

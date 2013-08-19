@@ -65,7 +65,7 @@ function rvy_metabox_notification_list( $topic ) {
 				}
 			}
 		} else {
-			// If RS is not active, default to sending to all Administrators and Editors
+			// If RS is not active, default to sending to all Administrators and Editors who can publish the post
 			require_once(ABSPATH . 'wp-admin/includes/user.php');
 			
 			$use_wp_roles = ( defined( 'SCOPER_MONITOR_ROLES' ) ) ? SCOPER_MONITOR_ROLES : 'administrator,editor';

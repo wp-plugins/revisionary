@@ -43,6 +43,9 @@ class RevisionaryAdminHardway {
 	function flt_include_pending_revisions($query) {
 		global $wpdb;
 		
+		if ( strpos( $query, 'num_comments' ) )
+			return $query;
+		
 		// Require current user to be a site-wide editor due to complexity of applying scoped roles to revisions
 		if ( strpos($query, "FROM $wpdb->posts") && ( strpos($query, ".post_status = 'pending'") || strpos($query, ".post_status = 'future'") || strpos($query, 'GROUP BY post_status') || strpos($query, "GROUP BY $wpdb->posts.post_status") || ( empty($_GET['post_status']) || ( 'all' == $_GET['post_status'] ) ) ) ) {
 
@@ -58,9 +61,11 @@ class RevisionaryAdminHardway {
 			} elseif ( strpos($query, "GROUP BY $wpdb->posts.post_status") && strpos($query, "ELECT $wpdb->posts.post_status," ) ) {
 				
 				// also post-process the scoped equivalent 
-				foreach ( $post_types as $post_type )
-					$query = str_replace(" post_type = '$post_type'", "( $wpdb->posts.post_type = '$post_type' OR ( $wpdb->posts.post_type = 'revision' AND $wpdb->posts.post_status IN ('pending', 'future') AND $wpdb->posts.post_parent IN ( SELECT ID from $wpdb->posts WHERE post_type = '$post_type' ) ) )", $query);
-
+				foreach ( $post_types as $post_type ) {
+					if ( ! strpos( $query, "'$post_type' OR ( $wpdb->posts.post_type = 'revision'" ) )
+						$query = str_replace(" post_type = '$post_type'", "( $wpdb->posts.post_type = '$post_type' OR ( $wpdb->posts.post_type = 'revision' AND $wpdb->posts.post_status IN ('pending', 'future') AND $wpdb->posts.post_parent IN ( SELECT ID from $wpdb->posts WHERE post_type = '$post_type' ) ) )", $query);
+				}
+					
 			// edit pages / posts listing items
 			} elseif ( strpos($query, 'ELECT') ) {	
 				// include pending/scheduled revs in All, Pending or Scheduled list
@@ -73,8 +78,10 @@ class RevisionaryAdminHardway {
 					$status_clause .= $or . "$wpdb->posts.post_status = 'future'";
 				}
 				
-				foreach ( $post_types as $post_type )
+				foreach ( $post_types as $post_type ) {
+					$query = str_replace("$wpdb->posts.post_type = '$post_type' AND 1=2", "1=2", $query );
 					$query = str_replace("$wpdb->posts.post_type = '$post_type'", "( $wpdb->posts.post_type = '$post_type' OR ( $wpdb->posts.post_type = 'revision' AND $wpdb->posts.post_parent IN ( SELECT ID from $wpdb->posts WHERE post_type = '$post_type' ) ) AND ( $status_clause ) )", $query);
+				}
 
                	// work around Event Calendar Pro conflict
 				if ( strpos( $query, "eventStart.meta_value as EventStartDate" ) ) {

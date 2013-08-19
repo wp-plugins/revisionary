@@ -54,10 +54,13 @@ jQuery(document).ready( function($) {
 	postL10n.update = "<?php _e('Submit Revision', 'revisionary' )?>";
 	postL10n.schedule = "<?php _e('Submit Scheduled Revision', 'revisionary' )?>";
 	
-	$('#post-preview').hide();
+	$('#publishing-action #publish').show();
 });
 /* ]]> */
 </script>
+<style>
+div.num-revisions, #post-preview{ display:none; }
+</style>
 <?php
 	}
 	
@@ -68,7 +71,13 @@ jQuery(document).ready( function($) {
 			require_once( dirname(__FILE__).'/revision-ui_rvy.php' );
 			
 			add_meta_box( 'pending_revisions', __( 'Pending Revisions', 'revisionary'), create_function( '', "rvy_metabox_revisions('pending');"), $object_type );
-			add_meta_box( 'pending_revision_notify', __( 'Publishers to Notify of Your Revision', 'revisionary'), create_function( '', "rvy_metabox_notification_list('pending_revision');"), $object_type );
+			
+			$admin_notify = (string) rvy_get_option( 'pending_rev_notify_admin' );
+			$author_notify = (string) rvy_get_option( 'pending_rev_notify_author' );
+			
+			if ( ( '1' === $admin_notify ) || ( '1' === $author_notify ) ) {
+				add_meta_box( 'pending_revision_notify', __( 'Publishers to Notify of Your Revision', 'revisionary'), create_function( '', "rvy_metabox_notification_list('pending_revision');"), $object_type );
+			}
 		}
 			
 		if ( rvy_get_option( 'scheduled_revisions' ) ) {
