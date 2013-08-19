@@ -57,19 +57,19 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 = WP 3.6 Compatibility =
 * WP 3.6 - Revisors could not submit revisions
 * WP 3.6 - Don't modify native WP revision links
-* WP 3.6 - In Publish metabox, re-caption Revisions as "Publication History" to distinguish from Pending Revisions
+* WP 3.6 - In Publish metabox, re-caption Revisions as "Publication History" to distinguish from Pending Revisions (prevent this by defining constant RVY_PREVENT_PUBHIST_CAPTION)
 * WP 3.6 - Post Title metabox was unformatted on Revisions Manager screen
 
 = Email Notification =
-* Fixed : Revisors could not select desired publish date on Edit Post screen, even if Scheduled Revisions enabled
 * Fixed : Publishers to Notify metabox was displayed even if no selections available (when notification for both Publishers and Author is set to Always or Never)
-* Change : If Press Permit or Role Scoper are active but Monitors group does not contain any users who can publish the post, notifications go to all WP Administrators and Editors who have sufficient site-wide capabilities
+* Fixed : PHP warning in Publishers to Notify metabox when a user has a very long name
+* Change : If Press Permit or Role Scoper are active but Monitors group does not contain any users who can publish the post, notifications go to all WP Administrators and Editors who have sufficient site-wide capabilities (prevent this by defining constant RVY_FORCE_MONITOR_GROUPS)
+* Change : On Revisionary Settings screen, expand caption to clarify email notification behavior
 
 = General =
+* Fixed : Revisors could not select desired publish date on Edit Post screen, even if Scheduled Revisions enabled
 * Fixed : "save as pending" checkbox caused poor layout of adjacent UI in Publish metabox
-* Fixed : PHP warning in Publishers to Notify metabox when a user has a very long name 
 * Perf : Eliminate some redundant queries on back-end for non-Administrators (especially with Press Permit or Role Scoper active)
-* Change : On Revisionary Settings screen, expand caption to clarify email notification behavior
 * Compat : Edit Flow - don't offer to revise EF Metadata
 
 = 1.1.10 - 29 May 2013 =
