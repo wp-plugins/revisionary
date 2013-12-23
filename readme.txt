@@ -68,6 +68,7 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 * Change : When comparing revisions, if only one of the revisions is past, force it to left
 * Change : On Revisions Manager screen, add margins to Update Revision button
 * Fixed : PHP Notices for non-static function calls
+* Compat : Role Scoper - when Pending Revision Monitors group is used and notification is "by default", recipient checkboxes missing on Edit Post form and TinyMCE broken
 * Compat : Duplicate Right Now links on dashboard if Role Scoper or Press Permit active
 
 **1.1.11 - 18 Aug 2013**
