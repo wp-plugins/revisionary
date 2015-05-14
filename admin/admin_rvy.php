@@ -3,7 +3,7 @@
  * admin_rvy.php
  * 
  * @author 		Kevin Behrens
- * @copyright 	Copyright 2011-2013
+ * @copyright 	Copyright 2011-2015
  * 
  */
 
@@ -46,7 +46,7 @@ class RevisionaryAdmin
 		add_action('admin_head', array(&$this, 'add_editor_ui') );
 		add_action('admin_head', array(&$this, 'act_hide_admin_divs') );
 		
-		if ( ! ( defined( 'SCOPER_VERSION' ) || defined( 'PP_VERSION' ) || defined( 'PPC_VERSION' ) ) || defined( 'USE_RVY_RIGHTNOW' ) )
+		if ( ! ( defined( 'SCOPER_VERSION' ) || defined( 'PP_VERSION' ) || defined( 'PPCE_VERSION' ) ) || defined( 'USE_RVY_RIGHTNOW' ) )
 			require_once( 'admin-dashboard_rvy.php' );
 		
 		// log this action so we know when to ignore the save_post action
@@ -614,7 +614,7 @@ jQuery(document).ready( function($) {
 			$future_date = ( ! empty($post_arr['post_date']) && ( strtotime($post_arr['post_date_gmt'] ) > agp_time_gmt() ) );
 			
 			$wpdb->query("UPDATE $wpdb->posts SET post_status = 'pending', post_parent = '$this->impose_pending_rev' $date_clause WHERE ID = '$revision_id'");
-
+			
 			$manage_link = $this->get_manage_link( $object_type );
 							
 			if ( $future_date )

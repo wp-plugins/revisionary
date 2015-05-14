@@ -9,7 +9,7 @@ if( basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME']) )
  * Revisions Manager for Revisionary plugin, derived and heavily expanded from WP 2.8.4 core
  *
  * @author 		Kevin Behrens
- * @copyright 	Copyright 2009-2011
+ * @copyright 	Copyright 2009-2015
  * 
  */
 
@@ -441,7 +441,10 @@ echo '</table>';
 	// post content
 	$id = ( user_can_richedit() ) ? 'postdivrich' : 'postdiv';
 	echo "<div id='$id' class='postarea rvy-postarea'>";
-	$content = apply_filters( "_wp_post_revision_field_post_content", $revision->post_content, 'post_content' );
+	
+	$content = ( rvy_edit_content_filtered($revision) ) ? $revision->post_content_filtered : $revision->post_content;
+	
+	$content = apply_filters( "_wp_post_revision_field_post_content", $content, 'post_content' );
 	
 	if ( ! user_can_richedit() )
 		$content = htmlentities($content);
@@ -686,5 +689,16 @@ function rvy_text_diff( $left_string, $right_string, $args = null ) {
 	$r .= "</table>";
 
 	return $r;
+}
+
+function rvy_edit_content_filtered( $revision ) {
+	$use_content_filtered = false;
+	
+	if ( ! empty( $revision->post_content_filtered ) ) {
+		if ( class_exists('WPCom_Markdown') && ! defined( 'RVY_DISABLE_MARKDOWN_WORKAROUND' ) )
+			$use_content_filtered = true;
+	}
+	
+	return apply_filters( 'rvy_edit_content_filtered', $use_content_filtered, $revision );
 }
 ?>

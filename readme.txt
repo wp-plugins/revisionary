@@ -3,8 +3,8 @@ Contributors: kevinB
 Donate Link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=JWZVFUDLLYQBA
 Tags: revision, access, permissions, cms, user, groups, members, admin, pages, posts, page, Post
 Requires at least: 3.0
-Tested up to: 3.8
-Stable Tag: 1.1.12
+Tested up to: 4.2.2
+Stable Tag: 1.1.13
 
 Moderated editing of published content.  Following approval by an editor, the revision can be published immediately or scheduled.
 
@@ -51,6 +51,13 @@ Revisionary can be installed automatically via the Plugins tab in your blog admi
 
 
 == Changelog ==
+
+= 1.1.13 - 13 May 2015 =
+* Fixed : Previewing a Page revision from Revisions Manager screen caused fatal error / white screen
+* Fixed : When Previewing a revision, Publish Now link was not formatted properly on TwentyFifteen theme
+* Fixed : Pending Revision counts, links were not displayed in Dashboard At a Glance if PP Collaborative Editing plugin is not active
+* Compat : Jetpack Markdown - publishing a revision caused post content to be stripped
+* Compat : various caching plugins - post cache was not cleared after publishing a revision
 
 = 1.1.12 - 23 Dec 2013 =
 * WP 3.8 - Fixed Revisionary > Settings styling

@@ -123,9 +123,9 @@ class RevisionaryFront {
 		}
 		
 		if ( $id ) {
-			if ( ! $template = rvy_get_post_meta($id, '_wp_page_template', true) ) {
+			if ( ! $template = get_post_meta($id, '_wp_page_template', true) ) {
 				if ( $revision = get_post( $id ) ) {
-					$template = rvy_get_post_meta($revision->post_parent, '_wp_page_template', true);
+					$template = get_post_meta($revision->post_parent, '_wp_page_template', true);
 				}
 			}
 

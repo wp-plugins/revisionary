@@ -3,11 +3,13 @@
 if( basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME']) )
 	die( 'This page cannot be called directly.' );
 
+add_action( '_wp_put_post_revision', 'rvy_review_revision' );
+	
 /**
  * revision-action_rvy.php
  * 
  * @author 		Kevin Behrens
- * @copyright 	Copyright 2011-2013
+ * @copyright 	Copyright 2011-2015
  * 
  */
 function rvy_revision_diff() {
@@ -71,7 +73,6 @@ function rvy_revision_diff() {
 	exit;
 }
 
-
 // schedules publication of a revision ( or publishes if requested publish date has already passed )
 function rvy_revision_approve() {
 
@@ -108,10 +109,20 @@ function rvy_revision_approve() {
 			if ( empty($status_obj->public) && empty($status_obj->private) && ( 'future' != $revision->post_status ) ) {
 				// prep the revision to look like a normal one so WP doesn't reject it
 				global $wpdb;
-				$wpdb->query( "UPDATE $wpdb->posts SET post_status = 'inherit', post_date = '$revision->post_modified', post_date_gmt = '$revision->post_modified' WHERE post_type = 'revision' AND ID = '$revision->ID'" );
-
+				
+				$data = array( 'post_status' => 'inherit', 'post_date' => $revision->post_modified, 'post_date_gmt' => $revision->post_modified );
+				
+				if ( class_exists('WPCom_Markdown') && ! defined( 'RVY_DISABLE_MARKDOWN_WORKAROUND' ) )
+					$data['post_content_filtered'] = $revision->post_content;
+				
+				$wpdb->update( $wpdb->posts, $data, array( 'post_type' => 'revision', 'ID' => $revision->ID ) );
+				
 				wp_restore_post_revision( $revision->ID );
 				$db_action = true;
+				
+				rvy_format_content( $revision->post_content, $revision->post_content_filtered, $post->ID );
+				
+				clean_post_cache( $revision->ID );
 			}
 
 			$revision_id = $revision->post_parent;
@@ -121,9 +132,11 @@ function rvy_revision_approve() {
 		} else {
 			if ( 'future' != $revision->post_status ) {
 				global $wpdb;
-				$wpdb->query("UPDATE $wpdb->posts SET post_status = 'future' WHERE post_type = 'revision' AND ID = '$revision->ID'");
+				$wpdb->update( $wpdb->posts, array( 'post_status' => 'future' ), array( 'post_type' => 'revision', 'ID' => $revision->ID ) );
 				rvy_update_next_publish_date();
 				$db_action = true;
+				
+				clean_post_cache( $revision->ID );
 			}
 
 			$revision_id = $revision->ID;
@@ -223,6 +236,8 @@ function rvy_revision_restore() {
 		check_admin_referer( "restore-post_{$post->ID}|$revision->ID" );
 		wp_restore_post_revision( $revision_id );
 
+		rvy_format_content( $revision->post_content, $revision->post_content_filtered, $post->ID );
+		
 		// also set the revision status to 'inherit' so it is listed as a past revision if the current revision is further changed (As of WP 2.9, wp_restore_post_revision no longer does this automatically)
 		$revision->post_status = 'inherit';
 		$revision = add_magic_quotes( (array) $revision ); //since data is from db
@@ -255,9 +270,17 @@ function rvy_revision_restore() {
 function rvy_do_revision_restore( $revision_id ) {
 	global $wpdb;
 
+	$revision = wp_get_post_revision( $revision_id );
+	
 	//rvy_errlog("restoring $revision_id");
 	wp_restore_post_revision($revision_id);
 	rvy_update_next_publish_date();
+	
+	if ( $revision && ! empty($revision->post_parent) ) {
+		rvy_format_content( $revision->post_content, $revision->post_content_filtered, $revision->post_parent );
+	}
+	
+	clean_post_cache( $revision_id );
 }
 
 function rvy_revision_delete() {
@@ -449,6 +472,10 @@ function rvy_revision_edit() {
 		//do_action( 'pre_post_update', $post_ID );
 		$db_success = $wpdb->update( $wpdb->posts, $data, $where );
 		$redirect = "admin.php?page=rvy-revisions&revision=$revision_id&action=view&rvy_updated=$db_success";
+		
+		rvy_format_content( $post_content, $post_content, $revision_id );
+		
+		clean_post_cache( $revision_id );
 		
 		do_action( 'post_revision_update', $revision_id );
 		
@@ -690,4 +717,45 @@ function rvy_update_next_publish_date() {
 	update_option( 'rvy_next_rev_publish_gmt', $next_publish_date_gmt );
 }
 
+function rvy_review_revision( $revision_id ) {
+	if ( class_exists('WPCom_Markdown') && ! defined( 'RVY_DISABLE_MARKDOWN_WORKAROUND' ) ) {
+		$revision = wp_get_post_revision( $revision_id );
+		if ( ! $revision->post_content_filtered ) {
+			if ( $post = get_post( $revision->post_parent ) ) {
+				global $wpdb;
+				$wpdb->update( $wpdb->posts, array( 'post_content_filtered' => $post->post_content_filtered ), array( 'ID' => $revision_id ) );
+			}
+		}
+	}
+}
+
+// apply any necessary third-party transformations to post content after publishing a revision
+function rvy_format_content( $content, $content_filtered, $post_id, $args = array() ) {
+	$defaults = array( 'update_db' => true );
+	$args = array_merge( $defaults, $args );
+	$args = apply_filters( 'rvy_format_content_args', $args, $post_id );
+	extract( $args, EXTR_SKIP );
+	
+	if ( ! $content_filtered )
+		$content_filtered = $content;
+	
+	$formatted_content = $content;
+	
+	if ( class_exists('WPCom_Markdown') && ! defined( 'RVY_DISABLE_MARKDOWN_WORKAROUND' ) ) {
+		$wpcmd = WPCom_Markdown::get_instance();
+		
+		if ( method_exists( $wpcmd, 'transform' ) ) {
+			$formatted_content = $wpcmd->transform( $content_filtered, array( 'post_id' => $post_id ) );
+			
+			if ( $update_db ) {
+				global $wpdb;
+				$wpdb->update( $wpdb->posts, array( 'post_content' => $formatted_content, 'post_content_filtered' => $content_filtered ), array( 'ID' => $post_id ) );
+			}
+		}
+	}
+
+	$formatted_content = apply_filters( 'rvy_formatted_content', $formatted_content, $post_id, $content, $args );
+	
+	return $formatted_content;
+}
 ?>

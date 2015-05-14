@@ -422,3 +422,7 @@ table.diff td, table.diff th {
 table.diff .diff-deletedline del, table.diff .diff-addedline ins {
 	text-decoration: none;
 }
+
+div.rvy-glance-pending {
+padding-bottom: 6px;
+}
